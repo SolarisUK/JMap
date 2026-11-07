@@ -81,7 +81,8 @@
       this.labels = svg('g', { class: 'map-labels', 'pointer-events': 'none' });
       this.markers = svg('g', { class: 'map-markers' });
       this.siteLabels = svg('g', { class: 'map-site-labels', 'pointer-events': 'none' });
-      element.append(this.background, this.land, this.labels, this.markers, this.siteLabels);
+      this.tooltips = svg('g', { class: 'map-tooltips', 'pointer-events': 'none', 'aria-hidden': 'true' });
+      element.append(this.background, this.land, this.labels, this.markers, this.siteLabels, this.tooltips);
       if (scaleMaxima) this.setScaleMaxima(scaleMaxima);
       this.drawGeography(geography);
       this.drawLabels();
@@ -195,6 +196,7 @@
       this.mode = mode;
       this.markers.replaceChildren();
       this.siteLabels.replaceChildren();
+      this.tooltips.replaceChildren();
       this.markerNodes.clear();
       if (!this.fixedScale) {
         this.scaleMaxima.output = Math.max(this.scaleMaxima.output, ...this.sites.map(site => Math.max(0, Number(site.output) || 0)));
@@ -214,17 +216,19 @@
         if (site.type === 'wind') group.append(svg('circle', { r: 1.8, fill: '#242423' }));
         if (site.type === 'biomass') group.append(svg('path', { d: `M${-radius * 0.45} 0H${radius * 0.45}M0 ${-radius * 0.45}V${radius * 0.45}`, stroke: '#fff', 'stroke-width': 1.2 }));
         group.append(svg('circle', { r: Math.max(radius + 7, 14), fill: 'transparent', class: 'map-marker-hit' }));
-        const tooltip = svg('g', { visibility: 'hidden', 'pointer-events': 'none', class: 'map-marker-tooltip' });
+        const tooltip = svg('g', { visibility: 'hidden', 'pointer-events': 'none', class: 'map-marker-tooltip', 'data-tooltip-for': site.id });
         const labelWidth = Math.min(280, site.name.length * 5.9 + 22);
         tooltip.append(svg('rect', { x: radius + 10, y: -12, width: labelWidth, height: 25, fill: '#fff', stroke: '#d0d0ca', 'stroke-width': 1, rx: 2 }));
         tooltip.append(svg('text', { x: radius + 20, y: 4, fill: '#252524', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10, 'font-weight': 500 }, site.name));
-        group.append(tooltip);
+        this.tooltips.append(tooltip);
         const labelText = shortName(site.name);
         const label = svg('text', { class: 'map-site-label', x: radius + 6, y: 3, fill: '#42453c', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10, 'paint-order': 'stroke', stroke: '#f7f7f4', 'stroke-width': 3, 'stroke-linejoin': 'round', visibility: 'hidden' }, labelText);
         this.siteLabels.append(label);
-        group.addEventListener('mouseenter', () => { tooltip.setAttribute('visibility', 'visible'); this.markers.append(group); });
+        // Keep marker nodes in place: reparenting a hovered SVG group can lose
+        // its mouseleave event. A separate layer keeps labels above the map.
+        group.addEventListener('mouseenter', () => this.showTooltip(site.id));
         group.addEventListener('mouseleave', () => tooltip.setAttribute('visibility', 'hidden'));
-        group.addEventListener('focus', () => tooltip.setAttribute('visibility', 'visible'));
+        group.addEventListener('focus', () => { if (group.matches(':focus-visible')) this.showTooltip(site.id); });
         group.addEventListener('blur', () => tooltip.setAttribute('visibility', 'hidden'));
         group.addEventListener('keydown', event => {
           if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -248,6 +252,14 @@
       this.onSelect(id);
     }
 
+    showTooltip(id) {
+      this.markerNodes.forEach(({ tooltip }, siteId) => tooltip.setAttribute('visibility', siteId === id ? 'visible' : 'hidden'));
+    }
+
+    hideTooltips() {
+      this.markerNodes.forEach(({ tooltip }) => tooltip.setAttribute('visibility', 'hidden'));
+    }
+
     selectSite(id) {
       this.selectedId = id;
       this.markerNodes.forEach(({ group, selection }, siteId) => {
@@ -255,11 +267,6 @@
         selection.setAttribute('visibility', selected ? 'visible' : 'hidden');
         group.setAttribute('aria-pressed', String(selected));
         group.classList.toggle('is-selected', selected);
-        if (selected && this.markers.lastElementChild !== group) {
-          const focused = document.activeElement === group;
-          this.markers.append(group);
-          if (focused) group.focus({ preventScroll: true });
-        }
       });
     }
 
@@ -335,10 +342,11 @@
         if (!collides && opacity > 0.05 && box.right > 0 && box.bottom > 0 && box.left < this.width && box.top < this.height) labelBoxes.push(box);
       });
       const visibleSiteIds = [];
-      this.markerNodes.forEach(({ group, label, world }) => {
+      this.markerNodes.forEach(({ group, label, tooltip, world }) => {
         const p = this.screen(world);
         group.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
         label.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
+        tooltip.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
         label.setAttribute('visibility', 'hidden');
         if (p.x >= 0 && p.y >= 0 && p.x <= this.width && p.y <= this.height) visibleSiteIds.push(group.getAttribute('data-site-id'));
         // Off-screen sites leave the tab order until brought back into view.
@@ -397,8 +405,10 @@
     }
 
     bindEvents() {
+      this.listen(this.element, 'mouseleave', () => this.hideTooltips());
       this.listen(this.element, 'wheel', event => {
         event.preventDefault();
+        this.hideTooltips();
         const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * this.height : event.deltaY;
         this.zoomBy(Math.exp(-Math.max(-120, Math.min(120, delta)) * 0.002), this.point(event));
       }, { passive: false });
@@ -423,6 +433,7 @@
       });
       this.listen(this.element, 'pointerdown', event => {
         if (event.button !== 0) return;
+        this.hideTooltips();
         const p = this.point(event);
         this.pointers.set(event.pointerId, p);
         if (this.pointers.size === 1) {
@@ -458,6 +469,7 @@
         this.lastPointer = p;
       });
       const release = (event, cancelled = false) => {
+        if (cancelled) this.hideTooltips();
         if (!this.pointers.has(event.pointerId)) return;
         const wasSingle = this.pointers.size === 1;
         this.pointers.delete(event.pointerId);

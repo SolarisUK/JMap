@@ -550,12 +550,17 @@
     $('#info-dialog').showModal();
   }
 
+  function clearMapFocus() {
+    closeDetails(false);
+    if (state.layer === 'heatmap') { state.annualSelected = ''; renderRegionalMap(); }
+    syncUrl();
+  }
   $('.map-toolbar').prepend($('.map-layer-controls'));
   readLocation(); makeFilters();
   $('#site-search').value = state.query; $('#region').value = state.region; $('#size-mode').value = state.mode; $('#site-labels').checked = state.labels; $('#rank-by').value = state.rank; $('#sort-sites').value = state.sort;
   $('#energy-map').addEventListener('mapviewchange', event => { $('#zoom-label').textContent = Math.abs(event.detail.zoom - 1) < .05 ? 'UK view' : `${event.detail.zoom.toFixed(1)}× zoom`; $('#visible-sites').textContent = state.layer === 'heatmap' ? state.resolution === 'local' ? `${localAreas.length} authorities` : '4 nations' : `${event.detail.visibleSiteIds.length} on map`; });
   if (window.EnergyMap && window.JMAP_GEOGRAPHY) {
-    map = new window.EnergyMap({ element: $('#energy-map'), geography: window.JMAP_GEOGRAPHY, scaleMaxima: maxima, onSelect: id => selectSite(id), onRegionSelect: key => selectRegionalNation(key), onRegionHover: key => showAreaHover(key) });
+    map = new window.EnergyMap({ element: $('#energy-map'), geography: window.JMAP_GEOGRAPHY, scaleMaxima: maxima, onSelect: id => selectSite(id), onRegionSelect: key => selectRegionalNation(key), onRegionHover: key => showAreaHover(key), onClearSelect:clearMapFocus });
     map.setLabelVisibility(state.labels);
   } else { state.view = 'list'; $('#map-view').disabled = true; announce('Map could not load. Use the directory and analysis panels.'); }
   render(); applyMapLayer(); setView(state.view); if (state.layer === 'sites' && state.region !== 'all') map?.focusRegion(state.region);
@@ -607,5 +612,12 @@
   $('#export-sites').addEventListener('click', exportAnalysis); $('#about-data').addEventListener('click', () => showDialog('data')); $('#coverage-details').addEventListener('click', () => showDialog('data')); $('#keyboard-help').addEventListener('click', () => showDialog('guide'));
   $('#close-dialog').addEventListener('click', () => $('#info-dialog').close()); $('#dialog-done').addEventListener('click', () => $('#info-dialog').close());
   $('#info-dialog').addEventListener('click', event => { if (event.target !== event.currentTarget) return; const b = event.target.getBoundingClientRect(); if (event.clientX < b.left || event.clientX > b.right || event.clientY < b.top || event.clientY > b.bottom) event.target.close(); });
-  document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('#info-dialog').open) { closeDetails(); if (state.layer === 'heatmap') applyMapLayer(); } if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !$('#info-dialog').open && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); state.layer = 'sites'; setView('map'); render(); $('#site-search').focus(); } });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !document.querySelector('dialog[open]')) clearMapFocus();
+    if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !document.querySelector('dialog[open]') && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+      event.preventDefault();
+      const field = state.layer === 'heatmap' ? $('#area-search') : $('#site-search');
+      field.focus({preventScroll:true});
+    }
+  });
 })();

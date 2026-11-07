@@ -1,0 +1,286 @@
+/* Energy-context presentation only. Quantitative map fills and legend gradients
+ * retain their data palettes; neutral surfaces, labels and outlines use the
+ * shared dark theme. Load after theme-dark.css and the explorer stylesheets. */
+body.energy-page {
+  --paper: var(--page-bg);
+  --white: var(--surface);
+  --soft: var(--surface-hover);
+  background: var(--page-bg);
+  color: var(--ink);
+}
+
+.energy-page :is(.workspace, .sidebar, .map-workspace, .map-toolbar,
+  .analysis-rail, .analysis-heading, .analysis-section, .map-status,
+  .map-layer-controls, .dashboard-kpis, .site-detail, .directory,
+  .directory-heading, .comparison-section, .perspective-nav,
+  .distribution-insights a, .balance-section, .balance-main) {
+  background: var(--surface);
+  border-color: var(--line);
+}
+.energy-page :is(.map-measures, .map-reading-note, .regional-detail,
+  .dashboard-dialog-bar, .balance-context, .risk-explainer,
+  .scenario-controls, .map-empty, .view-switch) {
+  background: var(--surface-raised);
+  border-color: var(--line);
+}
+.energy-page :is(.dashboard-heading > div > span, .dashboard-scope,
+  #dashboard-coverage, .dashboard-field, .dashboard-kpis article > span,
+  .regional-scope-note, .map-reading-note, .heat-colour-captions,
+  .regional-metric-options button span, .regional-ranking-row small,
+  .regional-detail dt, #regional-detail-note, #regional-detail-status,
+  .balance-heading > div > p:last-child, .balance-context p,
+  .balance-table th small, .balance-status, .coverage-context,
+  .balance-reading, .scenario-controls summary > span, .scenario-body > p,
+  .scenario-footer, .risk-explainer > p:not(.eyebrow),
+  .risk-availability strong, #balance-sources, .insight-detail,
+  .directory-heading p, .map-layer-controls p, .filter-count,
+  .north-indicator, .map-label, .map-label-divider, .scope-separator) {
+  color: var(--muted);
+}
+.energy-page :is(.dashboard-kpis strong, .regional-detail dd,
+  .regional-ranking-row strong, .nation-top strong, .mix-value,
+  .leader-meta strong, .balance-table tbody th, .balance-reading strong,
+  .coverage-ratio, .map-legend > div > p:first-child) {
+  color: var(--ink);
+}
+.energy-page #dialog-body p {
+  color: var(--muted);
+}
+
+.energy-page :is(.search-field, .dashboard-field select,
+  .area-search input, .area-search select, .balance-chart-heading select,
+  .regional-metric-options button, .filter-presets button) {
+  background: var(--page-bg);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.energy-page :is(.search-field input, .size-control select) {
+  color: var(--ink);
+}
+.energy-page .search-field input::placeholder,
+.energy-page .area-search input::placeholder {
+  color: var(--muted);
+}
+.energy-page .search-field:focus-within {
+  border-color: var(--accent);
+}
+.energy-page :is(.regional-metric-options button, .regional-ranking-row,
+  .mix-row, .nation-row, .leader-row, .filter-row):hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+.energy-page .regional-metric-options button[aria-pressed="true"] {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.energy-page :is(.regional-ranking-row[aria-pressed="true"],
+  .view-switch .selected) {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+.energy-page .filter-presets button[aria-pressed="true"],
+.energy-page .directory-actions button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--page-bg);
+}
+.energy-page .dark-button {
+  background: var(--accent);
+  color: var(--page-bg);
+}
+.energy-page .dark-button:hover {
+  background: var(--ink);
+  color: var(--page-bg);
+}
+.energy-page .filter-row input {
+  border-color: var(--muted);
+}
+.energy-page .filter-row input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.energy-page .filter-row input:checked::after {
+  border-color: var(--page-bg);
+}
+.energy-page :is(.filter-presets button, .mix-row, .nation-row, .leader-row,
+  .regional-ranking-row, .regional-detail, .regional-detail dl > div,
+  .detail-facts > div, .balance-table tbody td, .balance-table tbody th,
+  .risk-availability, .scenario-controls[open] summary) {
+  border-color: var(--line);
+}
+.energy-page :is(.analysis-bar, .utilisation-track, .balance-track) {
+  background: var(--surface-hover);
+}
+.energy-page :is(.analysis-bar > span, .utilisation-track > div) {
+  background: var(--accent);
+}
+.energy-page .analysis-tabs .selected::after {
+  background: var(--accent);
+}
+.energy-page :is(.analysis-reset:disabled, .directory-actions button:disabled,
+  .export-button:disabled) {
+  color: var(--muted);
+  opacity: .55;
+}
+
+.energy-page .map-stage {
+  background: var(--map-sea);
+}
+.energy-page #energy-map > rect:first-child {
+  fill: var(--map-sea);
+}
+.energy-page #energy-map .map-land {
+  fill: var(--map-land);
+  stroke: var(--map-coast);
+}
+.energy-page #energy-map .map-labels text {
+  fill: var(--map-label);
+  stroke: var(--map-sea);
+  stroke-width: 3;
+  paint-order: stroke fill;
+}
+.energy-page #energy-map .map-labels > text {
+  fill: var(--muted);
+  fill-opacity: .85;
+  stroke-width: 2;
+}
+.energy-page #energy-map .map-labels circle {
+  fill: var(--muted);
+}
+.energy-page #energy-map .map-region {
+  stroke: var(--map-coast);
+}
+.energy-page #energy-map .map-region[fill="#e0e4e2"],
+.energy-page #energy-map .map-region[fill="#d8dcd4"],
+.energy-page #energy-map .map-region[fill="#d7d9d5"] {
+  fill: #444444;
+}
+.energy-page #energy-map .map-region[fill="#edf0e9"] {
+  fill: #252525;
+}
+.energy-page #energy-map .map-region[aria-pressed="true"],
+.energy-page #energy-map .map-region:hover {
+  stroke: var(--accent);
+}
+.energy-page #energy-map .map-region-label rect,
+.energy-page #energy-map .map-marker-tooltip rect {
+  fill: var(--surface-raised);
+  stroke: var(--map-coast);
+}
+.energy-page #energy-map .map-region-label[aria-pressed="true"] rect {
+  stroke: var(--accent);
+}
+.energy-page #energy-map .map-region-label text,
+.energy-page #energy-map .map-marker-tooltip text {
+  fill: var(--ink);
+}
+.energy-page #energy-map .map-region-label text:first-of-type {
+  fill: var(--muted);
+}
+.energy-page #energy-map .map-site-label {
+  fill: var(--map-label);
+  stroke: var(--map-sea);
+}
+.energy-page #energy-map .map-marker > :nth-child(3) {
+  fill: var(--map-sea);
+  stroke: var(--map-sea);
+}
+.energy-page #energy-map .map-marker-shape,
+.energy-page .tech-symbol svg > :first-child {
+  stroke: var(--map-label);
+}
+.energy-page #energy-map .map-selection-ring {
+  stroke: var(--accent);
+}
+.energy-page :is(.map-region, .map-region-label):focus-visible {
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+.energy-page :is(.map-legend, .area-hover, .map-attribution) {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.energy-page #regional-legend-host:not(:empty) {
+  background: var(--surface);
+}
+.energy-page :is(.legend-benchmark > span, .legend-circles span) {
+  background: var(--map-sea);
+  border-color: var(--map-label);
+}
+.energy-page .map-controls {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  box-shadow: 0 3px 15px #0003;
+}
+.energy-page .map-controls button:hover {
+  background: var(--surface-hover);
+}
+.energy-page :is(.map-legend p, .legend-benchmark, .map-hint) {
+  color: var(--muted);
+}
+
+.energy-page :is(.directory thead, .directory thead th,
+  .balance-table thead th) {
+  background: var(--surface-raised);
+  color: var(--muted);
+}
+.energy-page :is(.directory td, .directory th) {
+  border-color: var(--line);
+}
+.energy-page :is(.directory tbody tr:hover, .directory tbody tr:hover > *,
+  .perspective-nav a:hover) {
+  background: var(--surface-hover);
+}
+.energy-page .comparison-table tr > :first-child {
+  background: var(--surface);
+  box-shadow: 1px 0 0 var(--line);
+}
+.energy-page :is(.comparison-table thead, .comparison-table thead th,
+  .balance-table tbody th) {
+  background: var(--surface);
+}
+.energy-page :is(.comparison-table tbody th, .comparison-table tbody td,
+  .comparison-table thead th, .comparison-badge) {
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.energy-page .data-year {
+  background: var(--surface-raised);
+  border-color: var(--control-border);
+  color: var(--muted);
+}
+.energy-page .data-year.is-scenario {
+  background: var(--surface-raised);
+  border-color: var(--control-border);
+  color: #f1bf97;
+}
+.energy-page :is(.balance-number, .surplus-key) {
+  color: #8fd4bd;
+}
+.energy-page :is(.balance-number.is-deficit, .deficit-key,
+  .scenario-sliders output, #balance-risk-insight) {
+  color: #f0b58a;
+}
+.energy-page .balance-fill {
+  background: #68bba0;
+}
+.energy-page .balance-fill.is-deficit {
+  background: #df9a6d;
+}
+.energy-page .balance-track::after {
+  background: var(--muted);
+}
+.energy-page .scenario-sliders input {
+  accent-color: var(--accent);
+}
+.energy-page #balance-risk-insight {
+  border-color: #df9a6d;
+}
+.energy-page :is(#balance-sources a, .nation-explore) {
+  color: var(--accent);
+}
+.energy-page .balance-data-error {
+  color: #f2b5a6;
+}

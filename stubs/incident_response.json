@@ -1,1 +1,0 @@
-{"ok":true,"incident_id":"inc_example","incident":{"type":"line_trip","target":"SSCO-NORT","start_step":34,"duration_steps":14,"magnitude":1.0},"scenario":"b6_trip_windy_peak","revision":1}

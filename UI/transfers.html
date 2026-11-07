@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Live Great Britain electricity interconnector flows from Elexon: imports, exports and the ten links to neighbouring systems.">
+  <title>Live transfers — JMap</title>
+  <link rel="stylesheet" href="transfers.css">
+  <link rel="stylesheet" href="theme-dark.css">
+  <script src="map-interactions.js" defer></script>
+  <script src="assets/geography.js" defer></script>
+  <script src="live-transfers.js" defer></script>
+  <script src="transfers.js" defer></script>
+  <link rel="stylesheet" href="site-shell.css">
+</head>
+<body>
+  <a class="skip" href="#transfer-map">Skip to transfers map</a>
+  <header class="app-header"><a class="brand" href="generation.html" aria-label="JMap generation map">jmap<span aria-hidden="true">&#8599;</span></a><nav aria-label="Main navigation"><a href="generation.html" aria-label="Generation map"><span class="desktop-name">Generation map</span><span class="mobile-name" aria-hidden="true">Sites</span></a><a href="transfers.html" aria-label="Live transfers" aria-current="page"><span class="desktop-name">Live transfers</span><span class="mobile-name" aria-hidden="true">Transfers</span></a><a href="explorer.html" aria-label="Energy context"><span class="desktop-name">Energy context</span><span class="mobile-name" aria-hidden="true">Context</span></a><a href="operations.html" aria-label="Simulation"><span class="desktop-name">Simulation</span><span class="mobile-name" aria-hidden="true">Simulation</span></a></nav><div class="header-end"><span class="feed-badge" id="feed-badge">Connecting to Elexon</span><button id="open-method" class="text-button" type="button">Data &amp; method</button></div></header>
+  <main>
+    <div class="control-bar"><div><h1>Power crossing the border</h1><span>Great Britain ↔ neighbouring electricity systems</span></div><p id="observation-time" role="status">Waiting for the first 5-minute observation…</p><button id="refresh" type="button">Refresh <span aria-hidden="true">↻</span></button></div>
+    <section class="kpi-strip" aria-label="Interconnector snapshot">
+      <article><span id="net-label">Net imports to GB</span><strong id="net-value">—</strong></article><article><span>Flowing into GB</span><strong id="imports-value">—</strong></article><article><span>Flowing out of GB</span><strong id="exports-value">—</strong></article><article><span>Links reporting</span><strong id="coverage-value">— / 10</strong></article>
+    </section>
+    <div class="status-bar"><p><strong id="mobile-feed-status" class="mobile-feed-status">Connecting to Elexon</strong><span id="coverage-note">All values come directly from the public Elexon feed.</span></p><span id="refresh-note">Checks every 60 seconds</span></div>
+    <div class="error-banner" id="error-banner" role="alert" hidden><p id="error-message"></p><button id="retry" type="button">Retry connection</button></div>
+    <section class="transfer-workspace" aria-label="Live power transfers">
+      <div class="map-column">
+        <div class="map-heading"><h2>Interconnector flows</h2><span>Arrows follow the direction of power</span></div>
+        <div class="map-stage" id="map-stage">
+          <svg id="transfer-map" tabindex="0" role="group" aria-label="Great Britain interconnectors. Select a route to inspect it. Drag to pan, scroll or use plus and minus to zoom, arrow keys to pan, Home to reset."></svg>
+          <div class="map-chip">NORTH-WEST EUROPE <span>/</span> 5-MINUTE AVERAGE MW</div>
+          <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map" title="Reset map">&#8634;</button></div>
+          <p class="map-loading" id="map-loading">Connecting to live metering…</p>
+          <p class="route-note">Schematic connections between approximate terminal areas.</p>
+        </div>
+        <div class="map-legend"><span class="line-key importing"></span>Import into GB<span class="line-key exporting"></span>Export from GB<span class="line-key idle"></span>Zero flow<span class="line-key unknown"></span>No observation<span class="map-help">Select a route or a row for details</span></div>
+        <div class="map-footer"><span>Geography: Natural Earth · public domain</span><span>These flows do not measure local shortage risk.</span></div>
+      </div>
+      <aside class="transfer-panel" aria-label="Links and selected transfer">
+        <section class="link-detail" id="link-detail" aria-labelledby="detail-name"><div class="detail-heading"><p id="detail-country">Norway ↔ Great Britain</p><span id="detail-code">INTNSL</span></div><h2 id="detail-name">North Sea Link</h2><p id="detail-direction">Waiting for an observation</p><strong class="detail-value" id="detail-value">— <span>MW</span></strong><dl><div><dt>GB terminal area</dt><dd id="detail-gb">Blyth, Northumberland</dd></div><div><dt>Other terminal area</dt><dd id="detail-other">Kvilldal, Rogaland</dd></div><div><dt>5-minute period</dt><dd id="detail-period">—</dd></div><div><dt>Published</dt><dd id="detail-published">—</dd></div></dl><a id="detail-source" href="https://www.nationalgrid.com/stories/energy-explained/what-are-electricity-interconnectors" target="_blank" rel="noreferrer">Terminal reference ↗</a></section>
+        <div class="table-heading"><h2>All ten links</h2><span>MW · relative to GB</span></div>
+        <div class="table-scroll"><table><caption class="sr-only">Latest observed interconnector flow. Select a link for its period and publication time.</caption><thead><tr><th scope="col">Link / neighbour</th><th scope="col">Direction</th><th scope="col">MW</th></tr></thead><tbody id="links-body"></tbody></table></div>
+        <p class="panel-note" id="panel-note">Positive raw values mean imports to GB. Negative values mean exports. Missing observations stay unknown.</p>
+      </aside>
+    </section>
+  </main>
+  <dialog id="method-dialog" aria-labelledby="method-title"><div class="dialog-heading"><h2 id="method-title">Live data and map method</h2><button id="close-method" type="button" aria-label="Close data and method">×</button></div><p>This page requests the signed <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST" target="_blank" rel="noreferrer">Elexon FUELINST dataset</a> directly from your browser. It reports operational metering supplied by NESO, averaged over five minutes. Checks run every 60 seconds; this is not second-by-second telemetry.</p><p>Every route and total uses one observation interval. A link missing from that interval is unknown; an older value is never inserted into a newer total. Partial totals cover only reporting links. If updates fail, a previous observation stays clearly labelled with its time. There is no generated or simulated fallback.</p><p>Positive MW means power entering Great Britain; negative MW means power leaving it. Moyle connects GB to Northern Ireland, which is part of the UK and operates in the all-island electricity market. Zero measured flow does not establish whether a link is available.</p><p>Lines join approximate terminal areas, positioned for a readable schematic. They are not surveyed cable routes or exact station coordinates. The selected-link reference identifies the actual terminal locations. No internal GB transfers or local power shortages are inferred from cross-border flow.</p><p>Codes and definitions: <a href="https://bscdocs.elexon.co.uk/bsc-module/interface-definition-documents/neta-interface-definition-and-design-document-part-1-interfaces-with-bsc-parties-and-their-agents" target="_blank" rel="noreferrer">Elexon interface definitions</a>. Direction convention: <a href="https://www.neso.energy/document/304771/download" target="_blank" rel="noreferrer">NESO interconnector analysis</a>. Contains BMRS data © Elexon Limited copyright and database right 2026, used under the <a href="https://www.elexon.co.uk/bsc/data/balancing-mechanism-reporting-agent/copyright-licence-bmrs-data/" target="_blank" rel="noreferrer">BMRS data terms</a>.</p><p>The requested reference, <a href="https://www.energydashboard.co.uk/map" target="_blank" rel="noreferrer">Energy Dashboard’s map</a>, uses similar public industry sources. This page uses Elexon directly; it does not call or scrape Energy Dashboard’s data service.</p><p>Coastlines: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth, public domain</a>. The map and link table work with a keyboard; use Tab to choose a route, Enter to select it, and the map controls to zoom.</p></dialog>
+  <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
+  <noscript><p class="noscript">Enable JavaScript to request live interconnector data and explore the map.</p></noscript>
+</body>
+</html>

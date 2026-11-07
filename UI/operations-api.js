@@ -6,7 +6,7 @@
     constructor(options = {}) {
       const params = new URL(location.href).searchParams;
       const config = window.JMAP_OPERATIONS_CONFIG || {};
-      this.mode = options.mode || params.get('mode') || config.mode || (location.protocol === 'file:' ? 'bundled' : 'api');
+      this.mode = options.mode || params.get('mode') || config.mode || (options.baseUrl || params.get('api') || config.apiBase ? 'api' : 'bundled');
       this.baseUrl = (options.baseUrl || params.get('api') || config.apiBase || location.origin).replace(/\/$/, '');
       if (!['api', 'bundled'].includes(this.mode)) throw new Error('Data mode must be api or bundled.');
       this.bundle = window.JMAP_SIMULATION_STUBS;

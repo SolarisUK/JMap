@@ -1,12 +1,12 @@
 /* A compact, persistent workspace for inspecting UK electricity data. */
 body.energy-page { height: 100dvh; overflow: hidden; font-size: 12px; }
-.energy-page .site-header { height: 38px; padding: 0 16px; gap: 24px; }
+.energy-page .site-header { height: 40px; padding: 0 16px; gap: 24px; }
 .energy-page .brand { font-size: 24px; letter-spacing: -1.5px; }
 .energy-page .brand > span { font-size: 16px; }
 .energy-page .site-header nav { margin-left: 16px; gap: 24px; }
 .energy-page .site-header nav a { font-size: 11px; }
 .energy-page .header-meta { font-size: 9px; }
-.energy-page main { max-width: none; padding: 0 12px 8px; height: calc(100dvh - 38px); display: flex; flex-direction: column; min-height: 0; gap: 4px; }
+.energy-page main { max-width: none; padding: 0 12px 8px; height: calc(100dvh - 40px); display: flex; flex-direction: column; min-height: 0; gap: 4px; }
 .dashboard-heading { min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .dashboard-heading > div { display: flex; align-items: baseline; gap: 15px; }
 .dashboard-heading h1 { font: 500 18px/1.3 Arial, sans-serif; margin: 0; letter-spacing: -.025em; }
@@ -104,7 +104,7 @@ body.energy-page { height: 100dvh; overflow: hidden; font-size: 12px; }
 @media (max-width: 1150px) and (min-width: 851px) { .energy-page .workspace { grid-template-columns: 155px minmax(0,1fr); } .energy-page .explorer-body { grid-template-columns: minmax(0,1fr) 250px; } .dashboard-heading > div:last-child { gap: 12px; } .header-meta { display: none !important; } .energy-page #regional-legend-host .map-legend > div { grid-template-columns: minmax(80px,1fr) 145px; gap: 3px 8px; } }
 @media (max-width: 850px) {
   body.energy-page { height: auto; overflow: auto; }
-  .energy-page main { height: auto; min-height: calc(100dvh - 44px); }
+  .energy-page main { height: auto; min-height: calc(100dvh - 40px); }
   .energy-page .header-meta { display: none; }
   .energy-page .site-header { height: 44px; gap: 20px; }
   .energy-page .site-header nav { margin-left: auto; gap: 18px; }

@@ -1,8 +1,0 @@
-{
-  "name": "b6_trip_windy_peak",
-  "description": "One Scotland–England boundary circuit trips at step 34 for the remaining seven hours. Synthetic canonical demand and weather; the optimiser is a network-aware heuristic.",
-  "start_timestamp_utc": null,
-  "incidents": [
-    {"type": "line_trip", "target": "SSCO-NORT", "start_step": 34, "duration_steps": 14, "magnitude": 0.5}
-  ]
-}

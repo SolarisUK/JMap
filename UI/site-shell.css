@@ -1,0 +1,67 @@
+/* Shared site navigation and map controls, independent of each view's layout. */
+[data-map-surface],[data-map-surface] * {
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+body.is-map-panning,body.is-map-panning * {
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  cursor:grabbing!important;
+}
+header.app-header,body.energy-page header.app-header.site-header {
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:28px;
+  height:40px;
+  min-height:40px;
+  padding:0 14px;
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.app-header .brand,.energy-page .app-header .brand {
+  display:flex;align-items:center;gap:7px;flex-shrink:0;
+  font:700 24px/1 Arial,Helvetica,sans-serif;letter-spacing:-1.5px;
+}
+.app-header .brand > span,.energy-page .app-header .brand > span {font:400 14px/1 Arial,sans-serif;padding-top:3px;}
+.app-header nav,.energy-page .app-header nav {display:flex;align-self:stretch;gap:24px;margin:0;}
+.app-header nav a,.energy-page .app-header nav a {
+  display:flex;align-items:center;padding:0;
+  border-bottom:2px solid transparent;color:var(--muted);
+  font:11px/1.4 Arial,Helvetica,sans-serif;white-space:nowrap;
+}
+.app-header nav a[aria-current],.energy-page .app-header nav a[aria-current] {color:var(--ink);border-bottom-color:var(--accent);}
+.app-header nav a:hover {color:var(--ink);}
+.app-header .desktop-name {display:inline;}
+.app-header .mobile-name {display:none;}
+.header-end {display:flex;align-items:center;gap:18px;margin-left:auto;min-width:0;}
+.header-end > .text-button,.energy-page .header-end > .text-button {font:10px/1.5 monospace;white-space:nowrap;margin:0;padding:3px 0;border:0;background:transparent;}
+.header-end .data-status,.header-end .feed-badge {margin:0;font:9px/1.5 monospace;white-space:nowrap;}
+.map-controls,.map-navigation,.energy-page .map-controls {top:12px;right:12px;}
+.map-controls button,.map-navigation button,.energy-page .map-controls button {
+  display:grid;place-items:center;width:30px;height:30px;padding:0;
+  border:1px solid var(--control-border);border-bottom:0;border-radius:0;
+  background:var(--surface-raised);color:var(--ink);font:19px/1 Arial,sans-serif;
+}
+.map-controls button:last-child,.map-navigation button:last-child,.energy-page .map-controls button:last-child {border-bottom:1px solid var(--control-border);font-size:18px;}
+.map-controls button:hover,.map-navigation button:hover {background:var(--surface-hover);}
+@media(max-width:1100px) {
+  header.app-header,body.energy-page header.app-header.site-header {gap:22px;}
+  .app-header nav,.energy-page .app-header nav {gap:20px;}
+}
+@media(max-width:850px) {
+  .header-end .data-status,.header-end .feed-badge {display:none;}
+}
+@media(max-width:600px) {
+  header.app-header,body.energy-page header.app-header.site-header {gap:10px;padding:0 8px;}
+  .app-header .brand,.energy-page .app-header .brand {font-size:21px;gap:3px;}
+  .app-header .brand > span,.energy-page .app-header .brand > span {font-size:12px;}
+  .app-header nav,.energy-page .app-header nav {gap:11px;}
+  .app-header nav a,.energy-page .app-header nav a {font-size:10px;}
+  .app-header .desktop-name {display:none;}
+  .app-header .mobile-name {display:inline;}
+  .header-end {gap:0;}
+  .header-end > .text-button,.energy-page .header-end > .text-button {font-size:8px;}
+  .map-controls,.map-navigation,.energy-page .map-controls {top:10px;right:8px;}
+}

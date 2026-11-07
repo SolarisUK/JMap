@@ -56,12 +56,13 @@
   }
 
   class EnergyMap {
-    constructor({ element, geography, onSelect = () => {}, onRegionSelect = () => {}, onRegionHover = () => {}, scaleMaxima }) {
+    constructor({ element, geography, onSelect = () => {}, onRegionSelect = () => {}, onRegionHover = () => {}, onClearSelect = () => {}, scaleMaxima }) {
       if (!element) throw new Error('EnergyMap requires an SVG element.');
       this.element = element;
       this.onSelect = onSelect;
       this.onRegionSelect = onRegionSelect;
       this.onRegionHover = onRegionHover;
+      this.onClearSelect = onClearSelect;
       this.sites = [];
       this.mode = 'output';
       this.scaleMaxima = { output: 1, capacity: 1, utilisation: 100 };
@@ -263,6 +264,7 @@
     }
 
     chooseRegion(key) {
+      if (!key) { this.onClearSelect(); return; }
       if (key && this.regionNodes.has(key)) this.onRegionSelect(key);
     }
 
@@ -489,8 +491,14 @@
         top: (legendBounds.top - mapBounds.top) * this.height / mapBounds.height,
         bottom: (legendBounds.bottom - mapBounds.top) * this.height / mapBounds.height
       } : null;
-      this.regionNodes.forEach(({ path, label, labelWidth, world }) => {
-        path.setAttribute('tabindex', this.showRegions ? '0' : '-1');
+      this.regionNodes.forEach(({ path, label, labelWidth, world, bounds }) => {
+        let regionVisible = this.showRegions;
+        if (bounds) {
+          const sw = this.screen(project(bounds[0][0],bounds[0][1]));
+          const ne = this.screen(project(bounds[1][0],bounds[1][1]));
+          regionVisible = regionVisible && ne.x >= 0 && sw.x <= this.width && sw.y >= 0 && ne.y <= this.height;
+        }
+        path.setAttribute('tabindex', regionVisible ? '0' : '-1');
         if (!label || !world) return;
         const p = this.screen(world);
         const visible = p.x > 0 && p.x < this.width && p.y > 0 && p.y < this.height;
@@ -587,6 +595,7 @@
     bindEvents() {
       this.listen(this.element, 'mouseleave', () => { this.hideTooltips(); this.hoverRegion(null); });
       this.listen(this.element, 'wheel', event => {
+        if (event.ctrlKey || event.metaKey) return;
         event.preventDefault();
         this.hideTooltips();
         const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * this.height : event.deltaY;
@@ -602,6 +611,7 @@
           '+': () => this.zoomBy(1.3), '=': () => this.zoomBy(1.3),
           '-': () => this.zoomBy(1 / 1.3), '_': () => this.zoomBy(1 / 1.3),
           Home: () => this.reset(),
+          Escape: () => this.onClearSelect(),
           ArrowLeft: () => { this.pan.x += 45; this.updateView(); },
           ArrowRight: () => { this.pan.x -= 45; this.updateView(); },
           ArrowUp: () => { this.pan.y += 45; this.updateView(); },
@@ -609,6 +619,7 @@
         };
         if (!actions[event.key]) return;
         event.preventDefault();
+        if (event.key === 'Escape') event.stopPropagation();
         actions[event.key]();
       });
       this.listen(this.element, 'pointerdown', event => {
@@ -658,7 +669,8 @@
         if (this.element.hasPointerCapture(event.pointerId)) this.element.releasePointerCapture(event.pointerId);
         if (!cancelled && wasSingle && !this.dragMoved) {
           if (this.showRegions) this.chooseRegion(this.tapRegionKey);
-          else this.choose(this.tapId);
+          else if (this.tapId) this.choose(this.tapId);
+          else this.onClearSelect();
         }
         if (this.pointers.size === 1) {
           this.lastPointer = [...this.pointers.values()][0];
@@ -669,6 +681,15 @@
       };
       this.listen(this.element, 'pointerup', event => release(event));
       this.listen(this.element, 'pointercancel', event => release(event, true));
+      this.listen(this.element, 'lostpointercapture', event => release(event, true));
+      const cancelGesture = () => {
+        for (const pointerId of [...this.pointers.keys()]) release({pointerId},true);
+        this.dragMoved = true; this.tapId = null; this.tapRegionKey = null; this.pinchDistance = 0;
+        this.element.style.cursor = 'grab';
+      };
+      this.listen(window,'blur',cancelGesture);
+      this.listen(window,'pagehide',cancelGesture);
+      this.listen(document,'visibilitychange',()=>{if(document.hidden)cancelGesture();});
     }
 
     destroy() {

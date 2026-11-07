@@ -3,11 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fafaf8">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
   <meta name="description" content="Explore a UK supply heatmap, compare official regional electricity generation and demand, and understand annual surplus, deficit and supply dependence.">
   <title>UK electricity dashboard — JMap</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="map-system.css">
+  <script src="map-interactions.js" defer></script>
   <script src="assets/geography.js" defer></script>
   <script src="assets/nations.js" defer></script>
   <script src="assets/local-areas.js" defer></script>
@@ -22,16 +24,15 @@
   <script src="distribution.js" defer></script>
   <link rel="stylesheet" href="distribution.css">
   <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="theme-dark.css">
+  <link rel="stylesheet" href="explorer-dark.css">
+  <link rel="stylesheet" href="site-shell.css">
 </head>
 <body class="energy-page">
   <a class="skip-link" href="#workspace">Skip to energy explorer</a>
-  <header class="site-header">
-    <a class="brand" href="main.html" aria-label="JMap energy map">jmap<span aria-hidden="true">↗</span></a>
-    <nav aria-label="Main navigation"><a href="operations.html">Operations</a><a href="explorer.html" class="active" aria-current="page">Energy context</a><a class="site-directory-link" id="directory-nav" href="explorer.html#directory">Site directory</a></nav>
-    <div class="header-meta"><span class="status-dot"></span> United Kingdom <span class="header-divider">/</span> Grid intelligence</div>
-  </header>
+  <header class="app-header site-header"><a class="brand" href="generation.html" aria-label="JMap generation map">jmap<span aria-hidden="true">&#8599;</span></a><nav aria-label="Main navigation"><a href="generation.html" aria-label="Generation map"><span class="desktop-name">Generation map</span><span class="mobile-name" aria-hidden="true">Sites</span></a><a href="transfers.html" aria-label="Live transfers"><span class="desktop-name">Live transfers</span><span class="mobile-name" aria-hidden="true">Transfers</span></a><a href="explorer.html" aria-label="Energy context" aria-current="page"><span class="desktop-name">Energy context</span><span class="mobile-name" aria-hidden="true">Context</span></a><a href="operations.html" aria-label="Simulation"><span class="desktop-name">Simulation</span><span class="mobile-name" aria-hidden="true">Simulation</span></a></nav><div class="header-end"><button id="about-data" class="text-button" type="button">Data &amp; method</button></div></header>
   <main>
-    <div class="dashboard-heading"><div><h1 id="page-title">UK electricity</h1><span id="dashboard-period">Local authority data · 2024</span></div><div><button class="plain-link" id="open-balance" type="button">National balance &amp; scenarios</button><button class="plain-link" id="about-data" type="button">Sources &amp; definitions</button><button class="plain-link" id="export-map" type="button">Export view ↓</button></div></div>
+    <div class="dashboard-heading"><div><h1 id="page-title">UK electricity</h1><span id="dashboard-period">Local authority data · 2024</span></div><div><button class="plain-link" id="open-balance" type="button">National balance &amp; scenarios</button><a class="site-directory-link plain-link" id="directory-nav" href="explorer.html#directory">Sample directory</a><button class="plain-link" id="export-map" type="button">Export view ↓</button></div></div>
     <section class="dashboard-kpis" aria-label="Current geographic summary" aria-live="polite"><article><span id="kpi-label-1">Metered use</span><strong id="kpi-value-1">—</strong><small id="kpi-context-1">Mapped local authorities</small></article><article><span id="kpi-label-2">Domestic share</span><strong id="kpi-value-2">—</strong><small id="kpi-context-2">Share of metered use</small></article><article><span id="kpi-label-3">Renewable capacity</span><strong id="kpi-value-3">—</strong><small id="kpi-context-3">Installed, not firm availability</small></article><article><span id="kpi-label-4">Domestic use / meter</span><strong id="kpi-value-4">—</strong><small id="kpi-context-4">Annual weighted mean</small></article></section>
     <div class="dashboard-scope"><span id="dashboard-scope">Great Britain · 350 measured authorities</span><button class="plain-link" id="clear-area-selection" type="button" hidden>Clear selection ×</button><span id="dashboard-coverage">Annual published data · not live</span></div>
     <div id="distribution-insights" hidden></div>
@@ -84,7 +85,7 @@
             <div class="map-stage" id="map-stage">
               <svg id="energy-map" tabindex="0" role="group" aria-label="UK energy sites. Drag to pan, scroll to zoom, use arrow keys to pan, plus and minus to zoom, and Home for the UK view."></svg>
               <div class="map-label"><span class="status-dot"></span><span id="map-scope">United Kingdom</span><span class="map-label-divider">/</span><span id="map-data-label">Annual balance</span></div>
-              <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Show the whole United Kingdom" title="UK view"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 3H3v3m11-3h3v3M3 14v3h3m11-3v3h-3M6 10h8m-4-4v8"/></svg></button></div>
+              <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map" title="Reset map">&#8634;</button></div>
               <div class="north-indicator" aria-hidden="true">N<span>↑</span></div>
               <div class="map-legend"><div><p id="legend-title">Site output</p><div id="legend-scale" class="legend-scale"></div><p id="legend-description">Same scale across every filter.</p></div></div>
               <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a><span>·</span><span id="map-data-source">DESNZ annual data</span></div>

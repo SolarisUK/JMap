@@ -1,0 +1,75 @@
+/* Minimal black dashboard chrome; colour is reserved for data and status. */
+:root {
+  color-scheme: dark;
+  --page-bg: #000000;
+  --surface: #0a0a0a;
+  --surface-raised: #121212;
+  --surface-hover: #1a1a1a;
+  --line: #222222;
+  --control-border: #3a3a3a;
+  --muted: #a0a0a0;
+  --ink: #eeeeee;
+  --accent: #dedede;
+  --paper: var(--page-bg);
+  --white: var(--surface);
+  --soft: var(--surface-raised);
+  --map-sea: #080808;
+  --map-land: #141414;
+  --map-coast: #343434;
+  --map-label: #bdbdbd;
+  color: var(--ink);
+  background: var(--page-bg);
+}
+body { color:var(--ink); background:var(--page-bg); }
+::selection { color:#000; background:#ddd; }
+* { scrollbar-color:#484848 var(--surface); }
+:focus-visible { outline-color:var(--accent); }
+button,input,select,textarea { color:var(--ink); accent-color:var(--accent); }
+button,input,select,textarea { border-color:var(--control-border); }
+button,select,textarea { background:var(--surface-raised); }
+input:not([type=checkbox]):not([type=radio]):not([type=range]) { background:var(--surface-raised); }
+input::placeholder,textarea::placeholder { color:#888; opacity:1; }
+option { color:var(--ink); background:var(--surface-raised); }
+button:hover { color:var(--ink); background:var(--surface-hover); }
+button:disabled { cursor:default; }
+.text-button,.plain-link { color:var(--muted); background:transparent; }
+.text-button:hover,.plain-link:hover { color:var(--ink); background:transparent; }
+.app-header,.site-header { color:var(--ink); background:var(--surface); border-color:var(--line); }
+.brand { color:var(--ink); }
+nav a:hover { color:var(--ink); }
+nav a[aria-current],nav a.active { color:var(--ink); border-color:var(--accent); }
+.site-header nav a[aria-current] { border-color:var(--accent); }
+.skip,.skip-link { color:var(--ink); background:var(--surface-raised); }
+dialog { color:var(--ink); background:var(--surface); border-color:var(--control-border); }
+dialog::backdrop { background:#000c; }
+dialog p { color:var(--muted); }
+dialog a { color:var(--accent); }
+dialog code { color:#ccc; }
+.error-banner { color:#f1bba1; background:var(--surface-raised); border-color:#454545; }
+.error-banner button { color:var(--ink); background:var(--surface-hover); border-color:#555; }
+
+/* Main generation view: the data palette and marker sizes remain unchanged. */
+.generation-page .summary-strip,
+.generation-page .generation-workspace { background:var(--surface); }
+.generation-page .summary-strip strong { color:var(--ink); }
+.generation-page .search input { background:var(--surface-raised); border-color:var(--control-border); }
+.generation-page .panel-tabs button[aria-pressed=true] { color:var(--ink); background:var(--surface-hover); }
+.generation-page .site-row { color:var(--ink); background:transparent; border-bottom-color:var(--line); }
+.generation-page .site-row:hover { background:var(--surface-hover); }
+.generation-page .site-row[aria-pressed=true] { background:var(--surface-hover); }
+.generation-page .site-detail,
+.generation-page .list-column-head,
+.generation-page .facts > div,
+.generation-page .fuel-row { border-color:var(--line); }
+.generation-page .site-detail > a,
+.generation-page .panel-link { color:var(--accent); }
+.generation-page .reading-note { color:#bbb; background:var(--surface-raised); }
+.generation-page .fuel-bar { background:var(--accent); }
+.generation-page .feed-status { color:var(--muted); }
+.generation-page .feed-status.fresh { color:#92d7b8; }
+.generation-page .feed-status.fresh::before { background:#92d7b8; }
+.generation-page .feed-status.stale { color:#e5c083; }
+.generation-page .feed-status.stale::before { background:#e5c083; }
+.generation-page .feed-status.unavailable { color:#e9ae98; }
+.generation-page .map-footer,
+.generation-page .technology-key { background:var(--surface); }

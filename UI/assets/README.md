@@ -11,6 +11,19 @@ The source exterior rings were filtered for the regional map, simplified with a 
 
 The script defines `window.JMAP_GEOGRAPHY = { features: [{ name, polygons }] }`. Each `polygons` entry is a closed exterior ring of `[longitude, latitude]` pairs in WGS84. Projection and viewport clipping are handled by the UI.
 
+## UK nation boundaries
+
+`nations.js` contains the actual constituent-country polygons for England, Scotland, Wales and Northern Ireland. It is derived from Natural Earth's **1:10m Admin 0 - Map Subunits**, whose `ENG`, `SCT`, `WLS` and `NIR` features explicitly separate the four nations.
+
+- Dataset: https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-details/
+- Source GeoJSON: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_map_subunits.geojson
+- License: **Public domain**, https://www.naturalearthdata.com/about/terms-of-use/
+- Prepared: 7 November 2026.
+
+Coastlines use Douglas-Peucker simplification with a 0.005-degree tolerance. Every source vertex shared by two nations is protected from simplification so adjacent land borders retain matching geometry. Coordinates are rounded to four decimal places. All 59 source exterior rings are retained, including offshore islands; polygon holes are omitted. Scotland includes Rockall, west of the normal map viewport. The resulting 4,414 vertices preserve each nation's source exterior area within 0.15%. These are cartographic outlines, not survey or navigational boundaries.
+
+The script defines `window.JMAP_NATIONS = { features: [{ key, name, polygons }], ...provenance }` and also supports CommonJS. Keys are `england`, `scotland`, `wales` and `northern-ireland`. Each polygon is a closed WGS84 exterior ring of `[longitude, latitude]` pairs. The boundaries support nation-level annual choropleths; they do not describe electricity-network regions, distribution circuits, household connections or transmission capacity.
+
 ## UK site sample
 
 `sites.js` contains **45 representative UK sites**: the original 40-site Great Britain sample plus five Northern Ireland sites. Northern Ireland uses the region key `northern-ireland`; other region keys are `england`, `scotland`, and `wales`. Irish land is shown for geographic context, but the sample does not include Republic of Ireland generation sites.

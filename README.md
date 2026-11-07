@@ -4,9 +4,13 @@ An offline interface for understanding UK electricity supply and distribution.
 
 Open `UI/main.html` in a browser. No installation, API key or external map tiles are needed. The operations overview is at `UI/overview.html`.
 
-## Supply heatmap
+## Regional heatmap
 
-The map opens with an output-weighted heatmap. Colour shows the concentration of sample supply within a 50 km smoothing radius, including generation, storage discharge and interconnector imports. Both the radius and relative output scale remain fixed across filters. Empty areas indicate no output in this sample; they do not indicate a lack of electricity access.
+The map opens with a choropleth of official annual electricity balances using actual boundaries for England, Scotland, Wales and Northern Ireland. Filled regions and numeric labels show where annual generation exceeds or falls short of gross demand. Colour measures `(generation − demand) / demand`, on a fixed scale from −75% to +75% with end colours for values beyond those limits. Orange indicates a deficit and teal a surplus. Normalising by demand makes the relative gap comparable across differently sized nations.
+
+Switch the map measure to annual generation, gross demand, or renewable generation share. Generation and demand use the same fixed 0–300 TWh colour scale, while renewable share uses 0–100%. Each legend gives numeric units. Select a nation by clicking its polygon or label, using the ranking, or pressing Enter/Space on a focused nation. Its detail panel shows generation, gross demand, annual balance and coverage. The selected nation, measure and layer persist in the URL.
+
+This is explicitly a **four-nation comparison**, with one value per nation. It does not claim to show local differences, electricity access, transmission routes or outage likelihood. The site sample is hidden in regional mode so synthetic site outputs cannot be confused with official annual figures. Natural Earth nation boundary provenance is in `UI/assets/README.md`.
 
 Switch to Site markers for the original technology symbols and quantitative marker sizes. Search, nation and technology filters, output/capacity/utilisation measures, site labels, pan/zoom, touch and keyboard controls remain available. Fit results frames matching sites. On mobile, expand “Refine this view” for filters.
 
@@ -22,7 +26,7 @@ Gross demand is generation plus net imports, including network losses and genera
 
 Source: [DESNZ electricity generation and supply, 2021 to 2025, published 29 September 2026](https://www.gov.uk/government/statistics/energy-trends-september-2026-special-feature-article-electricity-generation-and-supply-in-scotland-wales-northern-ireland-and-england-2021-to-2025). Dataset values, workbook links and cell provenance are in `UI/assets/regions.js`.
 
-Expand the scenario controls to increase annual demand or reduce annual generation by up to 40%. These are uniform sensitivity calculations, not dispatch or outage forecasts. Scenario values, labels and CSV exports are distinguished from the official baseline; headline insights retain the published figures. Scenario inputs and table sorting persist in the URL. Reset restores the baseline.
+Expand the scenario controls to increase annual demand or reduce annual generation by up to 40%. The balance, generation and demand maps update with the table, retaining the same colour scales. These are uniform sensitivity calculations, not dispatch or outage forecasts. Renewable-share mode retains the published annual mix and its baseline details. Scenario values, labels and CSV exports are distinguished from the official baseline; headline insights retain the published figures. Scenario inputs and table sorting persist in the URL. Reset restores the baseline.
 
 An annual deficit does not establish local shortage risk. That requires peak demand, available generation, storage duration, transfer availability and network constraints. Household electricity access and outage reliability need separate measurements. Northern Ireland is part of the all-island electricity market; UK totals would be accounting sums rather than one operational grid.
 
@@ -37,7 +41,7 @@ Geography is bundled from Natural Earth (public domain); attribution is in `UI/a
 Run the analytical and dataset checks with:
 
 ```sh
-node --test tests/analysis.test.cjs tests/balance.test.cjs tests/regions-data.test.cjs
+node --test tests/*.test.cjs
 ```
 
 Optional browser checks require Python Playwright and an installed Chromium browser:
@@ -46,4 +50,4 @@ Optional browser checks require Python Playwright and an installed Chromium brow
 python tests/browser-smoke.py
 ```
 
-The browser check covers annual ranking, CSV contents, keyboard scenario controls, reset, URL restoration, linked map filtering, layer persistence, runtime errors and responsive widths from 320 to 1440 pixels. It writes review screenshots to the system temporary directory. The application remains buildless.
+The browser check covers regional polygons and selection, map metrics, scenario colours and baseline separation, annual ranking, CSV contents, reset, URL restoration, linked sample filtering, layer persistence, runtime errors and responsive widths from 320 to 1440 pixels. It writes review screenshots to the system temporary directory. The application remains buildless.

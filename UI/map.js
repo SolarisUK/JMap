@@ -4,9 +4,9 @@
 
   const NS = 'http://www.w3.org/2000/svg';
   const DEG = Math.PI / 180;
-  const EARTH_RADIUS_KM = 6371;
-  const HEAT_RADIUS_KM = 50;
-  let mapSequence = 0;
+  const regionLabelPositions = {
+    england: [-1.0, 53.0], scotland: [-4.2, 57.2], wales: [-5.3, 51.6], 'northern-ireland': [-6.75, 54.7]
+  };
   const cities = [
     ['Edinburgh', -3.1883, 55.9533], ['Glasgow', -4.2518, 55.8642],
     ['Newcastle', -1.6178, 54.9783], ['Manchester', -2.2426, 53.4808],
@@ -56,17 +56,18 @@
   }
 
   class EnergyMap {
-    constructor({ element, geography, onSelect = () => {}, scaleMaxima }) {
+    constructor({ element, geography, onSelect = () => {}, onRegionSelect = () => {}, scaleMaxima }) {
       if (!element) throw new Error('EnergyMap requires an SVG element.');
       this.element = element;
       this.onSelect = onSelect;
+      this.onRegionSelect = onRegionSelect;
       this.sites = [];
       this.mode = 'output';
       this.scaleMaxima = { output: 1, capacity: 1, utilisation: 100 };
       this.fixedScale = false;
       this.showSiteLabels = false;
-      this.showHeatmap = false;
-      this.heatNodes = [];
+      this.showRegions = false;
+      this.regionNodes = new Map();
       this.selectedId = null;
       this.zoom = 1;
       this.pan = { x: 0, y: 0 };
@@ -83,12 +84,13 @@
       element.style.cursor = 'grab';
       this.background = svg('rect', { width: '100%', height: '100%', fill: '#f7f7f4' });
       this.land = svg('g', { class: 'map-land', fill: '#e7e7e2', stroke: '#c5c5bf', 'stroke-width': 0.8, 'stroke-linejoin': 'round' });
-      this.createHeatmap();
+      this.regionalLayer = svg('g', { class: 'map-regions', visibility: 'hidden' });
+      this.regionalLabels = svg('g', { class: 'map-region-labels', visibility: 'hidden' });
       this.labels = svg('g', { class: 'map-labels', 'pointer-events': 'none' });
       this.markers = svg('g', { class: 'map-markers' });
       this.siteLabels = svg('g', { class: 'map-site-labels', 'pointer-events': 'none' });
       this.tooltips = svg('g', { class: 'map-tooltips', 'pointer-events': 'none', 'aria-hidden': 'true' });
-      element.append(this.definitions, this.background, this.land, this.heatmap, this.labels, this.markers, this.siteLabels, this.tooltips);
+      element.append(this.background, this.land, this.regionalLayer, this.labels, this.markers, this.siteLabels, this.regionalLabels, this.tooltips);
       if (scaleMaxima) this.setScaleMaxima(scaleMaxima);
       this.drawGeography(geography);
       this.drawLabels();
@@ -132,56 +134,78 @@
       }
     }
 
-    createHeatmap() {
-      // Each site's MW weights the same 50 km radial kernel. Source-over alpha
-      // accumulates nearby contributions as 1 - product(1 - weight * kernel),
-      // then one colour ramp maps that concentration. The shared output maximum
-      // and geographic radius remain fixed across filters and marker measures.
-      // This is a relative supply concentration, not a grid service area.
-      const prefix = `jmap-heat-${++mapSequence}`;
-      this.definitions = svg('defs');
-      const gradient = svg('radialGradient', { id: `${prefix}-kernel` });
-      [[0, 1], [.2, .82], [.45, .48], [.7, .17], [1, 0]].forEach(([offset, opacity]) => {
-        gradient.append(svg('stop', { offset, 'stop-color': '#000', 'stop-opacity': opacity }));
+    setRegions(geography, rows = []) {
+      // Regions use real national boundaries. Colour and numeric labels come
+      // from the annual analysis, independently of the sample site filters.
+      const focusedKey = this.element.contains(document.activeElement) ? document.activeElement.getAttribute('data-region-key') : null;
+      const focusedLabel = focusedKey && document.activeElement.getAttribute('data-label-for-region');
+      const values = new Map(rows.map(row => [row.key, row]));
+      this.regionalLayer.replaceChildren();
+      this.regionalLabels.replaceChildren();
+      this.regionNodes.clear();
+      (geography?.features || []).forEach(feature => {
+        const row = values.get(feature.key);
+        if (!row) return;
+        const segments = (feature.polygons || []).filter(ring => ring.length >= 3).map(ring => ring.map(([lon, lat], index) => {
+          const p = project(lon, lat);
+          return `${index ? 'L' : 'M'}${p.x.toFixed(6)},${p.y.toFixed(6)}`;
+        }).join('') + 'Z');
+        const name = row.label || feature.name || feature.key;
+        const accessible = `${name}: ${row.valueLabel || ''}. ${row.description || ''}`.trim();
+        const path = svg('path', { d: segments.join(''), class: 'map-region', 'data-region-key': feature.key, fill: row.fill || '#e0e4e2', stroke: row.selected ? '#172d33' : '#ffffff', 'stroke-width': row.selected ? 3 : 1.7, 'stroke-linejoin': 'round', 'fill-rule': 'evenodd', 'vector-effect': 'non-scaling-stroke', role: 'button', tabindex: this.showRegions ? 0 : -1, 'aria-label': accessible, 'aria-pressed': String(Boolean(row.selected)) });
+        path.style.cursor = 'pointer';
+        path.append(svg('title', {}, accessible));
+        path.addEventListener('keydown', event => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault(); event.stopPropagation(); this.chooseRegion(feature.key);
+        });
+        path.addEventListener('click', event => {
+          if (event.detail === 0) { event.stopPropagation(); this.chooseRegion(feature.key); }
+        });
+        this.regionalLayer.append(path);
+        const position = feature.labelPosition || regionLabelPositions[feature.key];
+        let label = null;
+        let labelWidth = 0;
+        if (position) {
+          const width = Math.max(74, Math.max(name.length * 5.8, String(row.valueLabel || '').length * 7.1) + 16);
+          labelWidth = width;
+          label = svg('g', { class: 'map-region-label', 'data-label-for-region': feature.key, 'data-region-key': feature.key, role: 'button', tabindex: this.showRegions ? 0 : -1, 'aria-label': `Select ${accessible}`, 'aria-pressed': String(Boolean(row.selected)), 'pointer-events': 'all' });
+          label.style.cursor = 'pointer';
+          label.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault(); event.stopPropagation(); this.chooseRegion(feature.key);
+          });
+          label.addEventListener('click', event => {
+            if (event.detail === 0) { event.stopPropagation(); this.chooseRegion(feature.key); }
+          });
+          label.append(svg('rect', { x: -width / 2, y: -20, width, height: 41, rx: 3, fill: '#ffffff', 'fill-opacity': .94, stroke: row.selected ? '#172d33' : '#d4ddd7', 'stroke-width': row.selected ? 1.5 : .8 }));
+          label.append(svg('text', { x: 0, y: -6, 'text-anchor': 'middle', fill: '#37443e', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10 }, name));
+          label.append(svg('text', { x: 0, y: 12, 'text-anchor': 'middle', fill: '#192d28', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 14, 'font-weight': 600 }, row.valueLabel || ''));
+          this.regionalLabels.append(label);
+        }
+        this.regionNodes.set(feature.key, { path, label, labelWidth, world: position ? project(...position) : null });
       });
-      this.heatFilter = svg('filter', { id: `${prefix}-colour`, filterUnits: 'userSpaceOnUse', x: 0, y: 0, 'color-interpolation-filters': 'sRGB' });
-      this.heatFilter.append(svg('feColorMatrix', { type: 'matrix', values: '0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 1 0' }));
-      const colour = svg('feComponentTransfer');
-      const channels = {
-        R: '0.18 0.05 0.22 0.66 0.97 0.98 0.91 0.68',
-        G: '0.40 0.63 0.73 0.79 0.81 0.59 0.30 0.12',
-        B: '0.72 0.74 0.64 0.39 0.27 0.18 0.14 0.14',
-        A: '0 0.20 0.38 0.55 0.70 0.80 0.88 0.93'
-      };
-      Object.entries(channels).forEach(([channel, tableValues]) => colour.append(svg(`feFunc${channel}`, { type: 'table', tableValues })));
-      this.heatFilter.append(colour);
-      this.definitions.append(gradient, this.heatFilter);
-      this.heatFill = `url(#${prefix}-kernel)`;
-      this.heatmap = svg('g', { class: 'map-heatmap', 'pointer-events': 'none', 'aria-hidden': 'true', visibility: 'hidden', filter: `url(#${prefix}-colour)` });
+      this.updateView();
+      if (focusedKey && this.showRegions) {
+        const selectedNode = this.regionNodes.get(focusedKey);
+        (focusedLabel ? selectedNode?.label : selectedNode?.path)?.focus({ preventScroll: true });
+      }
+      return this;
     }
 
-    setHeatmap(enabled) {
-      this.showHeatmap = Boolean(enabled);
-      this.heatmap.setAttribute('visibility', this.showHeatmap && this.heatNodes.length ? 'visible' : 'hidden');
-      this.element.classList.toggle('has-heatmap', this.showHeatmap);
+    setRegionalVisibility(visible) {
+      this.showRegions = Boolean(visible);
+      this.regionalLayer.setAttribute('visibility', this.showRegions ? 'visible' : 'hidden');
+      this.regionalLabels.setAttribute('visibility', this.showRegions ? 'visible' : 'hidden');
+      [this.labels, this.markers, this.siteLabels, this.tooltips].forEach(layer => layer.setAttribute('display', this.showRegions ? 'none' : 'inline'));
+      this.element.classList.toggle('has-regions', this.showRegions);
+      this.element.setAttribute('aria-label', this.showRegions ? 'Annual electricity by UK nation. Tab to select a nation. Drag to pan, plus and minus to zoom, arrow keys to pan, Home to reset.' : 'Electricity site map. Tab to explore sites. Drag to pan, plus and minus to zoom, arrow keys to pan, Home to reset.');
       this.updateView();
       return this;
     }
 
-    drawHeatmap() {
-      this.heatmap.replaceChildren();
-      this.heatNodes = [];
-      const maximum = Math.max(1, this.scaleMaxima.output);
-      this.sites.forEach(site => {
-        if (!Number.isFinite(site.lon) || !Number.isFinite(site.lat) || !Number.isFinite(site.output) || site.output <= 0) return;
-        const circle = svg('circle', { fill: this.heatFill, opacity: Math.min(.95, .95 * site.output / maximum) });
-        this.heatmap.append(circle);
-        // Mercator scale varies by latitude. Compensate so each site's kernel
-        // covers approximately 50 km on the ground, including offshore sites.
-        const radius = HEAT_RADIUS_KM / EARTH_RADIUS_KM / Math.cos(Math.max(-85, Math.min(85, site.lat)) * DEG);
-        this.heatNodes.push({ circle, world: project(site.lon, site.lat), radius });
-      });
-      this.heatmap.setAttribute('visibility', this.showHeatmap && this.heatNodes.length ? 'visible' : 'hidden');
+    chooseRegion(key) {
+      if (key && this.regionNodes.has(key)) this.onRegionSelect(key);
     }
 
     drawLabels() {
@@ -260,7 +284,6 @@
         this.scaleMaxima.output = Math.max(this.scaleMaxima.output, ...this.sites.map(site => Math.max(0, Number(site.output) || 0)));
         this.scaleMaxima.capacity = Math.max(this.scaleMaxima.capacity, ...this.sites.map(site => Math.max(0, Number(site.capacity) || 0)));
       }
-      this.drawHeatmap();
       const maximum = this.scaleMaxima[this.mode] || this.scaleMaxima.output;
       // Draw large sites first so nearby smaller sites remain available to click.
       [...this.sites].sort((a, b) => this.valueFor(b) - this.valueFor(a)).forEach(site => {
@@ -387,13 +410,30 @@
       if (!this.baseScale) return;
       const scale = this.baseScale * this.zoom;
       this.land.setAttribute('transform', `matrix(${scale} 0 0 ${scale} ${this.width / 2 + this.pan.x - this.centre.x * scale} ${this.height / 2 + this.pan.y - this.centre.y * scale})`);
-      this.heatFilter.setAttribute('width', this.width);
-      this.heatFilter.setAttribute('height', this.height);
-      this.heatNodes.forEach(({ circle, world, radius }) => {
+      this.regionalLayer.setAttribute('transform', this.land.getAttribute('transform'));
+      const legendBounds = this.showRegions ? this.element.parentElement?.querySelector('.map-legend')?.getBoundingClientRect() : null;
+      const mapBounds = legendBounds ? this.element.getBoundingClientRect() : null;
+      const legend = legendBounds?.width && mapBounds?.width ? {
+        left: (legendBounds.left - mapBounds.left) * this.width / mapBounds.width,
+        right: (legendBounds.right - mapBounds.left) * this.width / mapBounds.width,
+        top: (legendBounds.top - mapBounds.top) * this.height / mapBounds.height,
+        bottom: (legendBounds.bottom - mapBounds.top) * this.height / mapBounds.height
+      } : null;
+      this.regionNodes.forEach(({ path, label, labelWidth, world }) => {
+        path.setAttribute('tabindex', this.showRegions ? '0' : '-1');
+        if (!label || !world) return;
         const p = this.screen(world);
-        circle.setAttribute('cx', p.x.toFixed(2));
-        circle.setAttribute('cy', p.y.toFixed(2));
-        circle.setAttribute('r', (radius * scale).toFixed(2));
+        const visible = p.x > 0 && p.x < this.width && p.y > 0 && p.y < this.height;
+        // Keep numeric callouts clear of the fixed legend on narrow screens.
+        // Move an obstructed callout just above its left edge, away from the
+        // England label on the right, while leaving geographic fills fixed.
+        if (visible && legend && p.x + labelWidth / 2 > legend.left && p.x - labelWidth / 2 < legend.right && p.y + 21 > legend.top && p.y - 20 < legend.bottom) {
+          p.x = Math.max(labelWidth / 2 + 6, Math.min(this.width - labelWidth / 2 - 6, legend.left + labelWidth / 2 + 5));
+          p.y = Math.max(25, legend.top - 27);
+        }
+        label.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
+        label.setAttribute('visibility', visible ? 'visible' : 'hidden');
+        label.setAttribute('tabindex', this.showRegions && visible ? '0' : '-1');
       });
       const labelBoxes = [];
       this.labelNodes?.forEach(({ node, box: localBox, world, city }) => {
@@ -507,7 +547,8 @@
           this.dragStart = p;
           this.lastPointer = p;
           this.dragMoved = false;
-          this.tapId = this.nearestSite(p);
+          this.tapId = this.showRegions ? null : this.nearestSite(p);
+          this.tapRegionKey = this.showRegions ? event.target.closest('[data-region-key]')?.getAttribute('data-region-key') : null;
         } else {
           this.dragMoved = true;
           const points = [...this.pointers.values()];
@@ -541,7 +582,10 @@
         const wasSingle = this.pointers.size === 1;
         this.pointers.delete(event.pointerId);
         if (this.element.hasPointerCapture(event.pointerId)) this.element.releasePointerCapture(event.pointerId);
-        if (!cancelled && wasSingle && !this.dragMoved) this.choose(this.tapId);
+        if (!cancelled && wasSingle && !this.dragMoved) {
+          if (this.showRegions) this.chooseRegion(this.tapRegionKey);
+          else this.choose(this.tapId);
+        }
         if (this.pointers.size === 1) {
           this.lastPointer = [...this.pointers.values()][0];
           this.dragStart = this.lastPointer;

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="map-system.css">
   <script src="assets/geography.js" defer></script>
+  <script src="assets/nations.js" defer></script>
   <script src="assets/sites.js" defer></script>
   <script src="assets/regions.js" defer></script>
   <script src="analysis.js" defer></script>
@@ -28,7 +29,7 @@
   <main>
     <section class="intro" aria-labelledby="page-title"><div><p class="eyebrow">[ A clearer perspective on power ]</p><h1 id="page-title">UK energy, <em>understood.</em></h1><p class="intro-description">See where power comes from. Compare what each nation generates and uses.</p></div><div class="snapshot"><span class="sample-badge"><span class="status-dot"></span> Two data perspectives</span><p>Sample site outputs · Official annual balances</p><button class="plain-link" id="about-data" type="button">Coverage &amp; definitions <span aria-hidden="true">↗</span></button></div></section>
 
-    <nav class="perspective-nav" aria-label="Power distribution perspectives"><a href="#workspace"><span class="perspective-index">01</span><strong>Supply heatmap</strong><span>Where is supply concentrated? ↓</span></a><a href="#regional-balance"><span class="perspective-index">02</span><strong>Surplus &amp; deficit</strong><span>Who generates more than they use? ↓</span></a></nav>
+    <nav class="perspective-nav" aria-label="Power distribution perspectives"><a href="#workspace"><span class="perspective-index">01</span><strong>Regional heatmap</strong><span>Where does generation fall short of demand? ↓</span></a><a href="#regional-balance"><span class="perspective-index">02</span><strong>Compare the figures</strong><span>Annual balances &amp; demand scenarios ↓</span></a></nav>
     <div class="distribution-insights" id="distribution-insights" aria-label="Official annual electricity insights"></div>
 
     <div class="scope-heading"><p><span id="summary-scope">United Kingdom</span><span class="scope-separator">/</span> Filtered sample</p><p>Figures follow filters. Zoom changes the map only.</p></div>
@@ -42,6 +43,19 @@
     <section class="workspace" id="workspace" aria-label="UK energy explorer">
       <aside class="sidebar" aria-label="Site search and filters">
         <div class="sidebar-title"><h2>Find &amp; filter</h2><button class="plain-link" id="reset-filters" type="button">Reset <span aria-hidden="true">↺</span></button></div>
+        <div id="regional-map-controls" hidden>
+          <p class="eyebrow">Colour the map by</p>
+          <div class="regional-metric-options" role="group" aria-label="Regional map measure">
+            <button type="button" data-heat-metric="balance" aria-pressed="true"><strong>Surplus / deficit</strong><span>Generation minus demand, relative to demand</span></button>
+            <button type="button" data-heat-metric="generation" aria-pressed="false"><strong>Electricity generated</strong><span>Annual generation · TWh</span></button>
+            <button type="button" data-heat-metric="demand" aria-pressed="false"><strong>Electricity demand</strong><span>Gross annual demand · TWh</span></button>
+            <button type="button" data-heat-metric="renewable" aria-pressed="false"><strong>Renewable share</strong><span>Renewables / annual generation · %</span></button>
+          </div>
+          <p class="regional-scope-note">Official data for four nations. Each nation has one annual value; finer local differences are not measured here.</p>
+          <p class="regional-scope-note">Select a nation on the map or in the ranking to see its figures.</p>
+          <a class="plain-link balance-shortcut" href="#regional-balance">Figures, sources &amp; scenarios ↓</a>
+          <button class="regional-reset plain-link" id="regional-reset" type="button">Show whole UK ↺</button>
+        </div>
         <label class="search-field"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><input id="site-search" type="search" placeholder="Site, technology or nation" aria-label="Search site, technology or nation" autocomplete="off"><kbd aria-hidden="true">/</kbd></label>
         <button class="filters-toggle" id="toggle-filters" type="button" aria-expanded="false" aria-controls="filter-options">Refine this view <span id="mobile-filter-count">All technologies</span><span aria-hidden="true">⌄</span></button>
         <div class="filter-options" id="filter-options">
@@ -57,22 +71,28 @@
         <div class="map-toolbar"><div class="view-switch" role="group" aria-label="Explorer view"><button id="map-view" class="selected" type="button" aria-pressed="true">Map</button><button id="list-view" type="button" aria-pressed="false">Directory</button></div><p class="results-label" id="results-label" role="status">Loading sites…</p><div class="toolbar-actions"><button class="plain-link" id="jump-comparison" type="button" hidden>Compare (<span id="comparison-count">0</span>/3) ↓</button><button class="plain-link" id="fit-results" type="button">Fit results <span aria-hidden="true">⤢</span></button><button class="plain-link" id="keyboard-help" type="button">Map guide <span aria-hidden="true">?</span></button></div></div>
         <div class="explorer-body">
           <div class="map-column">
-            <div class="map-layer-controls"><div class="view-switch" role="group" aria-label="Map layer"><button type="button" data-layer="heatmap" aria-pressed="true" class="selected">Heatmap</button><button type="button" data-layer="sites" aria-pressed="false">Site markers</button></div><p id="layer-description">Colour shows sample output concentration.</p></div>
+            <div class="map-layer-controls"><div class="view-switch" role="group" aria-label="Map layer"><button type="button" data-layer="heatmap" aria-pressed="true" class="selected">Regional heatmap</button><button type="button" data-layer="sites" aria-pressed="false">Site markers</button></div><p id="layer-description">Annual surplus or deficit as a share of demand.</p></div>
             <div class="map-measures"><label class="size-control"><span>Marker size</span><select id="size-mode" aria-label="Marker size measure"><option value="output">Output · MW</option><option value="capacity">Capacity · MW</option><option value="utilisation">Utilisation · %</option></select></label><label class="labels-toggle"><input type="checkbox" id="site-labels"> Site names</label></div>
             <div class="map-stage" id="map-stage">
               <svg id="energy-map" tabindex="0" role="group" aria-label="UK energy sites. Drag to pan, scroll to zoom, use arrow keys to pan, plus and minus to zoom, and Home for the UK view."></svg>
-              <div class="map-label"><span class="status-dot"></span><span id="map-scope">United Kingdom</span><span class="map-label-divider">/</span> Site locations</div>
+              <div class="map-label"><span class="status-dot"></span><span id="map-scope">United Kingdom</span><span class="map-label-divider">/</span><span id="map-data-label">Annual balance</span></div>
               <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Show the whole United Kingdom" title="UK view"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 3H3v3m11-3h3v3M3 14v3h3m11-3v3h-3M6 10h8m-4-4v8"/></svg></button></div>
               <div class="north-indicator" aria-hidden="true">N<span>↑</span></div>
               <div class="map-legend"><div><p id="legend-title">Site output</p><div id="legend-scale" class="legend-scale"></div><p id="legend-description">Same scale across every filter.</p></div></div>
-              <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a><span>·</span> Illustrative JMap data</div>
+              <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a><span>·</span><span id="map-data-source">DESNZ annual data</span></div>
               <div class="map-empty" id="map-empty" hidden><span aria-hidden="true">⊘</span><h3>No matching sites.</h3><p>Try a broader search or include more technologies.</p><button class="dark-button" id="empty-reset" type="button">Reset filters</button></div>
             </div>
-            <p class="map-reading-note" id="map-reading-note">Heat shows the concentration of sample supply, including imports and storage discharge. It does not show electricity access or the area served by a site.</p>
+            <div id="regional-legend-host"></div>
+            <p class="map-reading-note" id="map-reading-note">Orange shows generation below annual demand; teal shows generation above it. Values describe whole nations, not local grid conditions.</p>
             <div class="directory" id="directory" hidden><div class="directory-heading"><p>Select a site to locate it, or add up to three to compare.</p><label>Sort <select id="sort-sites"><option value="output">Highest output</option><option value="capacity">Largest capacity</option><option value="utilisation">Highest utilisation</option><option value="name">Name A–Z</option></select></label></div><div class="directory-scroll"><table><thead><tr><th scope="col">Site</th><th scope="col">Technology</th><th scope="col">Output</th><th scope="col">Capacity</th><th scope="col">Utilisation</th><th scope="col">Actions</th></tr></thead><tbody id="directory-body"></tbody></table><div class="directory-empty" id="directory-empty" hidden>No sites match your filters. Try a broader search.</div></div></div>
           </div>
 
           <aside class="analysis-rail" aria-label="Analysis and site details">
+            <div id="regional-analysis" hidden>
+              <div class="analysis-heading"><p class="eyebrow" id="regional-analysis-period">Official annual comparison</p><h2 id="regional-analysis-title">Generation vs demand.</h2><p id="regional-analysis-description">Ranked by annual generation gap, relative to demand.</p></div>
+              <div id="regional-ranking" class="regional-ranking"></div>
+              <article class="regional-detail" aria-labelledby="regional-detail-title"><p class="eyebrow">Selected nation</p><h3 id="regional-detail-title"></h3><p id="regional-detail-status"></p><dl id="regional-detail-facts"></dl><p id="regional-detail-note"></p><button type="button" class="plain-link" id="zoom-regional-selection">Zoom to nation ↗</button><a class="plain-link" href="#regional-balance">Compare all figures ↓</a></article>
+            </div>
             <div id="analysis-content"><div class="analysis-heading"><p class="eyebrow">[ Understand this view ]</p><h2>The power behind the points.</h2><p id="analysis-scope">All UK sample sites</p></div>
               <div class="analysis-tabs" role="group" aria-label="Analysis breakdown"><button type="button" data-analysis="mix" aria-pressed="true" class="selected">Energy mix</button><button type="button" data-analysis="regions" aria-pressed="false">Nations</button><button type="button" data-analysis="leaders" aria-pressed="false">Top sites</button></div>
               <div id="analysis-mix" class="analysis-section"><div class="supply-split"><div><span>Generation</span><strong id="supply-generation">—</strong></div><div><span>Storage discharge</span><strong id="supply-storage">—</strong></div><div><span>Imports</span><strong id="supply-imports">—</strong></div></div><p class="analysis-instruction">Share of filtered supply. Select a technology to focus.</p><div id="mix-breakdown"></div><button class="plain-link analysis-reset" id="mix-reset" type="button">Show all technologies <span aria-hidden="true">↗</span></button></div>

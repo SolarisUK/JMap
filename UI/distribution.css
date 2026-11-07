@@ -19,8 +19,45 @@
 .map-layer-controls p { font: 9px/1.6 monospace; color: #606660; }
 .map-reading-note { padding: 12px 18px; border-top: 1px solid var(--line); color: #62685f; background: #f7f9f6; font: 10px/1.8 Arial, sans-serif; }
 .heatmap-legend .legend-scale { display: block; min-width: 180px; }
-.heat-colour-scale { height: 8px; background: linear-gradient(90deg, #2e66b8, #0da1bd 14%, #38baa3 29%, #a8c963 43%, #f7cf45 57%, #fa962e 71%, #e84d24 86%, #ad1f24); border-radius: 2px; }
 .heat-colour-captions { display: flex; justify-content: space-between; margin-top: 5px; font: 9px/1.5 monospace; color: #535b55; }
+.regional-colour-scale { height: 10px; border-radius: 2px; }
+.regional-colour-scale.metric-balance { background: linear-gradient(90deg, rgb(186,75,32), rgb(247,243,233) 50%, rgb(17,120,91)); }
+.regional-colour-scale.metric-generation, .regional-colour-scale.metric-demand { background: linear-gradient(90deg, rgb(233,241,249), rgb(42,84,145)); }
+.regional-colour-scale.metric-renewable { background: linear-gradient(90deg, rgb(233,243,219), rgb(37,113,67)); }
+body.regional-map-active .scope-heading, body.regional-map-active .metrics,
+body.regional-map-active .sidebar > .search-field, body.regional-map-active .sidebar > .filters-toggle,
+body.regional-map-active .sidebar > .filter-options, body.regional-map-active .sidebar > .sidebar-bottom,
+body.regional-map-active #reset-filters { display: none; }
+.regional-metric-options { margin-top: 12px; display: grid; gap: 8px; }
+.regional-metric-options button { text-align: left; padding: 12px 10px; border: 1px solid #dde2da; background: #fff; }
+.regional-metric-options button strong { display: block; font: 12px/1.6 Arial, sans-serif; font-weight: 400; }
+.regional-metric-options button span { display: block; color: #69736b; font: 9px/1.7 Arial, sans-serif; margin-top: 4px; }
+.regional-metric-options button[aria-pressed="true"] { background: #eff5f1; border-color: #52836e; box-shadow: inset 3px 0 #52836e; }
+.regional-metric-options button:hover { border-color: #52836e; color: var(--ink); }
+.regional-scope-note { font: 10px/1.9 Arial, sans-serif; color: #626b60; margin: 22px 0 0; }
+.regional-reset { display: block; margin: 25px 0 10px; font-size: 10px; }
+.regional-ranking { padding: 0 18px; }
+.regional-ranking-row { display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; padding: 13px 8px; border-bottom: 1px solid #e4e9e0; }
+.regional-ranking-row:hover { background: #f6f8f3; color: var(--ink); }
+.regional-ranking-row[aria-pressed="true"] { background: #f0f4ee; }
+.regional-ranking-swatch { width: 13px; height: 30px; border: 1px solid #0001; flex-shrink: 0; border-radius: 2px; }
+.regional-ranking-row strong { display: block; font: 12px/1.6 Arial, sans-serif; font-weight: 400; }
+.regional-ranking-row small { display: block; font: 10px/1.6 monospace; color: #555f54; margin-top: 3px; }
+.regional-detail { padding: 25px 18px; }
+.regional-detail h3 { font-size: 23px; line-height: 1.4; font-weight: 400; letter-spacing: -.03em; margin: 7px 0; }
+#regional-detail-status { font: 11px/1.8 monospace; color: #4f6052; }
+.regional-detail dl { margin: 18px 0; }
+.regional-detail dl > div { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid #e4e8df; font: 10px/1.6 Arial, sans-serif; }
+.regional-detail dt { color: #64705f; }
+.regional-detail dd { font: 11px/1.6 monospace; margin: 0; }
+#regional-detail-note { font: 10px/1.9 Arial, sans-serif; color: #606c5c; margin: 0 0 18px; }
+.regional-detail > .plain-link { display: block; margin-top: 14px; }
+.regional-map-active .heatmap-legend .legend-scale { min-width: 220px; }
+.regional-map-active .map-label { max-width: calc(100% - 65px); flex-wrap: wrap; }
+.regional-map-active .map-label #map-data-label { white-space: normal; }
+#regional-legend-host:not(:empty) { border-top: 1px solid var(--line); padding: 12px 18px; background: #fff; }
+.energy-page #regional-legend-host .map-legend { position: static; padding: 0; border: 0; background: none; max-width: 310px; }
+.energy-page #regional-legend-host .map-legend > div { width: 100%; }
 .balance-section { border: 1px solid var(--line); background: #fff; margin: 28px 0 0; scroll-margin-top: 20px; }
 .balance-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 26px 26px 22px; }
 .balance-heading h2 { font-size: clamp(24px, 2.3vw, 34px); font-weight: 400; line-height: 1.25; letter-spacing: -.04em; margin: 10px 0; }
@@ -87,6 +124,18 @@
   .distribution-insights { grid-template-columns: 1fr; gap: 0; margin-bottom: 20px; border: 1px solid var(--line); } .distribution-insights a { border: 0; padding: 13px 15px; display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: baseline; } .distribution-insights a + a { border-top: 1px solid var(--line); } .insight-title { font-size: 8px; } .insight-value { font-size: 20px; margin: 0; grid-row: span 3; grid-column: 2; } .insight-detail { font-size: 10px; } .insight-source { font-size: 7px; margin-top: 4px; }
   .map-layer-controls { padding: 9px 12px; gap: 8px; } .map-layer-controls p { font-size: 8px; } .map-reading-note { padding: 11px 12px; font-size: 9px; }
   .heatmap-legend .legend-scale { min-width: 160px; }
+  .regional-metric-options { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .regional-metric-options button { padding: 9px; }
+  .regional-metric-options button strong { font-size: 11px; }
+  .regional-metric-options button span { font-size: 9px; }
+  .regional-scope-note { margin-top: 12px; font-size: 9px; }
+  .regional-reset { display: inline-block; margin: 14px 0 0 20px; font-size: 9px; }
+  .regional-ranking { padding-inline: 14px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .regional-ranking-row { padding: 12px 6px; gap: 8px; }
+  .regional-ranking-row strong { font-size: 11px; }
+  .regional-ranking-row small { font-size: 9px; }
+  .regional-detail { padding-inline: 14px; }
+  .regional-map-active .heatmap-legend .legend-scale { min-width: 195px; }
   .balance-heading { padding: 20px 14px 16px; flex-direction: column; gap: 8px; } .balance-heading h2 { font-size: 25px; } .balance-heading > div > p:last-child { font-size: 11px; } .balance-context { padding: 12px 14px; } .balance-context p { font-size: 9px; }
   .balance-main { padding: 18px 14px; } .balance-key { font-size: 9px; } .balance-chart-heading { gap: 12px; } .balance-chart-heading label { width: 100%; display: flex; align-items: center; justify-content: space-between; }
   .balance-reading { grid-template-columns: 1fr; gap: 10px; font-size: 10px; } .scenario-controls summary { padding: 12px; font-size: 11px; } .scenario-controls summary > span { float: none; display: block; margin-left: 14px; font-size: 7px; } .scenario-body { padding: 12px; } .scenario-body > p { font-size: 10px; } .scenario-sliders { grid-template-columns: 1fr; gap: 18px; } .scenario-footer { font-size: 8px; } .scenario-footer .plain-link { font-size: 8px; }

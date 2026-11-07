@@ -116,6 +116,7 @@
         ? 'All four nations generate at least their gross annual demand in this scenario. Hourly shortages and network constraints remain unassessed.'
         : 'There is not enough annual data to compare reliance on supply from elsewhere. Local shortage risk remains unassessed.';
     syncUrl();
+    document.dispatchEvent(new CustomEvent('jmapbalancechange', { detail: { rows, scenario } }));
   }
   function sources() {
     const target = $('#balance-sources');

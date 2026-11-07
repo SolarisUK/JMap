@@ -19,7 +19,16 @@
   const power = value => value >= 1000 ? gw(value) : `${number(value)} MW`;
   const percent = value => value === null ? '—' : value > 0 && value < .1 ? '<0.1%' : `${value.toFixed(1)}%`;
   const utilisation = site => site.capacity > 0 ? site.output / site.capacity * 100 : null;
-  const state = { selectedTypes: new Set(presets.all), query: '', region: 'all', mode: 'output', layer: 'heatmap', view: 'map', analysis: 'mix', rank: 'output', sort: 'output', labels: false, selectedId: null, compared: [], filtered: [], summary: null };
+  const state = { selectedTypes: new Set(presets.all), query: '', region: 'all', mode: 'output', layer: 'heatmap', heatMetric: 'balance', annualSelected: 'england', view: 'map', analysis: 'mix', rank: 'output', sort: 'output', labels: false, selectedId: null, compared: [], filtered: [], summary: null };
+  const annualData = window.JMAP_REGIONS;
+  let annualRows = window.JMapBalance?.analyseRegions(annualData?.regions || []) || [];
+  let annualScenario = false;
+  const heatMetrics = {
+    balance: { title: 'Surplus / deficit', description: 'Generation minus gross demand, as a share of demand.', low: '−75%', middle: '0', high: '+75%', legend: 'Deficit ← 0 = balanced → Surplus', unit: '% of gross annual demand' },
+    generation: { title: 'Electricity generated', description: 'Total annual generation. Darker means more electricity.', low: '0', middle: '150', high: '300+', legend: 'Annual generation · TWh', unit: 'TWh / year' },
+    demand: { title: 'Electricity demand', description: 'Gross annual demand, including losses and own use.', low: '0', middle: '150', high: '300+', legend: 'Gross annual demand · TWh', unit: 'TWh / year' },
+    renewable: { title: 'Renewable share', description: 'Published annual renewables as a share of total generation.', low: '0%', middle: '50%', high: '100%', legend: 'Renewables / generation', unit: '% of annual generation' }
+  };
   let map;
   let detailTrigger;
 
@@ -44,6 +53,9 @@
     state.selectedTypes = new Set(params.has('types') ? params.get('types').split(',').filter(t => Object.hasOwn(technologies, t)) : presets.all);
     state.mode = ['output', 'capacity', 'utilisation'].includes(params.get('measure')) ? params.get('measure') : 'output';
     state.layer = params.get('layer') === 'sites' ? 'sites' : 'heatmap';
+    if (!annualRows.length || !window.JMAP_NATIONS?.features?.length) { state.layer = 'sites'; $('[data-layer="heatmap"]').disabled = true; }
+    state.heatMetric = Object.hasOwn(heatMetrics, params.get('heatMetric')) ? params.get('heatMetric') : 'balance';
+    state.annualSelected = Object.hasOwn(regions, params.get('mapNation')) ? params.get('mapNation') : 'england';
     state.analysis = ['mix', 'regions', 'leaders'].includes(params.get('analysis')) ? params.get('analysis') : 'mix';
     state.rank = ['output', 'capacity', 'utilisation'].includes(params.get('rank')) ? params.get('rank') : 'output';
     state.sort = ['output', 'capacity', 'utilisation', 'name'].includes(params.get('sort')) ? params.get('sort') : 'output';
@@ -58,6 +70,7 @@
     set('types', Object.keys(technologies).filter(t => state.selectedTypes.has(t)).join(','), presets.all.join(','));
     set('measure', state.mode, 'output'); set('analysis', state.analysis, 'mix');
     set('layer', state.layer, 'heatmap');
+    set('heatMetric', state.heatMetric, 'balance'); set('mapNation', state.annualSelected, 'england');
     set('rank', state.rank, 'output'); set('sort', state.sort, 'output');
     set('names', state.labels ? '1' : '', ''); set('compare', state.compared.join(','), '');
     if (state.view === 'list') url.hash = 'directory';
@@ -88,7 +101,7 @@
   }
   function setRegion(region) {
     const focusedRegion = document.activeElement.dataset.region;
-    state.region = region; $('#region').value = region;
+    state.layer = 'sites'; state.region = region; $('#region').value = region;
     render(); setView('map'); map?.focusRegion(region);
     if (focusedRegion) document.querySelector(`[data-region="${focusedRegion}"]`)?.focus({ preventScroll: true });
     announce(`${scope()} selected. ${state.filtered.length} matching sites.`);
@@ -112,7 +125,7 @@
     $('#export-sites').disabled = !state.filtered.length; $('#fit-results').disabled = !state.filtered.length || !map;
     if (!state.filtered.some(site => site.id === state.selectedId)) closeDetails(false);
     map?.setSites(state.filtered, state.mode);
-    renderDirectory(); renderAnalysis(); renderComparison(); renderLegend();
+    renderDirectory(); renderAnalysis(); renderComparison(); applyMapLayer();
     if (state.selectedId) fillDetails(sites.find(site => site.id === state.selectedId));
     syncUrl();
   }
@@ -172,21 +185,110 @@
     });
     $('.map-legend').classList.toggle('heatmap-legend', state.layer === 'heatmap');
     if (state.layer === 'heatmap') {
-      $('#legend-title').textContent = 'Sample output concentration';
-      $('#legend-description').textContent = '50 km smoothing · Fixed relative scale';
-      const scale = node('div', 'heat-colour-scale');
-      const captions = node('div', 'heat-colour-captions'); captions.append(node('span', '', 'Lower'), node('span', '', 'Higher'));
+      const metric = heatMetrics[state.heatMetric];
+      $('#legend-title').textContent = metric.legend;
+      $('#legend-description').textContent = state.heatMetric === 'balance' ? 'Fixed scale · values beyond ±75% use end colours' : `Fixed scale · ${annualData.year} annual data`;
+      const scale = node('div', `regional-colour-scale metric-${state.heatMetric}`);
+      const captions = node('div', 'heat-colour-captions'); captions.append(node('span', '', metric.low), node('span', '', metric.middle), node('span', '', metric.high));
       $('#legend-scale').replaceChildren(scale, captions);
     }
   }
+  function interpolateColour(from, to, value) {
+    const t = Math.max(0, Math.min(1, value));
+    return `rgb(${from.map((channel, index) => Math.round(channel + (to[index] - channel) * t)).join(',')})`;
+  }
+  function regionalValue(row) {
+    const metric = state.heatMetric;
+    if (metric === 'balance') {
+      const value = row.coveragePercent === null ? null : row.coveragePercent - 100;
+      return { value, label: value === null ? 'No data' : `${number(Math.abs(value))}% ${value < 0 ? 'deficit' : value > 0 ? 'surplus' : 'balanced'}`, fill: value === null ? '#d7d9d5' : interpolateColour([247, 243, 233], value < 0 ? [186, 75, 32] : [17, 120, 91], Math.abs(value) / 75) };
+    }
+    if (metric === 'renewable') {
+      const value = row.baselineGenerationTWh > 0 && Number.isFinite(row.renewableTWh) ? row.renewableTWh / row.baselineGenerationTWh * 100 : null;
+      return { value, label: value === null ? 'No data' : `${number(value)}% renewable`, fill: value === null ? '#d7d9d5' : interpolateColour([233, 243, 219], [37, 113, 67], value / 100) };
+    }
+    const value = metric === 'generation' ? row.generationTWh : row.consumptionTWh;
+    return { value, label: value === null ? 'No data' : `${number(value)} TWh`, fill: value === null ? '#d7d9d5' : interpolateColour([233, 241, 249], [42, 84, 145], value / 300) };
+  }
+  function selectRegionalNation(key) {
+    if (!annualRows.some(row => row.key === key)) return;
+    state.annualSelected = key; renderRegionalMap(); syncUrl();
+    const row = annualRows.find(row => row.key === key);
+    announce(`${row.name}: ${regionalValue(row).label}. Annual generation ${number(row.generationTWh)} terawatt hours, gross demand ${number(row.consumptionTWh)} terawatt hours.`);
+  }
+  function renderRegionalMap() {
+    if (state.layer !== 'heatmap') return;
+    const metric = heatMetrics[state.heatMetric];
+    const scenario = annualScenario && state.heatMetric !== 'renewable';
+    const period = `${annualData.year} · ${scenario ? 'Illustrative annual scenario' : 'Official annual data'}`;
+    $('#results-label').textContent = `4 nations · ${annualData.year}${scenario ? ' scenario' : ''}`;
+    $('#map-scope').textContent = 'United Kingdom'; $('#map-data-label').textContent = metric.title;
+    $('#map-data-source').textContent = `${period} · DESNZ`;
+    $('#filter-summary').textContent = `${metric.title} / ${period}`;
+    $('#visible-sites').textContent = '4 nations'; $('#map-empty').hidden = true;
+    $('#regional-analysis-period').textContent = period;
+    $('#regional-analysis-title').textContent = metric.title;
+    $('#regional-analysis-description').textContent = state.heatMetric === 'balance' ? 'Greatest relative deficit first. Select a nation for its figures.' : 'Highest value first. Select a nation for its figures.';
+    $('#map-reading-note').textContent = state.heatMetric === 'balance'
+      ? `${scenario ? 'Illustrative scenario. ' : ''}Orange = annual deficit; teal = annual surplus. Colour compares the gap relative to demand, so larger nations do not automatically look more exposed. A deficit is not an outage forecast.`
+      : `${metric.description} ${state.heatMetric === 'renewable' ? 'The published renewable mix stays unchanged by the scenario controls. ' : ''}Each colour applies to a whole nation; it does not describe conditions in individual towns.`;
+    const comparisonRows = state.heatMetric === 'renewable' ? window.JMapBalance.analyseRegions(annualData.regions) : annualRows;
+    const rows = comparisonRows.map(row => ({ ...row, ...regionalValue(row) }));
+    map?.setRegions(window.JMAP_NATIONS, rows.map(row => ({ key: row.key, label: row.name, valueLabel: row.label, fill: row.fill, selected: row.key === state.annualSelected, description: `${row.name}, ${row.label}, ${period}. ${number(row.generationTWh)} TWh generated, ${number(row.consumptionTWh)} TWh gross demand.` })));
+    const ranking = $('#regional-ranking');
+    const focusedNation = document.activeElement.dataset.rankingNation;
+    ranking.replaceChildren();
+    rows.sort((a, b) => {
+      if (a.value === null) return b.value === null ? a.key.localeCompare(b.key) : 1;
+      if (b.value === null) return -1;
+      return (state.heatMetric === 'balance' ? a.value - b.value : b.value - a.value) || a.key.localeCompare(b.key);
+    }).forEach(row => {
+      const button = node('button', 'regional-ranking-row'); button.type = 'button'; button.dataset.rankingNation = row.key;
+      button.setAttribute('aria-pressed', String(row.key === state.annualSelected));
+      const swatch = node('span', 'regional-ranking-swatch'); swatch.style.background = row.fill; swatch.setAttribute('aria-hidden', 'true');
+      const text = node('span'); text.append(node('strong', '', row.name), node('small', '', row.label));
+      button.append(swatch, text); button.addEventListener('click', () => selectRegionalNation(row.key)); ranking.append(button);
+    });
+    if (focusedNation) document.querySelector(`[data-ranking-nation="${focusedNation}"]`)?.focus({ preventScroll: true });
+    const selected = comparisonRows.find(row => row.key === state.annualSelected) || comparisonRows[0];
+    if (!selected) return;
+    $('#regional-detail-title').textContent = selected.name;
+    $('#regional-detail-status').textContent = `${selected.balanceTWh < 0 ? 'Annual deficit' : selected.balanceTWh > 0 ? 'Annual surplus' : 'Balanced'} · ${selected.balanceTWh < 0 ? '−' : '+'}${fixed(Math.abs(selected.balanceTWh))} TWh`;
+    const facts = $('#regional-detail-facts'); facts.replaceChildren();
+    [['Generation', `${fixed(selected.generationTWh)} TWh`], ['Gross demand', `${fixed(selected.consumptionTWh)} TWh`], ['Generation / demand', percent(selected.coveragePercent)]].forEach(([label, value]) => { const row = node('div'); row.append(node('dt', '', label), node('dd', '', value)); facts.append(row); });
+    $('#regional-detail-note').textContent = scenario
+      ? 'Scenario arithmetic only. Transfer limits, hourly conditions and local outage risk are not modelled.'
+      : selected.balanceTWh < 0
+        ? `Net imports covered ${percent(selected.shortfallPercent)} of gross annual demand. This is reliance on supply from elsewhere, not unmet demand.`
+        : `Generation exceeded gross annual demand by ${percent(selected.coveragePercent - 100)}. An annual surplus does not guarantee spare capacity at peak times.`;
+  }
   function applyMapLayer() {
     const heat = state.layer === 'heatmap';
-    map?.setHeatmap(heat);
+    document.body.classList.toggle('regional-map-active', heat);
+    const legend = $('.map-legend'); const legendHost = heat ? $('#regional-legend-host') : $('#map-stage');
+    if (legend.parentElement !== legendHost) legendHost.append(legend);
+    $('#regional-legend-host').hidden = !heat || state.view !== 'map';
+    map?.setRegionalVisibility(heat);
+    $('#regional-map-controls').hidden = !heat; $('#regional-analysis').hidden = !heat;
+    $('#analysis-content').hidden = heat || !!state.selectedId; $('#site-detail').hidden = heat || !state.selectedId;
+    $('.sidebar-title h2').textContent = heat ? 'Map controls' : 'Find & filter';
+    $('.map-measures').hidden = heat || state.view !== 'map';
+    $('#fit-results').hidden = heat; $('#jump-comparison').hidden = heat || !state.compared.length;
     document.querySelectorAll('[data-layer]').forEach(button => {
       const active = button.dataset.layer === state.layer;
       button.classList.toggle('selected', active); button.setAttribute('aria-pressed', String(active));
     });
-    $('#layer-description').textContent = heat ? 'Colour shows sample output concentration.' : 'Shape shows technology. Size shows your measure.';
+    document.querySelectorAll('[data-heat-metric]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.heatMetric === state.heatMetric)));
+    $('#layer-description').textContent = heat ? heatMetrics[state.heatMetric].description : 'Shape shows technology. Size shows your measure.';
+    if (heat) renderRegionalMap();
+    else {
+      $('#results-label').textContent = `${state.filtered.length} of ${sites.length} sites`;
+      $('#filter-summary').textContent = `${sameTypes(presets.all) ? 'All technologies' : `${state.selectedTypes.size} technologies`} / ${scope()}${state.query ? ' / Search active' : ''}`;
+      $('#map-data-label').textContent = 'Sample site locations'; $('#map-scope').textContent = scope();
+      $('#map-data-source').textContent = 'Illustrative JMap site data';
+      $('#map-reading-note').textContent = 'These are sample generation, storage and import sites. Their illustrative outputs do not measure local demand or electricity access.';
+      $('#map-empty').hidden = state.filtered.length > 0;
+    }
     renderLegend();
   }
   function sortedSites(list, key) {
@@ -271,12 +373,13 @@
     table.append(head, body); wrap.append(table); $('#comparison-body').append(wrap);
   }
   function setView(view) {
+    if (view === 'list') state.layer = 'sites';
     state.view = view; $('#map-stage').hidden = view !== 'map'; $('#directory').hidden = view !== 'list'; $('.map-measures').hidden = view !== 'map';
     $('.map-layer-controls').hidden = view !== 'map'; $('#map-reading-note').hidden = view !== 'map';
     ['map', 'list'].forEach(key => { $(`#${key}-view`).classList.toggle('selected', view === key); $(`#${key}-view`).setAttribute('aria-pressed', String(view === key)); });
     $('#size-mode').disabled = view !== 'map'; $('#fit-results').disabled = !state.filtered.length || !map;
     $('#visible-sites').hidden = view !== 'map'; $('#zoom-label').hidden = view !== 'map';
-    if (view === 'list') renderDirectory(); syncUrl();
+    if (view === 'list') renderDirectory(); applyMapLayer(); syncUrl();
   }
   function resetFilters() {
     state.query = ''; state.region = 'all'; $('#site-search').value = ''; $('#region').value = 'all';
@@ -301,10 +404,10 @@
       const shortcuts = node('dl');
       [['/', 'Find a site'], ['+ / −', 'Zoom the focused map'], ['Arrow keys', 'Pan the focused map'], ['Home', 'Whole UK view'], ['Tab, Enter', 'Explore and select sites'], ['Esc', 'Close site details or this guide']].forEach(([key, action]) => { const row = node('div'); row.append(node('dt', '', key), node('dd', '', action)); shortcuts.append(row); });
       body.append(shortcuts, node('p', '', 'Drag to pan, scroll to zoom, or use two fingers to pinch on a touch screen. Use the directory for closely located sites.'));
-      body.append(node('p', '', 'Heatmap colour shows output-weighted concentration within a 50 km smoothing radius. It always uses output in MW, independently of marker size. Filters change the included sites; the colour scale stays fixed. Empty areas mean no sample output, not no electricity.'), node('p', '', 'Surplus & deficit below the map uses official annual national data, independently of site filters. The scenario controls change annual generation and gross demand; they do not predict outages.'));
+      body.append(node('p', '', 'The regional heatmap fills whole nations using official annual data. Switch between surplus/deficit, generation, gross demand and renewable share in Map controls. Surplus/deficit colour is generation minus demand divided by demand, with a fixed neutral zero. Select a nation to see the exact TWh figures. Nation outlines and labels are keyboard selectable.'), node('p', '', 'Sample site filters apply in Site markers mode. The regional heatmap and annual table use official national data independently of the site sample. Scenario controls update the balance, generation and demand maps; renewable share retains the published mix.'));
     } else {
       $('#dialog-title').textContent = 'Understand the scope.';
-      body.append(node('p', '', `This curated map sample contains ${sites.length} sites across England, Scotland, Wales, and Northern Ireland. Outputs are synthetic examples. Capacities, coordinates, and operator labels are approximate. The sample does not describe national totals or a single UK electricity balance.`), node('p', '', 'Power supplied adds generation, storage discharge, and interconnector imports. Stored energy is not counted as new generation. The low-carbon share is wind, solar, nuclear, and conventional hydro output divided by generation output; storage and imports are excluded.'), node('p', '', 'The map shows where assets are located. Its heatmap shows sample output concentration, not transmission, coverage or household access. Site data contains no demand or real-time measurements.'), node('p', '', 'The separate regional balance uses official annual generation and gross demand from DESNZ. Its sources and definitions are below the table. Annual surplus or deficit does not establish local shortage risk. Scenario values are illustrative arithmetic, not forecasts.'), node('p', '', 'Sample headlines, energy mix, and rankings follow your site filters, independently of map zoom. Nations compares your search and technologies across all four nations. Official annual balances remain independent of these filters.'));
+      body.append(node('p', '', 'The regional heatmap uses official annual generation and gross demand from DESNZ, one value for each of the four UK nations. It cannot reveal differences between individual towns. Gross demand includes network losses and generation/storage own use. Its sources and definitions are below the annual table.'), node('p', '', `Site markers is a separate curated sample of ${sites.length} assets. Outputs are synthetic examples; capacities, coordinates and operator labels are approximate. This sample does not describe national totals.`), node('p', '', 'Sample power supplied adds generation, storage discharge and interconnector imports. Its low-carbon share is wind, solar, nuclear and conventional hydro output divided by generation; storage and imports are excluded.'), node('p', '', 'Annual surplus or deficit does not establish local shortage risk, household electricity access or hourly adequacy. Scenario values are illustrative arithmetic, not forecasts.'), node('p', '', 'Site filters and sample summary metrics apply only in Site markers and Directory views. They do not change the official annual comparison. The regional map colours update when you change the annual demand/generation scenarios.'));
       const paragraph = node('p'); const link = node('a', '', 'Geography: Natural Earth (public domain) ↗'); link.href = 'https://www.naturalearthdata.com/about/terms-of-use/'; link.target = '_blank'; link.rel = 'noreferrer'; paragraph.append(link); body.append(paragraph);
     }
     $('#info-dialog').showModal();
@@ -312,18 +415,22 @@
 
   readLocation(); makeFilters();
   $('#site-search').value = state.query; $('#region').value = state.region; $('#size-mode').value = state.mode; $('#site-labels').checked = state.labels; $('#rank-by').value = state.rank; $('#sort-sites').value = state.sort;
-  $('#energy-map').addEventListener('mapviewchange', event => { $('#zoom-label').textContent = Math.abs(event.detail.zoom - 1) < .05 ? 'UK view' : `${event.detail.zoom.toFixed(1)}× zoom`; $('#visible-sites').textContent = `${event.detail.visibleSiteIds.length} on map`; });
+  $('#energy-map').addEventListener('mapviewchange', event => { $('#zoom-label').textContent = Math.abs(event.detail.zoom - 1) < .05 ? 'UK view' : `${event.detail.zoom.toFixed(1)}× zoom`; $('#visible-sites').textContent = state.layer === 'heatmap' ? '4 nations' : `${event.detail.visibleSiteIds.length} on map`; });
   if (window.EnergyMap && window.JMAP_GEOGRAPHY) {
-    map = new window.EnergyMap({ element: $('#energy-map'), geography: window.JMAP_GEOGRAPHY, scaleMaxima: maxima, onSelect: id => selectSite(id) });
+    map = new window.EnergyMap({ element: $('#energy-map'), geography: window.JMAP_GEOGRAPHY, scaleMaxima: maxima, onSelect: id => selectSite(id), onRegionSelect: key => selectRegionalNation(key) });
     map.setLabelVisibility(state.labels);
   } else { state.view = 'list'; $('#map-view').disabled = true; announce('Map could not load. Use the directory and analysis panels.'); }
-  render(); applyMapLayer(); setView(state.view); if (state.region !== 'all') map?.focusRegion(state.region);
+  render(); applyMapLayer(); setView(state.view); if (state.layer === 'sites' && state.region !== 'all') map?.focusRegion(state.region);
   if (state.view === 'list') requestAnimationFrame(() => $('#workspace').scrollIntoView({ block: 'start' }));
   $('#site-search').addEventListener('input', event => { state.query = event.target.value.trim(); render(); });
   $('#region').addEventListener('change', event => setRegion(event.target.value));
   $('#size-mode').addEventListener('change', event => { state.mode = event.target.value; map?.setSites(state.filtered, state.mode); renderLegend(); syncUrl(); });
   $('#site-labels').addEventListener('change', event => { state.labels = event.target.checked; map?.setLabelVisibility(state.labels); syncUrl(); });
-  document.querySelectorAll('[data-layer]').forEach(button => button.addEventListener('click', () => { state.layer = button.dataset.layer; applyMapLayer(); syncUrl(); announce(state.layer === 'heatmap' ? 'Output heatmap enabled. Colour shows sample supply concentration.' : 'Site markers enabled.'); }));
+  document.querySelectorAll('[data-layer]').forEach(button => button.addEventListener('click', () => { state.layer = button.dataset.layer; closeDetails(false); setView('map'); if (state.layer === 'heatmap') map?.reset(); else render(); syncUrl(); announce(state.layer === 'heatmap' ? 'Regional heatmap enabled. Colour compares official annual data across four nations.' : 'Site markers enabled. Sample site filters apply.'); }));
+  document.querySelectorAll('[data-heat-metric]').forEach(button => button.addEventListener('click', () => { state.heatMetric = button.dataset.heatMetric; applyMapLayer(); syncUrl(); announce(`${heatMetrics[state.heatMetric].title} map. ${heatMetrics[state.heatMetric].unit}.`); }));
+  $('#regional-reset').addEventListener('click', () => map?.reset());
+  $('#zoom-regional-selection').addEventListener('click', () => map?.focusRegion(state.annualSelected));
+  document.addEventListener('jmapbalancechange', event => { annualRows = event.detail.rows; annualScenario = event.detail.scenario; if (state.layer === 'heatmap') { renderRegionalMap(); renderLegend(); } });
   document.addEventListener('jmapregionfocus', event => { if (Object.hasOwn(regions, event.detail)) { setRegion(event.detail); $('#workspace').scrollIntoView({ block: 'start' }); $('#region').focus({ preventScroll: true }); } });
   $('#sort-sites').addEventListener('change', event => { state.sort = event.target.value; renderDirectory(); syncUrl(); });
   $('#rank-by').addEventListener('change', event => { state.rank = event.target.value; renderAnalysis(); syncUrl(); });
@@ -346,5 +453,5 @@
   $('#export-sites').addEventListener('click', exportAnalysis); $('#about-data').addEventListener('click', () => showDialog('data')); $('#coverage-details').addEventListener('click', () => showDialog('data')); $('#keyboard-help').addEventListener('click', () => showDialog('guide'));
   $('#close-dialog').addEventListener('click', () => $('#info-dialog').close()); $('#dialog-done').addEventListener('click', () => $('#info-dialog').close());
   $('#info-dialog').addEventListener('click', event => { if (event.target !== event.currentTarget) return; const b = event.target.getBoundingClientRect(); if (event.clientX < b.left || event.clientX > b.right || event.clientY < b.top || event.clientY > b.bottom) event.target.close(); });
-  document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('#info-dialog').open) closeDetails(); if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !$('#info-dialog').open && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); $('#site-search').focus(); } });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('#info-dialog').open) { closeDetails(); if (state.layer === 'heatmap') applyMapLayer(); } if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !$('#info-dialog').open && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); state.layer = 'sites'; setView('map'); render(); $('#site-search').focus(); } });
 })();

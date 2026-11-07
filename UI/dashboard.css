@@ -1,0 +1,147 @@
+/* A compact, persistent workspace for inspecting UK electricity data. */
+body.energy-page { height: 100dvh; overflow: hidden; font-size: 12px; }
+.energy-page .site-header { height: 38px; padding: 0 16px; gap: 24px; }
+.energy-page .brand { font-size: 24px; letter-spacing: -1.5px; }
+.energy-page .brand > span { font-size: 16px; }
+.energy-page .site-header nav { margin-left: 16px; gap: 24px; }
+.energy-page .site-header nav a { font-size: 11px; }
+.energy-page .header-meta { font-size: 9px; }
+.energy-page main { max-width: none; padding: 0 12px 8px; height: calc(100dvh - 38px); display: flex; flex-direction: column; min-height: 0; gap: 4px; }
+.dashboard-heading { min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dashboard-heading > div { display: flex; align-items: baseline; gap: 15px; }
+.dashboard-heading h1 { font: 500 18px/1.3 Arial, sans-serif; margin: 0; letter-spacing: -.025em; }
+.dashboard-heading > div > span { font: 10px/1.6 monospace; color: #637062; }
+.dashboard-heading > div:last-child { gap: 20px; }
+.dashboard-heading .plain-link { font-size: 10px; }
+.dashboard-kpis { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); background: #fff; border: 1px solid var(--line); flex-shrink: 0; }
+.dashboard-kpis article { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 6px 12px; min-width: 0; border-right: 1px solid var(--line); }
+.dashboard-kpis article:last-child { border: 0; }
+.dashboard-kpis article > span { color: #62705f; font: 10px/1.3 Arial,sans-serif; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-kpis strong { font: 500 17px/1.2 Arial,sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.025em; white-space: nowrap; }
+.dashboard-kpis small { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.dashboard-scope { min-height: 17px; display: flex; align-items: center; gap: 12px; font: 10px/1.6 monospace; color: #52624f; flex-shrink: 0; }
+#dashboard-coverage { margin-left: auto; font-size: 9px; color: #74806d; }
+.energy-page .scope-heading, .energy-page .metrics, .energy-page .coverage-note, .energy-page > footer { display: none; }
+.energy-page .workspace { flex: 1; min-height: 0; height: auto; grid-template-columns: 174px minmax(0,1fr); margin: 0; }
+.energy-page .sidebar { min-height: 0; overflow-y: auto; padding: 13px 11px; }
+.energy-page .sidebar-title { margin-bottom: 13px; }
+.energy-page .sidebar-title h2 { font-size: 12px; font-weight: 500; }
+.dashboard-field { display: block; color: #677361; font: 10px/1.6 Arial,sans-serif; margin-bottom: 13px; }
+.dashboard-field select { display: block; width: 100%; margin: 4px 0 0; background: #fff; border: 1px solid var(--line); padding: 6px; font-size: 11px; }
+.regional-metric-options { gap: 5px; margin-top: 7px; }
+.regional-metric-options button { padding: 7px 9px; }
+.regional-metric-options button strong { font-size: 11px; line-height: 1.5; }
+.regional-metric-options button span { display: none; font-size: 9px; line-height: 1.4; margin-top: 2px; }
+.regional-metric-options button[aria-pressed="true"] span { display: block; }
+.regional-scope-note { margin-top: 14px; font-size: 10px; line-height: 1.6; }
+.regional-reset { margin-top: 14px; font-size: 10px; }
+.energy-page .map-workspace { min-height: 0; height: 100%; }
+.energy-page .map-toolbar { min-height: 33px; flex-shrink: 0; padding: 6px 12px; gap: 10px; }
+.energy-page .map-toolbar .plain-link, .energy-page .results-label { font-size: 10px; }
+.regional-map-active .map-toolbar > .view-switch { display: none; }
+.energy-page .explorer-body { min-height: 0; grid-template-columns: minmax(0,1fr) 282px; }
+.energy-page .map-column { min-height: 0; }
+.map-layer-controls { flex-shrink: 0; padding: 0; min-height: 0; border: 0; }
+.map-layer-controls > p { display: none; }
+.view-switch button { font-size: 10px; padding: 5px 9px; }
+.energy-page .map-stage { min-height: 0; flex: 1; }
+.energy-page .map-controls { top: 40px; right: 12px; }
+.energy-page .map-controls button { width: 29px; height: 30px; }
+.energy-page .map-label { top: 14px; left: 12px; font-size: 8px; }
+.north-indicator { top: 40px; left: 12px; }
+.map-attribution { display: none; }
+.area-hover { position: absolute; bottom: 8px; left: 8px; right: 8px; padding: 7px 9px; background: #fffffff2; border: 1px solid #dbe1d5; font: 10px/1.5 monospace; color: #3d533e; pointer-events: none; }
+#regional-legend-host:not(:empty) { padding: 7px 12px; flex-shrink: 0; }
+.energy-page #regional-legend-host .map-legend { max-width: none; width: 100%; }
+.energy-page #regional-legend-host .map-legend > div { display: grid; grid-template-columns: minmax(100px,1fr) minmax(160px,230px); align-items: center; gap: 3px 14px; }
+.energy-page #regional-legend-host .map-legend #legend-title { font: 10px/1.6 Arial,sans-serif; }
+.energy-page #regional-legend-host .map-legend #legend-scale { grid-column: 2; grid-row: span 2; padding: 0; min-width: 0; }
+.energy-page #regional-legend-host .map-legend #legend-description { grid-row: 2; font-size: 8px; line-height: 1.5; }
+.regional-colour-scale { height: 7px; }
+.heat-colour-captions { font-size: 8px; margin-top: 3px; }
+.map-reading-note { padding: 5px 12px; font: 9px/1.5 Arial,sans-serif; flex-shrink: 0; }
+.energy-page .analysis-rail { overflow: hidden; min-height: 0; }
+#regional-analysis { height: 100%; min-height: 0; display: grid; grid-template-rows: auto auto minmax(75px,1fr) auto; }
+.analysis-heading { padding: 10px 12px; }
+.analysis-heading h2 { font-size: 16px; margin: 4px 0; }
+.analysis-heading .eyebrow { font-size: 8px; }
+.analysis-heading > p:last-child { font-size: 9px; }
+.area-search { display: grid; grid-template-columns: minmax(0,1fr) 91px; gap: 5px; padding: 0 10px 8px; }
+.area-search input, .area-search select { width: 100%; min-width: 0; font-size: 10px; padding: 7px 6px; background: #fff; border: 1px solid var(--line); border-radius: 0; }
+.regional-ranking { display: block; overflow-y: auto; min-height: 0; padding: 0 10px; overscroll-behavior: contain; }
+.regional-ranking-row { padding: 6px; gap: 7px; }
+.regional-ranking-swatch { width: 7px; height: 23px; border-radius: 0; }
+.regional-ranking-row > span:last-child { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; width: 100%; min-width: 0; }
+.regional-ranking-row strong { font-size: 11px; line-height: 1.5; font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-ranking-row small { font-size: 9px; margin: 0; white-space: nowrap; }
+.regional-detail { padding: 10px 12px; border-top: 1px solid #dce1d5; background: #fafbf8; }
+.detail-caption { display: flex; justify-content: space-between; align-items: baseline; }
+.detail-caption .plain-link { font-size: 9px; }
+.regional-detail h3 { font-size: 17px; margin: 4px 0; line-height: 1.3; }
+#regional-detail-status { font-size: 9px; line-height: 1.5; }
+.regional-detail dl { margin: 8px 0; }
+.regional-detail dl > div { padding: 5px 0; font-size: 10px; }
+.regional-detail dd { font-size: 10px; }
+#regional-detail-note { font-size: 9px; line-height: 1.5; margin-bottom: 7px; max-height: 55px; overflow-y: auto; }
+.regional-detail > .plain-link { margin-top: 7px; font-size: 10px; }
+.energy-page .map-status { min-height: 25px; padding: 4px 12px; flex-shrink: 0; gap: 12px; }
+.energy-page .map-status p, .energy-page .map-status > span { font-size: 8px; }
+.energy-page .map-measures { min-height: 33px; padding: 5px 12px; flex-shrink: 0; }
+.energy-page .site-detail { padding: 12px; height: 100%; overflow-y: auto; }
+#analysis-content { height: 100%; overflow-y: auto; }
+.energy-page .directory { min-height: 0; height: 100%; }
+.energy-page .directory-scroll { min-height: 0; flex: 1; max-height: none; overflow: auto; }
+.energy-page .directory-heading { padding: 10px; }
+.comparison-section { position: fixed; bottom: 20px; left: 200px; right: 25px; z-index: 20; max-height: 55dvh; overflow-y: auto; box-shadow: 0 3px 20px #0002; }
+#balance-dialog { width: min(1120px,calc(100vw - 40px)); max-width: none; max-height: 90dvh; padding: 0; }
+.dashboard-dialog-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 3; }
+.dashboard-dialog-bar strong { font-weight: 500; font-size: 12px; }
+#balance-dialog .balance-section { margin: 0; border: 0; }
+#balance-dialog .balance-heading { padding: 18px; }
+#balance-dialog .balance-heading h2 { font-size: 24px; }
+#info-dialog { width: min(760px,calc(100vw - 30px)); max-height: 88dvh; overflow-y: auto; }
+.map-region:focus-visible, .map-region-label:focus-visible { outline: none; filter: drop-shadow(0 0 2px #14261b); }
+@media (max-width: 1150px) and (min-width: 851px) { .energy-page .workspace { grid-template-columns: 155px minmax(0,1fr); } .energy-page .explorer-body { grid-template-columns: minmax(0,1fr) 250px; } .dashboard-heading > div:last-child { gap: 12px; } .header-meta { display: none !important; } .energy-page #regional-legend-host .map-legend > div { grid-template-columns: minmax(80px,1fr) 145px; gap: 3px 8px; } }
+@media (max-width: 850px) {
+  body.energy-page { height: auto; overflow: auto; }
+  .energy-page main { height: auto; min-height: calc(100dvh - 44px); }
+  .energy-page .header-meta { display: none; }
+  .energy-page .site-header { height: 44px; gap: 20px; }
+  .energy-page .site-header nav { margin-left: auto; gap: 18px; }
+  .dashboard-heading { flex-wrap: wrap; padding: 6px 0; }
+  .dashboard-heading > div { gap: 9px; }
+  .dashboard-heading > div:last-child { width: 100%; justify-content: space-between; }
+  .dashboard-heading .plain-link { font-size: 9px; }
+  .dashboard-kpis { grid-template-columns: 1fr 1fr; }
+  .dashboard-kpis article { gap: 6px; padding: 6px 9px; }
+  .dashboard-kpis article:nth-child(2) { border-right: 0; }
+  .dashboard-kpis article:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .dashboard-kpis strong { font-size: 15px; }
+  .dashboard-scope { flex-wrap: wrap; gap: 4px 10px; }
+  #dashboard-coverage { width: 100%; margin: 0; font-size: 8px; }
+  .energy-page .workspace { display: flex; flex-direction: column; height: auto; min-height: 0; }
+  .energy-page .sidebar { padding: 10px; overflow: visible; }
+  .energy-page .sidebar-title { margin-bottom: 8px; }
+  #regional-map-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+  .dashboard-field { margin: 0; }
+  #regional-map-controls > .eyebrow { display: none; }
+  .regional-metric-options { grid-column: 1/-1; grid-template-columns: repeat(3,minmax(0,1fr)); margin-top: 3px; gap: 5px; }
+  .regional-metric-options button { padding: 6px; }
+  .regional-metric-options button strong { font-size: 10px; }
+  .regional-metric-options button span { display: none; }
+  .regional-scope-note { grid-column: 1/-1; margin: 0; font-size: 9px; }
+  .regional-reset { margin: 0; font-size: 9px; grid-column: 1/-1; justify-self: end; }
+  .energy-page .map-workspace { height: auto; }
+  .energy-page .explorer-body { grid-template-columns: 1fr; }
+  .energy-page .map-stage { flex: none; height: 58dvh; min-height: 350px; }
+  .energy-page #regional-legend-host .map-legend > div { grid-template-columns: minmax(80px,1fr) minmax(130px,170px); gap: 3px 9px; }
+  .area-hover { font-size: 9px; padding: 6px; }
+  #regional-analysis { height: 560px; grid-template-rows: auto auto minmax(100px,1fr) auto; }
+  .regional-ranking { display: block; }
+  .analysis-heading { padding: 10px; }
+  .regional-detail { padding: 10px; }
+  .energy-page .directory { height: 450px; }
+  .energy-page .sidebar.is-open .filter-options { display: block; }
+  .comparison-section { left: 12px; right: 12px; bottom: 12px; }
+  #balance-dialog { width: calc(100vw - 16px); max-height: 94dvh; }
+}

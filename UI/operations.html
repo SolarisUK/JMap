@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f6f3">
+  <meta name="description" content="GB grid simulation: compare responses to incidents, inspect transmission constraints and unmet demand, and explore half-hour forecasts.">
+  <title>Grid operations — JMap</title>
+  <link rel="stylesheet" href="operations.css">
+  <script src="assets/geography.js" defer></script>
+  <script src="assets/simulation-stubs.js" defer></script>
+  <script src="operations-api.js" defer></script>
+  <script src="operations-analysis.js" defer></script>
+  <script src="operations-map.js" defer></script>
+  <script src="operations.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#network">Skip to network</a>
+  <header class="app-header"><a class="brand" href="operations.html">jmap<span>↗</span></a><nav aria-label="Main navigation"><a href="operations.html" aria-current="page">Grid operations</a><a href="explorer.html">Energy context</a></nav><span class="data-status" id="data-status">Loading simulation…</span><button class="text-button" id="open-notes" type="button">Data &amp; method</button></header>
+  <main>
+    <section class="control-bar" aria-label="Episode controls">
+      <label>Scenario<select id="scenario" disabled><option>Loading…</option></select></label>
+      <label>Response<select id="strategy" disabled><option>Loading…</option></select></label>
+      <div class="segmented" role="group" aria-label="Map layout"><button id="split-view" type="button" aria-pressed="true">Compare maps</button><button id="single-view" type="button" aria-pressed="false">Response only</button></div>
+      <span id="scenario-description"></span><button id="open-incidents" type="button" class="incident-trigger">Inject incident +</button><button class="text-button" id="export-episode" type="button" disabled>Export ↓</button>
+    </section>
+    <section class="kpi-strip" aria-label="Cumulative episode totals at selected time" aria-live="polite">
+      <article><span>Unserved energy</span><strong id="kpi-unserved">—</strong></article><article><span>Episode cost</span><strong id="kpi-cost">—</strong></article><article><span>Carbon</span><strong id="kpi-carbon">—</strong></article><article><span>Curtailed energy</span><strong id="kpi-curtailed">—</strong></article>
+    </section>
+    <div class="snapshot-bar"><p id="snapshot-scope">Cumulative totals · response snapshot</p><p id="model-status"></p><span id="loading-state" role="status"></span></div>
+    <div id="error-banner" class="error-banner" role="alert" hidden><p id="error-message"></p><button id="retry" type="button">Retry</button><button id="use-bundle" type="button">Use generated demo</button></div>
+    <section class="operations-workspace" id="network" aria-label="Network and analysis">
+      <div class="network-column">
+        <div class="maps" id="maps">
+          <article class="map-panel baseline-panel" aria-labelledby="baseline-heading"><div class="map-heading"><h2 id="baseline-heading">Without response</h2><span id="baseline-summary">Baseline</span></div><div class="map-stage"><svg id="baseline-map" aria-label="Network without response"></svg><span class="map-chip">No response</span></div></article>
+          <article class="map-panel response-panel" aria-labelledby="response-heading"><div class="map-heading"><h2 id="response-heading">Response</h2><span id="response-summary"></span></div><div class="map-stage"><svg id="response-map" aria-label="Network with response"></svg><span id="response-chip" class="map-chip">Response</span><div class="map-navigation" role="group" aria-label="Map navigation"><button type="button" id="zoom-in" aria-label="Zoom in">+</button><button type="button" id="zoom-out" aria-label="Zoom out">−</button><button type="button" id="reset-map" aria-label="Reset map">⌂</button></div><p class="placeholder-banner" id="placeholder-banner" hidden>Agent policy not trained. Optimiser preview shown.</p></div></article>
+        </div>
+        <div class="network-legend"><div><strong>Unmet demand</strong><span class="legend-swatch healthy"></span><span title="Display-only tolerance; exact simulator values remain in tooltips and API responses.">&lt;0.05 MW</span><span class="unserved-ramp"></span><span>1,000+ MW</span></div><div><strong>Corridor loading</strong><span class="line-key healthy-line"></span><span>&lt;75%</span><span class="line-key amber-line"></span><span>75–100%</span><span class="line-key red-line"></span><span>&gt;100%</span><span class="line-key trip-line"></span><span>Tripped</span></div></div>
+        <div class="timeline"><button id="previous-frame" type="button" aria-label="Previous half-hour">‹</button><button id="play" type="button" aria-pressed="false" disabled>Play</button><button id="next-frame" type="button" aria-label="Next half-hour">›</button><label for="time-step" class="sr-only">Half-hour snapshot</label><input id="time-step" type="range" min="0" max="47" step="1" value="0" disabled><output id="frame-time" for="time-step">—</output><span id="frame-count">— / 48</span></div>
+        <div class="network-footer"><span id="episode-range">UTC storage · Europe/London display</span><span id="geometry-status">Zone geometry from /zones</span></div>
+      </div>
+      <aside class="analysis-panel" aria-label="Selected zone and episode analysis">
+        <div class="analysis-tabs" role="group" aria-label="Analysis view"><button type="button" data-tab="inspect" aria-pressed="false">Inspect</button><button type="button" data-tab="forecast" aria-pressed="true">Forecast</button><button type="button" data-tab="results" aria-pressed="false">Results</button></div>
+        <section id="zone-selector"><label for="zone">Selected zone</label><select id="zone" disabled><option>Loading…</option></select><p id="zone-data-note"></p></section>
+        <section id="panel-inspect" class="analysis-body" hidden><h3 id="detail-title">Zone state</h3><dl id="zone-facts" class="facts"></dl><div id="edge-detail" hidden><h3 id="edge-title"></h3><dl id="edge-facts" class="facts"></dl></div><div class="section-label"><h3>Transmission corridors</h3><span id="corridor-count"></span></div><div id="corridor-list" class="corridor-list"></div><h3 class="subheading">Active incidents</h3><div id="active-incidents"></div></section>
+        <section id="panel-forecast" class="analysis-body"><div class="section-label"><h3>Demand outlook</h3><span id="forecast-status">48 half-hours · MW</span></div><p id="forecast-issued" class="muted"></p><svg id="forecast-chart" role="img" aria-label="Demand forecast loading"></svg><div class="chart-key"><span class="forecast-line-key"></span>P50<span class="forecast-band-key"></span>P10–P90</div><h3 class="subheading" id="explanation-title">Forecast factors</h3><ul id="forecast-explanation"></ul><p id="forecast-note" class="method-note"></p><div class="section-label"><h3>At selected time</h3></div><dl id="forecast-zone-facts" class="facts"></dl></section>
+        <section id="panel-results" class="analysis-body" hidden><p class="eyebrow">Full episode · 48 half-hours</p><p id="result-headline" class="result-headline">—</p><p id="result-description" class="muted"></p><div class="results-scroll"><table id="results-table"><caption class="sr-only">Full-episode results by strategy</caption><thead><tr><th scope="col">Strategy</th><th scope="col">Unserved<br>MWh</th><th scope="col">Cost<br>£</th></tr></thead><tbody id="results-body"></tbody></table></div><dl id="result-other-metrics" class="facts"></dl><p id="result-honesty" class="method-note"></p><button id="export-results" type="button" class="text-button">Export comparison ↓</button></section>
+      </aside>
+    </section>
+  </main>
+  <dialog id="incident-dialog" aria-labelledby="incident-title"><div class="dialog-heading"><h2 id="incident-title">Inject an incident</h2><button class="close-button" data-close="incident-dialog" type="button" aria-label="Close incident controls">×</button></div><p>Apply a change to this scenario, then compare both responses on the same timeline.</p><div class="incident-presets"><button type="button" data-preset="boundary"><strong>Trip Scotland–England boundary</strong><span>SSCO–NORT · full loss · 1 half-hour minimum</span></button><button type="button" data-preset="cold"><strong>Cold snap</strong><span>All zones · demand ×1.18</span></button><button type="button" data-preset="nuclear"><strong>Nuclear outage</strong><span>EAST · 90% of dispatchable capacity lost</span></button></div><div class="incident-settings"><label>Start half-hour<input id="incident-start" type="number" min="0" max="47" step="1" value="34"></label><label>Duration (half-hours)<input id="incident-duration" type="number" min="1" max="48" step="1" value="12"></label></div><p id="incident-mode-note" class="method-note"></p><p id="incident-status" role="status"></p></dialog>
+  <dialog id="notes-dialog" aria-labelledby="notes-title"><div class="dialog-heading"><h2 id="notes-title">Data and interpretation</h2><button class="close-button" data-close="notes-dialog" type="button" aria-label="Close data notes">×</button></div><div id="data-notes"></div><p>Map colours measure unmet demand, <code>unserved_mw</code>. A zone can import electricity and still meet all demand. Signed arrows show corridor flow relative to its declared from/to direction. Overloaded lines exceed 100%; tripped lines have a distinct dashed treatment, and a zero-limit line has no flow arrows.</p><p>The four top metrics are cumulative episode totals at the selected half-hour. The Results tab compares completed 48-step episodes. All timestamps are stored in UTC and displayed in Europe/London.</p><p>The local-authority statistics remain available in <a href="explorer.html">Energy context</a>; those historical annual figures do not drive this simulation.</p><p>Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth, public domain</a>. Network geometry and model assumptions come from the supplied project contract.</p></dialog>
+  <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+  <noscript><p>Enable JavaScript to use the simulation dashboard.</p></noscript>
+</body>
+</html>

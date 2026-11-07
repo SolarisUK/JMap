@@ -1,0 +1,18 @@
+{
+  "name": "nuclear_outage_low_wind",
+  "description": "Wind output is reduced to 25% nationally, with a 90% East England dispatchable-capacity outage from step 30. The simulator's generator_outage affects dispatchable plant, not nuclear; this limitation is retained explicitly.",
+  "start_timestamp_utc": null,
+  "incidents": [
+    {"type": "generator_outage", "target": "EAST", "start_step": 30, "duration_steps": 18, "magnitude": 0.9},
+    {"type": "wind_lull", "target": "NSCO", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "SSCO", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "NORT", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "YORK", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "WALE", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "MIDL", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "EAST", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "SWES", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "LOND", "start_step": 0, "duration_steps": 48, "magnitude": 0.25},
+    {"type": "wind_lull", "target": "SOUT", "start_step": 0, "duration_steps": 48, "magnitude": 0.25}
+  ]
+}

@@ -117,9 +117,15 @@
       if (!bounds.width || !bounds.height) return;
       this.width = Math.max(1, bounds.width || 1000);
       this.height = Math.max(1, bounds.height || 720);
+      const readout = this.element.parentElement?.querySelector('.area-hover')?.getBoundingClientRect();
+      // The fixed hover readout occupies the bottom of the map. Fit and reset
+      // the geography within the clear camera area so it cannot cover Cornwall.
+      const coveredBottom = readout?.height && readout.top < bounds.bottom && readout.bottom > bounds.top
+        ? this.height - (readout.top - bounds.top) * this.height / bounds.height + 8 : 0;
+      this.cameraHeight = this.height - Math.min(this.height * .25, Math.max(0, coveredBottom));
       this.element.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
       const initial = projectedBounds(nationalBounds);
-      this.baseScale = Math.min(this.width / (initial.right - initial.left), this.height / (initial.bottom - initial.top)) * 0.90;
+      this.baseScale = Math.min(this.width / (initial.right - initial.left), this.cameraHeight / (initial.bottom - initial.top)) * 0.90;
       this.updateView();
     }
 
@@ -433,7 +439,7 @@
       const worldHeight = Math.abs(extent.bottom - extent.top);
       if (!worldWidth || !worldHeight) return this;
       const availableWidth = Math.max(40, this.width - Math.min(padding * 2, this.width * 0.35));
-      const availableHeight = Math.max(40, this.height - Math.min(padding * 2, this.height * 0.35));
+      const availableHeight = Math.max(40, this.cameraHeight - Math.min(padding * 2, this.cameraHeight * 0.35));
       this.centre = { x: (extent.left + extent.right) / 2, y: (extent.top + extent.bottom) / 2 };
       this.pan = { x: 0, y: 0 };
       this.zoom = Math.max(0.8, Math.min(this.maximumZoom(), Math.min(availableWidth / worldWidth, availableHeight / worldHeight) / this.baseScale));
@@ -467,13 +473,13 @@
 
     screen(world) {
       const scale = this.baseScale * this.zoom;
-      return { x: (world.x - this.centre.x) * scale + this.width / 2 + this.pan.x, y: (world.y - this.centre.y) * scale + this.height / 2 + this.pan.y };
+      return { x: (world.x - this.centre.x) * scale + this.width / 2 + this.pan.x, y: (world.y - this.centre.y) * scale + this.cameraHeight / 2 + this.pan.y };
     }
 
     updateView() {
       if (!this.baseScale) return;
       const scale = this.baseScale * this.zoom;
-      this.land.setAttribute('transform', `matrix(${scale} 0 0 ${scale} ${this.width / 2 + this.pan.x - this.centre.x * scale} ${this.height / 2 + this.pan.y - this.centre.y * scale})`);
+      this.land.setAttribute('transform', `matrix(${scale} 0 0 ${scale} ${this.width / 2 + this.pan.x - this.centre.x * scale} ${this.cameraHeight / 2 + this.pan.y - this.centre.y * scale})`);
       this.regionalLayer.setAttribute('transform', this.land.getAttribute('transform'));
       const legendBounds = this.showRegions ? this.element.parentElement?.querySelector('.map-legend')?.getBoundingClientRect() : null;
       const mapBounds = legendBounds ? this.element.getBoundingClientRect() : null;
@@ -539,11 +545,11 @@
       this.element.dispatchEvent(new CustomEvent('mapviewchange', { detail: { zoom: this.zoom, visibleSiteIds }, bubbles: true }));
     }
 
-    zoomBy(factor, anchor = { x: this.width / 2, y: this.height / 2 }) {
+    zoomBy(factor, anchor = { x: this.width / 2, y: this.cameraHeight / 2 }) {
       const next = Math.max(0.8, Math.min(this.maximumZoom(), this.zoom * factor));
       const ratio = next / this.zoom;
       this.pan.x = anchor.x - this.width / 2 - (anchor.x - this.width / 2 - this.pan.x) * ratio;
-      this.pan.y = anchor.y - this.height / 2 - (anchor.y - this.height / 2 - this.pan.y) * ratio;
+      this.pan.y = anchor.y - this.cameraHeight / 2 - (anchor.y - this.cameraHeight / 2 - this.pan.y) * ratio;
       this.zoom = next;
       this.updateView();
     }

@@ -1,0 +1,221 @@
+{
+  "source_page": "https://www.neso.energy/data-portal/gis-boundaries-gb-dno-license-areas",
+  "source_file": {
+    "source_url": "https://api.neso.energy/dataset/0e377f16-95e9-4c15-a1fc-49e06a39cfa0/resource/1c6a7dc0-1b6c-443a-bc67-5f7125649434/download/gb-dno-license-areas-20240503-as-geojson.geojson",
+    "sha256": "871d0b42c05fef95e2f3d4db2393be969489fbca45079bf83d96d160643ca5c2",
+    "retrieved_at_utc": "2026-11-07T19:08:14.347022+00:00",
+    "download_host": "83025b28472d6aa2bf5ae59f3724aa78.eu.r2.cloudflarestorage.com"
+  },
+  "source_version": "2024-05-03",
+  "licence": "NESO Open Data Licence; see source dataset",
+  "source_crs": "EPSG:27700",
+  "output_crs": "EPSG:4326",
+  "source_to_zone": {
+    "_P": "NSCO",
+    "_N": "SSCO",
+    "_F": "NORT",
+    "_G": "NORT",
+    "_M": "YORK",
+    "_D": "WALE",
+    "_K": "WALE",
+    "_E": "MIDL",
+    "_B": "MIDL",
+    "_A": "EAST",
+    "_L": "SWES",
+    "_C": "LOND",
+    "_H": "SOUT",
+    "_J": "SOUT"
+  },
+  "source_names": {
+    "_P": "North Scotland",
+    "_N": "South and Central Scotland",
+    "_F": "North East England",
+    "_G": "North West England",
+    "_M": "Yorkshire",
+    "_D": "North Wales, Merseyside and Cheshire",
+    "_K": "South Wales",
+    "_E": "West Midlands",
+    "_B": "East Midlands",
+    "_A": "East England",
+    "_L": "South West England",
+    "_C": "London",
+    "_H": "Southern England",
+    "_J": "South East England"
+  },
+  "zones": [
+    {
+      "zone_id": "NSCO",
+      "name": "North Scotland",
+      "demand_share": 0.04,
+      "storage_mwh": 600.0,
+      "dr_mw": 80.0
+    },
+    {
+      "zone_id": "SSCO",
+      "name": "South Scotland",
+      "demand_share": 0.07,
+      "storage_mwh": 900.0,
+      "dr_mw": 140.0
+    },
+    {
+      "zone_id": "NORT",
+      "name": "North England",
+      "demand_share": 0.13,
+      "storage_mwh": 1200.0,
+      "dr_mw": 260.0
+    },
+    {
+      "zone_id": "YORK",
+      "name": "Yorkshire",
+      "demand_share": 0.08,
+      "storage_mwh": 800.0,
+      "dr_mw": 160.0
+    },
+    {
+      "zone_id": "WALE",
+      "name": "Wales",
+      "demand_share": 0.06,
+      "storage_mwh": 500.0,
+      "dr_mw": 120.0
+    },
+    {
+      "zone_id": "MIDL",
+      "name": "Midlands",
+      "demand_share": 0.17,
+      "storage_mwh": 1600.0,
+      "dr_mw": 340.0
+    },
+    {
+      "zone_id": "EAST",
+      "name": "East England",
+      "demand_share": 0.1,
+      "storage_mwh": 1400.0,
+      "dr_mw": 200.0
+    },
+    {
+      "zone_id": "SWES",
+      "name": "South West England",
+      "demand_share": 0.08,
+      "storage_mwh": 700.0,
+      "dr_mw": 160.0
+    },
+    {
+      "zone_id": "LOND",
+      "name": "London",
+      "demand_share": 0.13,
+      "storage_mwh": 1000.0,
+      "dr_mw": 380.0
+    },
+    {
+      "zone_id": "SOUT",
+      "name": "South & South East England",
+      "demand_share": 0.14,
+      "storage_mwh": 1500.0,
+      "dr_mw": 300.0
+    }
+  ],
+  "cleanup_symmetric_difference_m2": 633.6480979308136,
+  "simplification_tolerance_m": 100.0,
+  "maximum_zone_area_change_pct": 0.0069785259412921425,
+  "output_bytes": 1081640,
+  "coordinate_pairs": 27199,
+  "output_sha256": "d5900fc2c2cc738c7dce5504e78786ee855bc4825bd00297a70b4341bf3219c3",
+  "geometry_checks": "valid, non-empty, edge-matched and non-overlapping after serialization",
+  "zone_statistics": [
+    {
+      "zone_id": "NSCO",
+      "area_km2": 64340.60919653444,
+      "centroid_lon": -4.4390609850650655,
+      "centroid_lat": 57.33718542702416,
+      "source_groups": [
+        "_P"
+      ]
+    },
+    {
+      "zone_id": "SSCO",
+      "area_km2": 22484.471081944383,
+      "centroid_lon": -3.6568820486434754,
+      "centroid_lat": 55.52487799959087,
+      "source_groups": [
+        "_N"
+      ]
+    },
+    {
+      "zone_id": "NORT",
+      "area_km2": 27033.07422582176,
+      "centroid_lon": -2.132101080630317,
+      "centroid_lat": 54.45857709008984,
+      "source_groups": [
+        "_F",
+        "_G"
+      ]
+    },
+    {
+      "zone_id": "YORK",
+      "area_km2": 10746.027337957774,
+      "centroid_lon": -0.9906607171028433,
+      "centroid_lat": 53.70176095931757,
+      "source_groups": [
+        "_M"
+      ]
+    },
+    {
+      "zone_id": "WALE",
+      "area_km2": 24872.881728928096,
+      "centroid_lon": -3.645364619318646,
+      "centroid_lat": 52.44909129326607,
+      "source_groups": [
+        "_D",
+        "_K"
+      ]
+    },
+    {
+      "zone_id": "MIDL",
+      "area_km2": 29660.401485046285,
+      "centroid_lon": -1.5419775278243084,
+      "centroid_lat": 52.57310768214682,
+      "source_groups": [
+        "_E",
+        "_B"
+      ]
+    },
+    {
+      "zone_id": "EAST",
+      "area_km2": 20509.080020575406,
+      "centroid_lon": 0.4916165412173571,
+      "centroid_lat": 52.21419586931691,
+      "source_groups": [
+        "_A"
+      ]
+    },
+    {
+      "zone_id": "SWES",
+      "area_km2": 15140.14050894077,
+      "centroid_lon": -3.8424161541426707,
+      "centroid_lat": 50.77004463269067,
+      "source_groups": [
+        "_L"
+      ]
+    },
+    {
+      "zone_id": "LOND",
+      "area_km2": 686.3660329378412,
+      "centroid_lon": -0.03369482601521269,
+      "centroid_lat": 51.496893799304175,
+      "source_groups": [
+        "_C"
+      ]
+    },
+    {
+      "zone_id": "SOUT",
+      "area_km2": 25473.398141851947,
+      "centroid_lon": -0.9278239619251646,
+      "centroid_lat": 51.203700632811504,
+      "source_groups": [
+        "_H",
+        "_J"
+      ]
+    }
+  ],
+  "boundary_kind": "approximate DNO service areas, not administrative borders"
+}

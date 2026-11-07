@@ -1,0 +1,162 @@
+{
+  "rows": 350880,
+  "zones": 10,
+  "utc_days": 731,
+  "start_utc": "2024-01-01T00:00:00+00:00",
+  "last_interval_start_utc": "2025-12-31T23:30:00+00:00",
+  "expected_rows": 350880,
+  "per_zone": [
+    {
+      "zone_id": "NSCO",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.04030093727410059,
+      "contract_share": 0.04,
+      "share_difference_pp": 0.030093727410059057
+    },
+    {
+      "zone_id": "SSCO",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.07137745957315318,
+      "contract_share": 0.07,
+      "share_difference_pp": 0.13774595731531752
+    },
+    {
+      "zone_id": "NORT",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.13191729074501765,
+      "contract_share": 0.13,
+      "share_difference_pp": 0.19172907450176468
+    },
+    {
+      "zone_id": "YORK",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.07988399584037788,
+      "contract_share": 0.08,
+      "share_difference_pp": -0.011600415962212396
+    },
+    {
+      "zone_id": "WALE",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.061850376509771265,
+      "contract_share": 0.06,
+      "share_difference_pp": 0.18503765097712677
+    },
+    {
+      "zone_id": "MIDL",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.16919628528700503,
+      "contract_share": 0.17,
+      "share_difference_pp": -0.08037147129949795
+    },
+    {
+      "zone_id": "EAST",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.09927777610187472,
+      "contract_share": 0.1,
+      "share_difference_pp": -0.07222238981252904
+    },
+    {
+      "zone_id": "SWES",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.07998095846406299,
+      "contract_share": 0.08,
+      "share_difference_pp": -0.0019041535937014409
+    },
+    {
+      "zone_id": "LOND",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.1269275904076936,
+      "contract_share": 0.13,
+      "share_difference_pp": -0.30724095923063965
+    },
+    {
+      "zone_id": "SOUT",
+      "rows": 35088,
+      "expected_rows": 35088,
+      "valid_targets": 35088,
+      "coverage_pct": 100.0,
+      "original_targets": 35088,
+      "scorable_targets": 35088,
+      "estimated_share": 0.1392873297969431,
+      "contract_share": 0.14,
+      "share_difference_pp": -0.07126702030569032
+    }
+  ],
+  "target_coverage_pct": 100.0,
+  "scorable_targets": 350880,
+  "flag_counts": {
+    "OK": 348960,
+    "MISSING": 0,
+    "INTERPOLATED": 0,
+    "ZERO_RUN": 0,
+    "JUMP": 0,
+    "DST_BOUNDARY": 1920
+  },
+  "gaps_over_two_hours": [],
+  "null_counts": {
+    "zone_id": 0,
+    "timestamp_utc": 0,
+    "demand_mw": 0,
+    "temp_c": 0,
+    "wind_ms": 0,
+    "solar_wm2": 0,
+    "weather_issue_time_utc": 0,
+    "quality_flag": 0,
+    "is_estimated": 0
+  },
+  "estimated_rows": 350880,
+  "national_demand_mw": {
+    "min": 12803.0,
+    "mean": 26222.50581395349,
+    "max": 45924.0,
+    "below_18000": 1583,
+    "above_48000": 0
+  },
+  "canonical_sha256": "483a1f20f7f486e447f0828b371d0e86af6ca095f587b762a5701650cb47ebd8",
+  "recorded_team_checker_exit_code": 0
+}

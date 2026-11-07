@@ -1,0 +1,6 @@
+{
+  "source_url": "https://api.neso.energy/api/3/action/datastore_search_sql?sql=SELECT+%2A+FROM+%22b2bde559-3455-4021-b179-dfe60c0337b0%22+ORDER+BY+%22SETTLEMENT_DATE%22%2C+%22SETTLEMENT_PERIOD%22",
+  "retrieved_at_utc": "2026-11-07T17:46:04.980345+00:00",
+  "sha256": "7ac6435568f52733fe49b83028337574778ae90ba34f991d964c86d610df8562",
+  "resource_id": "b2bde559-3455-4021-b179-dfe60c0337b0"
+}

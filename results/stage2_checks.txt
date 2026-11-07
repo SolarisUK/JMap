@@ -1,0 +1,33 @@
+Stage 2 generation checks: PASS
+Demand rows: 35,088; generation rows: 35,088; joined rows: 35,088
+Demand/generation timestamp join rate: 100.00%
+Duplicate timestamps: 0; missing half-hours: 0
+All converted timestamps match Elexon's published startTime
+Repeated publications resolved to latest: 0
+Fuel types found: BIOMASS, CCGT, COAL, INTELEC, INTEW, INTFR, INTGRNL, INTIFA2, INTIRL, INTNED, INTNEM, INTNSL, INTVKL, NPSHYD, NUCLEAR, OCGT, OIL, OTHER, PS, WIND
+wind_total_mw sums source wind categories; it excludes embedded wind.
+No solar category in FUELHH; solar_mw omitted, not invented as zero.
+Fuel columns retain source codes and MW values, including signed flows if published.
+Missing fuel cells remain null, not silently filled with zero:
+BIOMASS: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+CCGT: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+COAL: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTELEC: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTEW: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTFR: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTGRNL: 10466 unpublished cells; first=2024-03-19 09:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=6704
+INTIFA2: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTIRL: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTNED: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTNEM: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTNSL: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+INTVKL: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+NPSHYD: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+NUCLEAR: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+OCGT: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+OIL: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+OTHER: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+PS: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+WIND: 0 unpublished cells; first=2024-01-01 00:00:00+00:00, last=2025-12-31 23:30:00+00:00, interior_missing=0
+Timestamp join coverage alone does not imply complete coverage for every fuel.
+Generation totals need not equal NESO ND: the definitions and coverage differ.

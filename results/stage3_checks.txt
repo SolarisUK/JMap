@@ -1,0 +1,31 @@
+Stage 3 weather checks: PASS (coverage and format; forecast vintage remains approximate)
+Zones: 10; rows per zone: 35,088; total rows: 350,880
+UTC interval starts: 2024-01-01 00:00:00+00:00 -> 2025-12-31 23:30:00+00:00
+Demand/weather timestamp coverage per zone: 100.00%
+Duplicates: 0; missing half-hours: 0; null values: 0
+Wind units explicitly requested and verified: m/s at 100 m
+Negative interpolated solar values clamped to zero: 0
+zone | rows | temp min / mean / max C | wind max m/s | solar max 23:00-03:00 UTC | solar max 23:00-01:00 UTC
+NSCO | 35,088 | -5.8 / 9.7 / 27.3 | 30.70 | 0.00 | 0.00
+SSCO | 35,088 | -6.9 / 8.6 / 27.8 | 31.80 | 0.00 | 0.00
+NORT | 35,088 | -7.4 / 9.1 / 28.8 | 26.70 | 0.00 | 0.00
+YORK | 35,088 | -4.5 / 10.6 / 31.8 | 22.50 | 0.00 | 0.00
+WALE | 35,088 | -9.5 / 7.8 / 27.0 | 29.00 | 0.00 | 0.00
+MIDL | 35,088 | -8.1 / 11.0 / 31.5 | 23.07 | 0.00 | 0.00
+EAST | 35,088 | -5.2 / 11.3 / 33.2 | 21.52 | 0.00 | 0.00
+SWES | 35,088 | -5.5 / 10.3 / 28.5 | 26.40 | 0.00 | 0.00
+LOND | 35,088 | -3.8 / 12.9 / 34.6 | 22.09 | 0.00 | 0.00
+SOUT | 35,088 | -6.5 / 11.0 / 31.4 | 23.40 | 0.00 | 0.00
+Both solar windows include their stated endpoints. Scotland can have summer daylight at 03:00 UTC.
+FORECAST-VINTAGE LIMITATION: this endpoint stitches short forecasts from successive runs.
+weather_issue_time_utc = previous UTC calendar day at 06:00 is a contractual PROXY.
+It is not a returned or reconstructed model initialization/publication time.
+This data does not prove that weather was available at a historical day-ahead issue time.
+Do not claim leakage-free day-ahead forecast evaluation with this proxy.
+For that evaluation, use actual single-run archives with known initialization and availability times.
+Hourly temperature/wind are linearly interpolated to half-hours; these are not extra observations.
+Solar follows the runbook's same linear interpolation. The source is a preceding-hour mean,
+so solar_wm2 is an approximate feature, not an exact half-hour interval-average irradiance.
+Each zone uses one centroid/grid cell rather than a spatially weighted weather average.
+The canonical quality INTERPOLATED bit concerns filled demand targets, not routine weather resampling.
+The project's canonical checker is still needed at Stage 5.

@@ -1,0 +1,46 @@
+DATA HANDOVER
+
+Canonical file: data/canonical/real.parquet
+Rows: 350,880; zones: 10; UTC half-hour starts.
+Window: 2024-01-01T00:00:00+00:00 to 2025-12-31T23:30:00+00:00.
+The supplied team checker passed; the manifest records the current file hashes.
+
+EUGENE
+Train and evaluate on data/canonical/real.parquet. The nine column names and
+Arrow types match the fake-data contract. Rerun train.py and evaluate.py and
+replace metrics from synthetic data. Report the same-half-hour-last-week
+baseline as required by the contract.
+
+LEONARD
+Use stubs/zones.json for /zones, or serve data/geo/zones.geojson directly.
+They are byte-identical. The five feature properties are unchanged. Preserve
+coordinate precision; applying the generator's three-decimal rounding to
+GeoJSON would alter the validated boundaries. Check results/zones_preview.png.
+
+DHRUV / FULL SIMULATOR RUN
+Check that GridEnv loads real.parquet and that scenario timestamps lie inside
+the data window. This handover does not change or verify GridEnv's input loader.
+Supporting national generation is in data/raw/elexon/generation_by_fuel.parquet;
+its source categories and limitations are listed in results/stage2_checks.txt.
+The full generator is available with no --zones-only flag once its simulator,
+agents and scenario files are installed. Simulation states remain simulations.
+
+DATA LIMITS
+Regional demand is estimated from national demand and temperature, not measured
+at regional meters. Regional targets depend on temperature used in the split.
+Weather issue times are proxies and do not establish a leak-free day-ahead
+backtest. DNO polygons are approximate service areas; WALE includes Merseyside
+and Cheshire. See results/data_quality.md and data/geo/zones.provenance.json.
+
+EXAMPLE-PAYLOAD STATUS
+This run regenerated only the real zones payload.
+The supplied forecast example is a mock curve and its explanations are mock
+text. The agents comparison copies optimiser results and is labelled as a
+placeholder. Neither is a trained-model result. Existing non-zone stubs are
+left in place without claiming they were checked or regenerated.
+
+PUBLISHING
+No Git commit, push or teammate notification is performed by this script.
+Review git status before staging the generated outputs and code. Send the
+canonical file/report path to Eugene and the zone-file path to Leonard after
+sharing the files. Owner actions above still need to be carried out.

@@ -1,0 +1,14 @@
+{
+  "zones": {
+    "source": "data/geo/zones.geojson",
+    "sha256": "d5900fc2c2cc738c7dce5504e78786ee855bc4825bd00297a70b4341bf3219c3",
+    "zones": 10,
+    "coordinate_precision": "unchanged"
+  },
+  "other_stubs_regenerated": false,
+  "forecast_is_mock": null,
+  "agent_scores_are_placeholder": null,
+  "untouched_payloads": "not inspected in zones-only mode",
+  "supplied_full_generator_forecast_and_agent_scores_are_placeholders": true,
+  "simulator_real_data_source_verified": false
+}

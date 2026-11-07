@@ -1,0 +1,41 @@
+Windows output-encoding fix for the Stage 5 build
+
+Extract this ZIP into C:\Users\ranya\JMap, then run:
+
+    python .\pulls\build_canonical.py
+
+It updates pulls/build_canonical.py and scripts/run_team_checker.py.
+The supplied scripts/check_parquet.py is not edited.
+
+Cause
+-----
+Python -I ignores PYTHONIOENCODING. The checker wrote a Windows cp1252 em dash
+(byte 0x97), while its parent subprocess reader expected UTF-8. That reader
+failed and left stdout unset, which caused the second TypeError.
+
+Fix
+---
+The launcher explicitly configures stdout and stderr as UTF-8 inside its own
+process. The build captures bytes and decodes them after the subprocess ends,
+with a cp1252 fallback for output from older launchers. Missing output is handled
+without concatenating None. A checker's validation failures still return a
+nonzero exit status.
+
+Tests
+-----
+The supplied checker passes on the 350,880-row real.parquet. A Windows-style
+cp1252 stream setup under -I is corrected to UTF-8. Deliberately using the wrong
+demand type still fails with exit code 1. The uploaded checker and generated
+Parquet remain byte-for-byte unchanged.
+
+Expected output
+---------------
+Original runbook checker exit code: 0
+PASS — conforms to the canonical table contract
+
+The local tests use contract fields from the supplied schemas.py history.
+Your run uses your current project's actual schemas.py. The fix changes
+logging and decoding only; it does not change data or validation rules.
+
+The file was written before the error you reported. Rerunning this command
+also completes the check report and metadata that the error interrupted.

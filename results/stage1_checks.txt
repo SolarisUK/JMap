@@ -1,0 +1,16 @@
+Stage 1 national-demand checks: PASS
+Rows / distinct timestamps: 35,088 / 35,088
+UTC interval starts: 2024-01-01 00:00:00+00:00 -> 2025-12-31 23:30:00+00:00
+Duplicates: 0; missing half-hours: 0; null data values: 0
+Local-day counts (periods: days): {46: 2, 48: 727, 50: 2}
+Clock-change days:
+timestamp_utc
+2024-03-31    46
+2024-10-27    50
+2025-03-30    46
+2025-10-26    50
+DST-flagged half-hours: 192
+Demand MW: min=12803, mean=26222.51, max=45924
+Do not reject valid low demand solely because it is below the runbook's rough 18 GW guide.
+This is the national-demand intermediate, not the final nine-column zone/weather table.
+The project's scripts/check_parquet.py has not been supplied or run.

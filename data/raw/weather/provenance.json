@@ -1,0 +1,60 @@
+{
+  "source_endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+  "model_selection": "Open-Meteo default best_match",
+  "zones": [
+    {
+      "id": "NSCO",
+      "lat": 57.5,
+      "lon": -4.2
+    },
+    {
+      "id": "SSCO",
+      "lat": 55.9,
+      "lon": -3.8
+    },
+    {
+      "id": "NORT",
+      "lat": 54.5,
+      "lon": -2.3
+    },
+    {
+      "id": "YORK",
+      "lat": 53.8,
+      "lon": -1.3
+    },
+    {
+      "id": "WALE",
+      "lat": 52.4,
+      "lon": -3.7
+    },
+    {
+      "id": "MIDL",
+      "lat": 52.6,
+      "lon": -1.5
+    },
+    {
+      "id": "EAST",
+      "lat": 52.4,
+      "lon": 0.8
+    },
+    {
+      "id": "SWES",
+      "lat": 50.9,
+      "lon": -3.6
+    },
+    {
+      "id": "LOND",
+      "lat": 51.5,
+      "lon": -0.1
+    },
+    {
+      "id": "SOUT",
+      "lat": 51.1,
+      "lon": 0.5
+    }
+  ],
+  "issue_time_kind": "proxy_not_actual_forecast_issue_time",
+  "issue_time_rule": "previous UTC calendar day at 06:00",
+  "half_hour_method": "linear interpolation at source time labels; no edge extrapolation",
+  "solar_source_semantics": "preceding-hour average, used as approximate interpolated feature"
+}

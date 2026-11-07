@@ -1,0 +1,63 @@
+{
+  "stage": 8,
+  "mode": "zones_only",
+  "rows": 350880,
+  "zones": 10,
+  "start_utc": "2024-01-01T00:00:00+00:00",
+  "last_interval_start_utc": "2025-12-31T23:30:00+00:00",
+  "zone_stub": {
+    "source": "data/geo/zones.geojson",
+    "sha256": "d5900fc2c2cc738c7dce5504e78786ee855bc4825bd00297a70b4341bf3219c3",
+    "zones": 10,
+    "coordinate_precision": "unchanged"
+  },
+  "files": {
+    "data/canonical/real.parquet": {
+      "bytes": 3873614,
+      "sha256": "483a1f20f7f486e447f0828b371d0e86af6ca095f587b762a5701650cb47ebd8"
+    },
+    "data/geo/zones.geojson": {
+      "bytes": 1081640,
+      "sha256": "d5900fc2c2cc738c7dce5504e78786ee855bc4825bd00297a70b4341bf3219c3"
+    },
+    "stubs/zones.json": {
+      "bytes": 1081640,
+      "sha256": "d5900fc2c2cc738c7dce5504e78786ee855bc4825bd00297a70b4341bf3219c3"
+    },
+    "data/raw/elexon/generation_by_fuel.parquet": {
+      "bytes": 1192536,
+      "sha256": "5bc5948fafb00e65ece63728a04934702fd8d4562ff026f94ed3696ae7532531"
+    },
+    "results/data_quality.md": {
+      "bytes": 2770,
+      "sha256": "bba54421116aac22a420cc2106f328ecf9fa701d4c94b676136c1491eeeef907"
+    },
+    "results/data_quality_summary.json": {
+      "bytes": 4522,
+      "sha256": "92ce841b5bfce6c55af7df55ef05e02c746c9d145a46ffd79a8296350bf53f92"
+    },
+    "results/data_coverage.png": {
+      "bytes": 99338,
+      "sha256": "023008c553d90eb74e63a1d5ed2025e6b6d105a4ff978226ebb9c02fddfe6c9f"
+    },
+    "results/zones_preview.png": {
+      "bytes": 181694,
+      "sha256": "5cc5ca192b1d27cd462fb28d10e02118ff3c2a20f7dc7691ca2aada847d09991"
+    },
+    "results/stage5_checks.txt": {
+      "bytes": 4303,
+      "sha256": "25ab16aff9ac7f2b53953cd13e7303a67cdc0db6cd452fd4bf2b57020723d805"
+    },
+    "results/stage7_checks.txt": {
+      "bytes": 1140,
+      "sha256": "45cd69ae468e7a9bdf998d7edfe388cba6c661180ba4e52789abc71ae94c1236"
+    }
+  },
+  "team_validator": "PASS for the hashed canonical file",
+  "model_training": "Eugene must retrain and evaluate on real.parquet",
+  "simulator_examples_regenerated": false,
+  "simulator_canonical_input_verified": false,
+  "forecast_example": "illustrative curve, not trained-model output",
+  "agent_scores": "placeholder optimiser copy in supplied generator, not trained-policy evidence",
+  "git_commit_push_and_notifications": "pending user actions"
+}

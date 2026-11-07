@@ -1,0 +1,94 @@
+Independent canonical contract checks: PASS
+Column names, order and Arrow types exactly match the selected fake Parquet.
+Zones: 10; rows per zone: 35,088; total rows: 350,880
+UTC interval starts: 2024-01-01 00:00:00+00:00 -> 2025-12-31 23:30:00+00:00
+Sorted keys, complete per-zone half-hour grid, duplicates: 0
+Weather values and issue-time values match the Stage 3 source
+Present demand values match Stage 4 after the required float32 cast
+Interpolation flags agree with bounded missing runs of 1-3 half-hours
+Flag counts (bitwise): {'MISSING': 0, 'INTERPOLATED': 0, 'ZERO_RUN': 0, 'JUMP': 0, 'DST_BOUNDARY': 1920}
+Rows excluded from scoring (MISSING or INTERPOLATED): 0
+National-demand checks on 35,088 complete original timestamps:
+Maximum float32 sum difference: 0.001220703125 MW; tolerance: 0.01 MW
+Aggregate zone shares remain within one percentage point of the contract.
+Every row is labelled is_estimated=True.
+Regional targets are allocated estimates; weather issue times retain the documented proxy limitation.
+This validator is separate from the team's original scripts/check_parquet.py.
+Original runbook checker exit code: 0
+=== real.parquet ===
+rows      : 350,880
+row groups: 1
+size      : 3,873,614 bytes
+
+--- schema as written ---
+zone_id: string
+timestamp_utc: timestamp[us, tz=UTC]
+demand_mw: float
+temp_c: float
+wind_ms: float
+solar_wm2: float
+weather_issue_time_utc: timestamp[us, tz=UTC]
+quality_flag: uint8
+is_estimated: bool
+
+--- contract check ---
+columns   : 9 present, 0 missing, 0 extra
+
+column types (actual vs contract):
+  ok zone_id                    string                 want string
+  ok timestamp_utc              timestamp[us, tz=UTC]  want timestamp[us, tz=UTC]
+  ok demand_mw                  float                  want float32
+  ok temp_c                     float                  want float32
+  ok wind_ms                    float                  want float32
+  ok solar_wm2                  float                  want float32
+  ok weather_issue_time_utc     timestamp[us, tz=UTC]  want timestamp[us, tz=UTC]
+  ok quality_flag               uint8                  want uint8
+  ok is_estimated               bool                   want bool
+
+zones     : 10 distinct
+  found   : ['EAST', 'LOND', 'MIDL', 'NORT', 'NSCO', 'SOUT', 'SSCO', 'SWES', 'WALE', 'YORK']
+
+timestamps: 2024-01-01 00:00:00+00:00  ->  2025-12-31 23:30:00+00:00
+  tz      : UTC
+  aligned : 350880/350880 on :00 or :30
+  dupes   : 0 duplicate (zone_id, timestamp_utc) pairs
+
+  per zone:
+    EAST   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    LOND   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    MIDL   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    NORT   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    NSCO   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    SOUT   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    SSCO   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    SWES   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    WALE   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+    YORK   35,088 rows  expected 35,088  gaps 0  coverage 100.0%
+
+value ranges:
+  demand_mw    min     524.28  max    7826.18  mean    2622.25  nulls 0
+  temp_c       min      -9.50  max      34.60  mean      10.23  nulls 0
+  wind_ms      min       0.00  max      31.80  mean       7.16  nulls 0
+  solar_wm2    min       0.00  max     893.00  mean      97.50  nulls 0
+
+quality_flag values:
+    0 OK                     348,960 rows
+   16 DST_BOUNDARY           1,920 rows
+  scorable rows: 350,880 / 350,880
+
+weather_issue_time_utc: 0 null (observed), 350,880 forecast
+
+zone share of total demand (actual vs contract):
+  NSCO     4.0%  contract  4.0%
+  SSCO     7.1%  contract  7.0%
+  NORT    13.2%  contract 13.0%
+  YORK     8.0%  contract  8.0%
+  WALE     6.2%  contract  6.0%
+  MIDL    16.9%  contract 17.0%
+  EAST     9.9%  contract 10.0%
+  SWES     8.0%  contract  8.0%
+  LOND    12.7%  contract 13.0%
+  SOUT    13.9%  contract 14.0%
+
+============================================================
+PASS — conforms to the canonical table contract

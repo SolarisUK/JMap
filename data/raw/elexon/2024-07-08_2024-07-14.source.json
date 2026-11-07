@@ -1,0 +1,5 @@
+{
+  "source_url": "https://data.elexon.co.uk/bmrs/api/v1/datasets/FUELHH?settlementDateFrom=2024-07-08&settlementDateTo=2024-07-14&format=json",
+  "retrieved_at_utc": "2026-11-07T17:55:47.362349+00:00",
+  "sha256": "2567cd2e6baf23f94e3b1565e6446401d280a95381df79a1b06765619c1d3c3d"
+}

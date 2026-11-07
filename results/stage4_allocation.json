@@ -1,0 +1,100 @@
+{
+  "label": "estimated regional demand",
+  "zone_order": [
+    "NSCO",
+    "SSCO",
+    "NORT",
+    "YORK",
+    "WALE",
+    "MIDL",
+    "EAST",
+    "SWES",
+    "LOND",
+    "SOUT"
+  ],
+  "demand_share": {
+    "NSCO": 0.04,
+    "SSCO": 0.07,
+    "NORT": 0.13,
+    "YORK": 0.08,
+    "WALE": 0.06,
+    "MIDL": 0.17,
+    "EAST": 0.1,
+    "SWES": 0.08,
+    "LOND": 0.13,
+    "SOUT": 0.14
+  },
+  "heating_base_c": 15.5,
+  "heating_sensitivity_per_degree": 0.015,
+  "method": "share * (1 + sensitivity * max(base_c - temp_c, 0)), normalised per half-hour",
+  "maximum_conservation_error_mw": 1.4551915228366852e-11,
+  "share_comparison": [
+    {
+      "zone_id": "NSCO",
+      "contract_share": 0.04,
+      "estimated_share": 0.04030093727182378,
+      "difference_percentage_points": 0.03009372718237799
+    },
+    {
+      "zone_id": "SSCO",
+      "contract_share": 0.07,
+      "estimated_share": 0.07137745957612222,
+      "difference_percentage_points": 0.1377459576122217
+    },
+    {
+      "zone_id": "NORT",
+      "contract_share": 0.13,
+      "estimated_share": 0.13191729075735997,
+      "difference_percentage_points": 0.19172907573599685
+    },
+    {
+      "zone_id": "YORK",
+      "contract_share": 0.08,
+      "estimated_share": 0.07988399582392948,
+      "difference_percentage_points": -0.011600417607052216
+    },
+    {
+      "zone_id": "WALE",
+      "contract_share": 0.06,
+      "estimated_share": 0.06185037649860776,
+      "difference_percentage_points": 0.185037649860776
+    },
+    {
+      "zone_id": "MIDL",
+      "contract_share": 0.17,
+      "estimated_share": 0.16919628525480046,
+      "difference_percentage_points": -0.08037147451995519
+    },
+    {
+      "zone_id": "EAST",
+      "contract_share": 0.1,
+      "estimated_share": 0.09927777608905727,
+      "difference_percentage_points": -0.0722223910942732
+    },
+    {
+      "zone_id": "SWES",
+      "contract_share": 0.08,
+      "estimated_share": 0.07998095847839032,
+      "difference_percentage_points": -0.001904152160968342
+    },
+    {
+      "zone_id": "LOND",
+      "contract_share": 0.13,
+      "estimated_share": 0.12692759043275575,
+      "difference_percentage_points": -0.307240956724425
+    },
+    {
+      "zone_id": "SOUT",
+      "contract_share": 0.14,
+      "estimated_share": 0.139287329817153,
+      "difference_percentage_points": -0.07126701828470139
+    }
+  ],
+  "input_sha256": {
+    "data\\raw\\neso\\national_demand.parquet": "98b7b0dc204ac390402c755ceafb6965adb057c2a4cf6c8252ee7dc2d65c1af4",
+    "data\\raw\\weather\\weather.parquet": "f1538809d869fdb9fdba83888c1072950161b46062e741f7e8011b246964b39b"
+  },
+  "regional_targets_are_independent_measurements": false,
+  "intermediate_demand_type": "float64",
+  "canonical_demand_type_at_stage5": "float32"
+}

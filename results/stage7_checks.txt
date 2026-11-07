@@ -1,0 +1,20 @@
+Stage 7 zone polygons: PASS
+Zones: 10; GeoJSON bytes: 1,081,640; coordinate pairs: 27,199
+All geometries valid and non-empty; shared edges match; output CRS: WGS84 longitude/latitude.
+Properties exactly: zone_id, name, demand_share, storage_mwh, dr_mw
+Topology cleanup changed 633.65 m2; simplification tolerance: 100 m.
+Maximum individual-zone area change: 0.00698%
+zone | area km2 (British National Grid) | centroid longitude | centroid latitude
+NSCO | 64,340.61 | -4.43906 | 57.33719
+SSCO | 22,484.47 | -3.65688 | 55.52488
+NORT | 27,033.07 | -2.13210 | 54.45858
+YORK | 10,746.03 | -0.99066 | 53.70176
+WALE | 24,872.88 | -3.64536 | 52.44909
+MIDL | 29,660.40 | -1.54198 | 52.57311
+EAST | 20,509.08 | 0.49162 | 52.21420
+SWES | 15,140.14 | -3.84242 | 50.77004
+LOND | 686.37 | -0.03369 | 51.49689
+SOUT | 25,473.40 | -0.92782 | 51.20370
+Approximate DNO service areas, not administrative regions or exact transmission-bus territories.
+WALE includes North Wales, Merseyside and Cheshire plus South Wales; LOND is the London DNO area.
+The existing demand allocation is unchanged and is not a measured load for these polygons.

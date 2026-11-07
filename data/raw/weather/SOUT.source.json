@@ -1,0 +1,15 @@
+{
+  "source_url": "https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=51.1&longitude=0.5&start_date=2024-01-01&end_date=2026-01-01&hourly=temperature_2m%2Cwind_speed_100m%2Cshortwave_radiation&timezone=UTC&wind_speed_unit=ms&temperature_unit=celsius",
+  "request_params": {
+    "latitude": 51.1,
+    "longitude": 0.5,
+    "start_date": "2024-01-01",
+    "end_date": "2026-01-01",
+    "hourly": "temperature_2m,wind_speed_100m,shortwave_radiation",
+    "timezone": "UTC",
+    "wind_speed_unit": "ms",
+    "temperature_unit": "celsius"
+  },
+  "retrieved_at_utc": "2026-11-07T18:07:32.418071+00:00",
+  "sha256": "bd4e2ec3c0f63f78eae9d5c1b6ca8a6fa32a865e807fe7dbcd211b2790d53773"
+}

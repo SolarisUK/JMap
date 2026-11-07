@@ -1,0 +1,128 @@
+{
+  "contract": {
+    "zone_order": [
+      "NSCO",
+      "SSCO",
+      "NORT",
+      "YORK",
+      "WALE",
+      "MIDL",
+      "EAST",
+      "SWES",
+      "LOND",
+      "SOUT"
+    ],
+    "demand_share": {
+      "NSCO": 0.04,
+      "SSCO": 0.07,
+      "NORT": 0.13,
+      "YORK": 0.08,
+      "WALE": 0.06,
+      "MIDL": 0.17,
+      "EAST": 0.1,
+      "SWES": 0.08,
+      "LOND": 0.13,
+      "SOUT": 0.14
+    },
+    "canonical_schema": {
+      "zone_id": "string",
+      "timestamp_utc": "timestamp[us, tz=UTC]",
+      "demand_mw": "float32",
+      "temp_c": "float32",
+      "wind_ms": "float32",
+      "solar_wm2": "float32",
+      "weather_issue_time_utc": "timestamp[us, tz=UTC]",
+      "quality_flag": "uint8",
+      "is_estimated": "bool"
+    },
+    "quality_flags": {
+      "OK": 0,
+      "MISSING": 1,
+      "INTERPOLATED": 2,
+      "ZERO_RUN": 4,
+      "JUMP": 8,
+      "DST_BOUNDARY": 16
+    }
+  },
+  "checks": {
+    "rows": 350880,
+    "zones": 10,
+    "rows_per_zone": 35088,
+    "flag_counts": {
+      "MISSING": 0,
+      "INTERPOLATED": 0,
+      "ZERO_RUN": 0,
+      "JUMP": 0,
+      "DST_BOUNDARY": 1920
+    },
+    "conservation_max_error_mw": 0.001220703125,
+    "conservation_tolerance_mw": 0.01,
+    "complete_original_timestamps": 35088,
+    "shares": [
+      {
+        "zone_id": "NSCO",
+        "contract_share": 0.04,
+        "actual_share": 0.04030093727693171
+      },
+      {
+        "zone_id": "SSCO",
+        "contract_share": 0.07,
+        "actual_share": 0.07137745957816741
+      },
+      {
+        "zone_id": "NORT",
+        "contract_share": 0.13,
+        "actual_share": 0.13191729075428477
+      },
+      {
+        "zone_id": "YORK",
+        "contract_share": 0.08,
+        "actual_share": 0.0798839958459897
+      },
+      {
+        "zone_id": "WALE",
+        "contract_share": 0.06,
+        "actual_share": 0.06185037651411622
+      },
+      {
+        "zone_id": "MIDL",
+        "contract_share": 0.17,
+        "actual_share": 0.169196285298891
+      },
+      {
+        "zone_id": "EAST",
+        "contract_share": 0.1,
+        "actual_share": 0.09927777610884893
+      },
+      {
+        "zone_id": "SWES",
+        "contract_share": 0.08,
+        "actual_share": 0.0799809584696816
+      },
+      {
+        "zone_id": "LOND",
+        "contract_share": 0.13,
+        "actual_share": 0.1269275904166102
+      },
+      {
+        "zone_id": "SOUT",
+        "contract_share": 0.14,
+        "actual_share": 0.13928732980672798
+      }
+    ]
+  },
+  "original_checker_return_code": 0,
+  "original_checker_status": "Original runbook checker exit code: 0",
+  "schema_matches_fake": true,
+  "input_sha256": {
+    "data\\raw\\neso\\national_demand.parquet": "98b7b0dc204ac390402c755ceafb6965adb057c2a4cf6c8252ee7dc2d65c1af4",
+    "data\\raw\\zone_demand.parquet": "ef68a908bddc9448d0bd9cd905fe709c310e9ed62c782f61d1c3654e6d8cfad4",
+    "data\\raw\\weather\\weather.parquet": "f1538809d869fdb9fdba83888c1072950161b46062e741f7e8011b246964b39b"
+  },
+  "output_sha256": "483a1f20f7f486e447f0828b371d0e86af6ca095f587b762a5701650cb47ebd8",
+  "gap_policy": "Only bounded runs of 1-3 missing half-hours are interpolated; 4+ remain null",
+  "zero_run_policy": "Demand <= 1 MW for 3+ consecutive half-hours",
+  "jump_policy": "Absolute change > 40% from a strictly positive preceding demand value",
+  "weather_issue_time_kind": "contract proxy, not actual model initialization/publication time",
+  "regional_demand_kind": "temperature-adjusted allocation of national outturn; not measured regional load"
+}

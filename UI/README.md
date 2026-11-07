@@ -57,6 +57,7 @@ python -B UI/tests/map-presentation-browser.py
 python -B UI/tests/generation-browser.py
 python -B UI/tests/site-workflow-browser.py
 python -B UI/tests/simulation-refresh-browser.py
+python -B UI/tests/area-render-browser.py
 ```
 
 The live browser suite can additionally check Elexon itself when `JMAP_LIVE_NETWORK_TEST=1` and outbound network access is available.

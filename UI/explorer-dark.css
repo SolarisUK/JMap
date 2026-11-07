@@ -193,8 +193,18 @@ body.energy-page {
 .energy-page #energy-map .map-selection-ring {
   stroke: var(--accent);
 }
-.energy-page :is(.map-region, .map-region-label):focus-visible {
-  filter: drop-shadow(0 0 3px var(--accent));
+/* Keep large, projected SVG boundaries out of filtered compositing layers. */
+.energy-page #energy-map :is(.map-region, .map-region-label):focus-visible {
+  filter: none;
+  outline: none;
+}
+.energy-page #energy-map .map-region:focus-visible {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+}
+.energy-page #energy-map .map-region-label:focus-visible rect {
+  stroke: var(--accent);
+  stroke-width: 1.5;
 }
 .energy-page :is(.map-legend, .area-hover, .map-attribution) {
   background: var(--surface);

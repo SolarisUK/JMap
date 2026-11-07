@@ -88,8 +88,8 @@
       element.setAttribute('aria-label', 'Electricity generation map. Drag to pan. Use plus and minus to zoom, arrow keys to pan, and Home to reset. Tab to explore generation sites.');
       element.style.touchAction = 'none';
       element.style.cursor = 'grab';
-      this.background = svg('rect', { width: '100%', height: '100%', fill: '#f7f7f4' });
-      this.land = svg('g', { class: 'map-land', fill: '#e7e7e2', stroke: '#c5c5bf', 'stroke-width': 0.8, 'stroke-linejoin': 'round' });
+      this.background = svg('rect', { width: '100%', height: '100%', fill: 'var(--map-sea, #080808)' });
+      this.land = svg('g', { class: 'map-land', fill: 'var(--map-land, #141414)', stroke: 'var(--map-coast, #343434)', 'stroke-width': 0.8, 'stroke-linejoin': 'round' });
       this.regionalLayer = svg('g', { class: 'map-regions', visibility: 'hidden' });
       this.regionalLabels = svg('g', { class: 'map-region-labels', visibility: 'hidden' });
       this.labels = svg('g', { class: 'map-labels', 'pointer-events': 'none' });
@@ -211,7 +211,7 @@
         const accessible = `${name}: ${row.valueLabel || ''}. ${row.description || ''}`.trim();
         const { path, title } = entry;
         path.setAttribute('fill', row.fill || '#e0e4e2');
-        path.setAttribute('stroke', selected ? '#172d33' : '#ffffff');
+        path.setAttribute('stroke', selected ? 'var(--accent, #dedede)' : 'var(--map-coast, #343434)');
         path.setAttribute('stroke-width', selected ? (detailed ? 2.2 : 3) : (detailed ? .45 : 1.7));
         path.setAttribute('aria-label', accessible);
         path.setAttribute('aria-pressed', String(selected));
@@ -224,9 +224,9 @@
           entry.labelWidth = width;
           if (!entry.label) {
             entry.label = svg('g', { class: 'map-region-label', 'data-label-for-region': entry.key, 'data-region-key': entry.key, role: 'button', tabindex: -1, 'pointer-events': 'all' });
-            entry.labelBox = svg('rect', { y: -20, height: 41, rx: 3, fill: '#ffffff', 'fill-opacity': .94 });
-            entry.labelName = svg('text', { x: 0, y: -6, 'text-anchor': 'middle', fill: '#37443e', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10 });
-            entry.labelValue = svg('text', { x: 0, y: 12, 'text-anchor': 'middle', fill: '#192d28', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 14, 'font-weight': 600 });
+            entry.labelBox = svg('rect', { y: -20, height: 41, rx: 3, fill: 'var(--surface-raised, #121212)', 'fill-opacity': .94 });
+            entry.labelName = svg('text', { x: 0, y: -6, 'text-anchor': 'middle', fill: 'var(--muted, #a0a0a0)', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10 });
+            entry.labelValue = svg('text', { x: 0, y: 12, 'text-anchor': 'middle', fill: 'var(--ink, #eeeeee)', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 14, 'font-weight': 600 });
             entry.label.append(entry.labelBox, entry.labelName, entry.labelValue);
             this.bindRegionalNode(entry.label, entry.key);
             this.regionalLabels.append(entry.label);
@@ -235,7 +235,7 @@
           entry.label.setAttribute('aria-pressed', String(selected));
           entry.labelBox.setAttribute('x', -width / 2);
           entry.labelBox.setAttribute('width', width);
-          entry.labelBox.setAttribute('stroke', selected ? '#172d33' : '#d4ddd7');
+          entry.labelBox.setAttribute('stroke', selected ? 'var(--accent, #dedede)' : 'var(--map-coast, #343434)');
           entry.labelBox.setAttribute('stroke-width', selected ? 1.5 : .8);
           entry.labelName.textContent = name;
           entry.labelValue.textContent = row.valueLabel || '';

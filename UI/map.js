@@ -56,11 +56,12 @@
   }
 
   class EnergyMap {
-    constructor({ element, geography, onSelect = () => {}, onRegionSelect = () => {}, scaleMaxima }) {
+    constructor({ element, geography, onSelect = () => {}, onRegionSelect = () => {}, onRegionHover = () => {}, scaleMaxima }) {
       if (!element) throw new Error('EnergyMap requires an SVG element.');
       this.element = element;
       this.onSelect = onSelect;
       this.onRegionSelect = onRegionSelect;
+      this.onRegionHover = onRegionHover;
       this.sites = [];
       this.mode = 'output';
       this.scaleMaxima = { output: 1, capacity: 1, utilisation: 100 };
@@ -68,6 +69,10 @@
       this.showSiteLabels = false;
       this.showRegions = false;
       this.regionNodes = new Map();
+      this.regionGeometryCache = new WeakMap();
+      this.regionalGeography = null;
+      this.regionLabelMode = 'all';
+      this.hoveredRegionKey = null;
       this.selectedId = null;
       this.zoom = 1;
       this.pan = { x: 0, y: 0 };
@@ -134,78 +139,137 @@
       }
     }
 
-    setRegions(geography, rows = []) {
-      // Regions use real national boundaries. Colour and numeric labels come
-      // from the annual analysis, independently of the sample site filters.
-      const focusedKey = this.element.contains(document.activeElement) ? document.activeElement.getAttribute('data-region-key') : null;
-      const focusedLabel = focusedKey && document.activeElement.getAttribute('data-label-for-region');
-      const values = new Map(rows.map(row => [row.key, row]));
-      this.regionalLayer.replaceChildren();
-      this.regionalLabels.replaceChildren();
-      this.regionNodes.clear();
-      (geography?.features || []).forEach(feature => {
-        const row = values.get(feature.key);
-        if (!row) return;
+    regionalGeometry(geography) {
+      if (!geography || typeof geography !== 'object') return [];
+      if (this.regionGeometryCache.has(geography)) return this.regionGeometryCache.get(geography);
+      const shapes = (geography.features || []).map(feature => {
+        let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
         const segments = (feature.polygons || []).filter(ring => ring.length >= 3).map(ring => ring.map(([lon, lat], index) => {
+          west = Math.min(west, lon); east = Math.max(east, lon);
+          south = Math.min(south, lat); north = Math.max(north, lat);
           const p = project(lon, lat);
           return `${index ? 'L' : 'M'}${p.x.toFixed(6)},${p.y.toFixed(6)}`;
         }).join('') + 'Z');
-        const name = row.label || feature.name || feature.key;
-        const accessible = `${name}: ${row.valueLabel || ''}. ${row.description || ''}`.trim();
-        const path = svg('path', { d: segments.join(''), class: 'map-region', 'data-region-key': feature.key, fill: row.fill || '#e0e4e2', stroke: row.selected ? '#172d33' : '#ffffff', 'stroke-width': row.selected ? 3 : 1.7, 'stroke-linejoin': 'round', 'fill-rule': 'evenodd', 'vector-effect': 'non-scaling-stroke', role: 'button', tabindex: this.showRegions ? 0 : -1, 'aria-label': accessible, 'aria-pressed': String(Boolean(row.selected)) });
-        path.style.cursor = 'pointer';
-        path.append(svg('title', {}, accessible));
-        path.addEventListener('keydown', event => {
-          if (event.key !== 'Enter' && event.key !== ' ') return;
-          event.preventDefault(); event.stopPropagation(); this.chooseRegion(feature.key);
-        });
-        path.addEventListener('click', event => {
-          if (event.detail === 0) { event.stopPropagation(); this.chooseRegion(feature.key); }
-        });
-        this.regionalLayer.append(path);
-        const position = feature.labelPosition || regionLabelPositions[feature.key];
-        let label = null;
-        let labelWidth = 0;
-        if (position) {
-          const width = Math.max(74, Math.max(name.length * 5.8, String(row.valueLabel || '').length * 7.1) + 16);
-          labelWidth = width;
-          label = svg('g', { class: 'map-region-label', 'data-label-for-region': feature.key, 'data-region-key': feature.key, role: 'button', tabindex: this.showRegions ? 0 : -1, 'aria-label': `Select ${accessible}`, 'aria-pressed': String(Boolean(row.selected)), 'pointer-events': 'all' });
-          label.style.cursor = 'pointer';
-          label.addEventListener('keydown', event => {
-            if (event.key !== 'Enter' && event.key !== ' ') return;
-            event.preventDefault(); event.stopPropagation(); this.chooseRegion(feature.key);
-          });
-          label.addEventListener('click', event => {
-            if (event.detail === 0) { event.stopPropagation(); this.chooseRegion(feature.key); }
-          });
-          label.append(svg('rect', { x: -width / 2, y: -20, width, height: 41, rx: 3, fill: '#ffffff', 'fill-opacity': .94, stroke: row.selected ? '#172d33' : '#d4ddd7', 'stroke-width': row.selected ? 1.5 : .8 }));
-          label.append(svg('text', { x: 0, y: -6, 'text-anchor': 'middle', fill: '#37443e', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10 }, name));
-          label.append(svg('text', { x: 0, y: 12, 'text-anchor': 'middle', fill: '#192d28', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 14, 'font-weight': 600 }, row.valueLabel || ''));
-          this.regionalLabels.append(label);
-        }
-        this.regionNodes.set(feature.key, { path, label, labelWidth, world: position ? project(...position) : null });
+        const bounds = Number.isFinite(west) ? [[west, south], [east, north]] : null;
+        const position = feature.labelPosition || regionLabelPositions[feature.key] || (bounds ? [(west + east) / 2, (south + north) / 2] : null);
+        return { key: feature.key, name: feature.name || feature.key, d: segments.join(''), bounds, world: position ? project(...position) : null };
       });
+      this.regionGeometryCache.set(geography, shapes);
+      return shapes;
+    }
+
+    bindRegionalNode(node, key) {
+      node.style.cursor = 'pointer';
+      node.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault(); event.stopPropagation(); this.chooseRegion(key);
+      });
+      node.addEventListener('click', event => {
+        if (event.detail === 0) { event.stopPropagation(); this.chooseRegion(key); }
+      });
+      node.addEventListener('mouseenter', () => { if (!this.pointers.size) this.hoverRegion(key); });
+      node.addEventListener('mouseleave', () => this.hoverRegion(null));
+      node.addEventListener('focus', () => this.hoverRegion(key));
+      node.addEventListener('blur', () => this.hoverRegion(null));
+    }
+
+    setRegions(geography, rows = [], options = {}) {
+      // Project boundaries once per geography object. Scenario, metric and
+      // selection updates retain paths and focus, changing only their styling.
+      const focusedKey = this.element.contains(document.activeElement) ? document.activeElement.getAttribute('data-region-key') : null;
+      const focusedLabel = focusedKey && document.activeElement.getAttribute('data-label-for-region');
+      const values = new Map(rows.map(row => [row.key, row]));
+      const shapes = this.regionalGeometry(geography);
+      this.regionLabelMode = options.labels || (shapes.length > 20 ? 'selected' : 'all');
+      if (this.regionalGeography !== geography) {
+        this.hoverRegion(null);
+        this.regionalLayer.replaceChildren();
+        this.regionalLabels.replaceChildren();
+        this.regionNodes.clear();
+        shapes.forEach(shape => {
+          const path = svg('path', { d: shape.d, class: 'map-region', 'data-region-key': shape.key, 'stroke-linejoin': 'round', 'fill-rule': 'evenodd', 'vector-effect': 'non-scaling-stroke', role: 'button', tabindex: -1 });
+          const title = svg('title'); path.append(title);
+          this.bindRegionalNode(path, shape.key);
+          this.regionalLayer.append(path);
+          this.regionNodes.set(shape.key, { ...shape, path, title, label: null, labelWidth: 0 });
+        });
+        this.regionalGeography = geography;
+      }
+      const detailed = shapes.length > 20;
+      let selectedPath = null;
+      this.regionNodes.forEach(entry => {
+        const row = values.get(entry.key) || { label: entry.name, valueLabel: 'No data', description: 'No published value for this area.' };
+        const selected = options.selectedKey !== undefined ? options.selectedKey === entry.key : Boolean(row.selected);
+        const name = row.label || entry.name;
+        const accessible = `${name}: ${row.valueLabel || ''}. ${row.description || ''}`.trim();
+        const { path, title } = entry;
+        path.setAttribute('fill', row.fill || '#e0e4e2');
+        path.setAttribute('stroke', selected ? '#172d33' : '#ffffff');
+        path.setAttribute('stroke-width', selected ? (detailed ? 2.2 : 3) : (detailed ? .45 : 1.7));
+        path.setAttribute('aria-label', accessible);
+        path.setAttribute('aria-pressed', String(selected));
+        title.textContent = accessible;
+        if (selected) selectedPath = path;
+        const showLabel = entry.world && (this.regionLabelMode === 'all' || selected);
+        if (!showLabel && entry.label) { entry.label.remove(); entry.label = null; }
+        if (showLabel) {
+          const width = Math.max(74, Math.max(name.length * 5.8, String(row.valueLabel || '').length * 7.1) + 16);
+          entry.labelWidth = width;
+          if (!entry.label) {
+            entry.label = svg('g', { class: 'map-region-label', 'data-label-for-region': entry.key, 'data-region-key': entry.key, role: 'button', tabindex: -1, 'pointer-events': 'all' });
+            entry.labelBox = svg('rect', { y: -20, height: 41, rx: 3, fill: '#ffffff', 'fill-opacity': .94 });
+            entry.labelName = svg('text', { x: 0, y: -6, 'text-anchor': 'middle', fill: '#37443e', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10 });
+            entry.labelValue = svg('text', { x: 0, y: 12, 'text-anchor': 'middle', fill: '#192d28', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 14, 'font-weight': 600 });
+            entry.label.append(entry.labelBox, entry.labelName, entry.labelValue);
+            this.bindRegionalNode(entry.label, entry.key);
+            this.regionalLabels.append(entry.label);
+          }
+          entry.label.setAttribute('aria-label', `Select ${accessible}`);
+          entry.label.setAttribute('aria-pressed', String(selected));
+          entry.labelBox.setAttribute('x', -width / 2);
+          entry.labelBox.setAttribute('width', width);
+          entry.labelBox.setAttribute('stroke', selected ? '#172d33' : '#d4ddd7');
+          entry.labelBox.setAttribute('stroke-width', selected ? 1.5 : .8);
+          entry.labelName.textContent = name;
+          entry.labelValue.textContent = row.valueLabel || '';
+        }
+      });
+      // Draw the selected outline above its neighbours without rebuilding it.
+      if (selectedPath && selectedPath !== this.regionalLayer.lastElementChild) this.regionalLayer.append(selectedPath);
       this.updateView();
       if (focusedKey && this.showRegions) {
         const selectedNode = this.regionNodes.get(focusedKey);
-        (focusedLabel ? selectedNode?.label : selectedNode?.path)?.focus({ preventScroll: true });
+        (focusedLabel && selectedNode?.label ? selectedNode.label : selectedNode?.path)?.focus({ preventScroll: true });
       }
       return this;
     }
 
     setRegionalVisibility(visible) {
       this.showRegions = Boolean(visible);
+      if (!this.showRegions) this.hoverRegion(null);
       this.regionalLayer.setAttribute('visibility', this.showRegions ? 'visible' : 'hidden');
       this.regionalLabels.setAttribute('visibility', this.showRegions ? 'visible' : 'hidden');
       [this.labels, this.markers, this.siteLabels, this.tooltips].forEach(layer => layer.setAttribute('display', this.showRegions ? 'none' : 'inline'));
       this.element.classList.toggle('has-regions', this.showRegions);
-      this.element.setAttribute('aria-label', this.showRegions ? 'Annual electricity by UK nation. Tab to select a nation. Drag to pan, plus and minus to zoom, arrow keys to pan, Home to reset.' : 'Electricity site map. Tab to explore sites. Drag to pan, plus and minus to zoom, arrow keys to pan, Home to reset.');
+      this.element.setAttribute('aria-label', this.showRegions ? 'Annual electricity by region. Tab to select an area. Drag to pan, plus and minus to zoom, arrow keys to pan, Home to reset.' : 'Electricity site map. Tab to explore sites. Drag to pan, plus and minus to zoom, arrow keys to pan, Home to reset.');
       this.updateView();
       return this;
     }
 
     chooseRegion(key) {
       if (key && this.regionNodes.has(key)) this.onRegionSelect(key);
+    }
+
+    hoverRegion(key) {
+      const next = this.showRegions && key && this.regionNodes.has(key) ? key : null;
+      if (next === this.hoveredRegionKey) return;
+      this.hoveredRegionKey = next;
+      this.onRegionHover(next);
+    }
+
+    fitRegion(key) {
+      const bounds = this.regionNodes.get(key)?.bounds;
+      return bounds ? this.fitBounds(bounds, { padding: 60 }) : this;
     }
 
     drawLabels() {
@@ -372,7 +436,7 @@
       const availableHeight = Math.max(40, this.height - Math.min(padding * 2, this.height * 0.35));
       this.centre = { x: (extent.left + extent.right) / 2, y: (extent.top + extent.bottom) / 2 };
       this.pan = { x: 0, y: 0 };
-      this.zoom = Math.max(0.8, Math.min(8, Math.min(availableWidth / worldWidth, availableHeight / worldHeight) / this.baseScale));
+      this.zoom = Math.max(0.8, Math.min(this.maximumZoom(), Math.min(availableWidth / worldWidth, availableHeight / worldHeight) / this.baseScale));
       this.updateView();
       return this;
     }
@@ -424,6 +488,7 @@
         if (!label || !world) return;
         const p = this.screen(world);
         const visible = p.x > 0 && p.x < this.width && p.y > 0 && p.y < this.height;
+        if (visible) p.x = Math.max(labelWidth / 2 + 6, Math.min(this.width - labelWidth / 2 - 6, p.x));
         // Keep numeric callouts clear of the fixed legend on narrow screens.
         // Move an obstructed callout just above its left edge, away from the
         // England label on the right, while leaving geographic fills fixed.
@@ -475,13 +540,15 @@
     }
 
     zoomBy(factor, anchor = { x: this.width / 2, y: this.height / 2 }) {
-      const next = Math.max(0.8, Math.min(8, this.zoom * factor));
+      const next = Math.max(0.8, Math.min(this.maximumZoom(), this.zoom * factor));
       const ratio = next / this.zoom;
       this.pan.x = anchor.x - this.width / 2 - (anchor.x - this.width / 2 - this.pan.x) * ratio;
       this.pan.y = anchor.y - this.height / 2 - (anchor.y - this.height / 2 - this.pan.y) * ratio;
       this.zoom = next;
       this.updateView();
     }
+
+    maximumZoom() { return this.showRegions && this.regionNodes.size > 20 ? 256 : 8; }
 
     reset() {
       this.zoom = 1;
@@ -512,7 +579,7 @@
     }
 
     bindEvents() {
-      this.listen(this.element, 'mouseleave', () => this.hideTooltips());
+      this.listen(this.element, 'mouseleave', () => { this.hideTooltips(); this.hoverRegion(null); });
       this.listen(this.element, 'wheel', event => {
         event.preventDefault();
         this.hideTooltips();
@@ -541,6 +608,7 @@
       this.listen(this.element, 'pointerdown', event => {
         if (event.button !== 0) return;
         this.hideTooltips();
+        this.hoverRegion(null);
         const p = this.point(event);
         this.pointers.set(event.pointerId, p);
         if (this.pointers.size === 1) {

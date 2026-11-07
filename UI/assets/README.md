@@ -24,6 +24,24 @@ Coastlines use Douglas-Peucker simplification with a 0.005-degree tolerance. Eve
 
 The script defines `window.JMAP_NATIONS = { features: [{ key, name, polygons }], ...provenance }` and also supports CommonJS. Keys are `england`, `scotland`, `wales` and `northern-ireland`. Each polygon is a closed WGS84 exterior ring of `[longitude, latitude]` pairs. The boundaries support nation-level annual choropleths; they do not describe electricity-network regions, distribution circuits, household connections or transmission capacity.
 
+## Local authority boundaries
+
+`local-areas.js` bundles **361 actual UK local authority district boundaries** from the Office for National Statistics: **Local Authority Districts (May 2025) Boundaries UK BSC (V2)**. It includes 296 English districts, 32 Scottish council areas, 22 Welsh unitary authorities and 11 Northern Ireland districts. BSC is ONS's super-generalised 200-metre, coastline-clipped cartographic product, not a cadastral boundary.
+
+- Official dataset: https://www.arcgis.com/home/item.html?id=3da2689754f449e2a4f6cd901c99dbd9
+- Official geometry service: https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LAD_MAY_2025_UK_BSC_V2/FeatureServer/0
+- Geometry was queried as GeoJSON using `where=1=1`, `outFields=*`, `outSR=4326` and `returnGeometry=true`.
+- License: **Open Government Licence v3.0**, with ONS's digital-boundary attribution requirements at https://www.ons.gov.uk/methodology/geography/licences.
+- Source: Office for National Statistics licensed under the Open Government Licence v.3.0.
+- Contains OS data © Crown copyright and database right 2025.
+- Prepared: 7 November 2026.
+
+May 2025 boundaries match all 350 Great Britain local-authority codes in the DESNZ 2024 electricity-consumption workbook, which uses its latest NSPL geography. In particular, Barnsley is `E08000038` and Sheffield is `E08000039`; their predecessor codes `E08000016` and `E08000019` are not silently used as geometry keys. There are no unmatched consumption records. The 11 Northern Ireland boundaries (`N09000001` to `N09000011`) remain present even though that consumption workbook has no corresponding Northern Ireland observations. Missing consumption remains unavailable rather than becoming zero.
+
+The script defines `window.JMAP_LOCAL_AREAS` and also supports CommonJS. Each feature has `key` (the ONS LAD25CD), `name`, `polygons`, `labelPosition` (ONS's official longitude/latitude label point), and `bounds` (`[[west, south], [east, north]]`). `polygons` contains closed WGS84 rings, **including interior holes**. Render these rings with SVG `fill-rule="evenodd"`: South Cambridgeshire's interior ring excludes Cambridge and must not be filled as part of the surrounding district.
+
+The compact geometry retains all source exterior and interior rings. Coastline segments are further simplified with a Douglas-Peucker tolerance of 0.004 degrees; all 18,383 source vertices shared by neighbouring authorities are protected from this simplification. Coordinates are rounded to four decimal places, using five where needed to retain a tiny island. The result contains 1,007 rings and 50,559 vertices in less than 1 MB. Adjacent boundaries therefore retain matching coordinates at the bundled precision. These geographic authorities are statistical reporting areas, not electricity-network zones, service territories or evidence that demand is supplied within an area's boundary.
+
 ## UK site sample
 
 `sites.js` contains **45 representative UK sites**: the original 40-site Great Britain sample plus five Northern Ireland sites. Northern Ireland uses the region key `northern-ireland`; other region keys are `england`, `scotland`, and `wales`. Irish land is shown for geographic context, but the sample does not include Republic of Ireland generation sites.

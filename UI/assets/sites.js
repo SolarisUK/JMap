@@ -1,10 +1,12 @@
 /*
- * JMap demonstration dataset: 40 representative sites, not a complete asset register.
+ * JMap demonstration dataset: 45 representative UK sites, not a complete asset register.
  * All output values are synthetic examples in MW, NOT live or historical measurements.
  * Coordinates and installed capacities are approximate; capacity definitions vary by source.
  * Wind/hydro/biomass/nuclear mean generation; storage means discharge; interconnectors
  * mean import to GB. Neither storage nor interconnectors should count as generation.
  * Operator labels are descriptive and do not represent complete ownership structures.
+ * UK totals are illustrative site aggregates, not a measured GB/all-island power balance.
+ * The dataset contains no demand, network constraints, or transmission-flow measurements.
  * Primary reference pages checked when preparing this demonstration:
  * https://www.edfenergy.com/about/nuclear/power-stations
  * https://orsted.co.uk/energy-solutions/offshore-wind/our-wind-farms
@@ -13,6 +15,11 @@
  * https://www.nationalgrid.com/national-grid-ventures/interconnectors-connecting-cleaner-future
  * https://harmonyenergy.co.uk/projects/
  * https://www.gov.uk/government/collections/renewables-statistics
+ * https://www.epuki.co.uk/about/our-power-stations/ballylumford/
+ * https://www.epuki.co.uk/about/our-power-stations/kilroot/
+ * https://www.sserenewables.com/onshore-wind/northern-ireland/slieve-kirk-wind-park/
+ * https://esb.ie/what-we-do/generation-and-trading/crockdun---wind
+ * https://www.res-group.com/resources/news/res-doubles-down-with-new-solar-om-contracts/
  */
 window.JMAP_SITES = [
   { id: 'beatrice', name: 'Beatrice Offshore Wind Farm', type: 'wind', region: 'scotland', lat: 58.13, lon: -3.07, capacity: 588, output: 376, operator: 'Beatrice Offshore Windfarm', note: 'Offshore wind in the Moray Firth. Illustrative output; approximate location and capacity.' },
@@ -61,5 +68,11 @@ window.JMAP_SITES = [
   { id: 'north-sea-link', name: 'North Sea Link', type: 'interconnector', region: 'england', lat: 55.14, lon: -1.54, capacity: 1400, output: 1120, operator: 'National Grid / Statnett', note: 'GB converter station at Blyth; connects Norway. Output represents illustrative imports, not generation.' },
 
   { id: 'pillswood', name: 'Pillswood Battery', type: 'storage', region: 'england', lat: 53.77, lon: -0.44, capacity: 98, output: 44, operator: 'Harmony Energy', note: 'Battery energy storage near Cottingham; output represents discharge. Illustrative output; approximate location and capacity.' },
-  { id: 'clay-tye', name: 'Clay Tye Battery', type: 'storage', region: 'england', lat: 51.56, lon: 0.32, capacity: 99, output: 41, operator: 'Harmony Energy / FRV', note: 'Battery energy storage near Upminster; output represents discharge. Illustrative output; approximate location and capacity.' }
+  { id: 'clay-tye', name: 'Clay Tye Battery', type: 'storage', region: 'england', lat: 51.56, lon: 0.32, capacity: 99, output: 41, operator: 'Harmony Energy / FRV', note: 'Battery energy storage near Upminster; output represents discharge. Illustrative output; approximate location and capacity.' },
+
+  { id: 'ballylumford', name: 'Ballylumford Power Station', type: 'gas', region: 'northern-ireland', lat: 54.849, lon: -5.785, capacity: 688, output: 446, operator: 'EP Ballylumford', note: 'Gas generation at Islandmagee, County Antrim. Synthetic sample output; approximate location and capacity. Not live telemetry.' },
+  { id: 'kilroot-gas', name: 'Kilroot Gas Turbines', type: 'gas', region: 'northern-ireland', lat: 54.730, lon: -5.753, capacity: 700, output: 420, operator: 'EP Kilroot', note: 'Two 350 MW natural-gas turbines near Carrickfergus. Excludes the separate oil-fired units. Synthetic sample output; approximate location and capacity. Not live telemetry.' },
+  { id: 'slieve-kirk', name: 'Slieve Kirk Wind Park', type: 'wind', region: 'northern-ireland', lat: 54.945, lon: -7.116, capacity: 73.6, output: 48, operator: 'SSE Renewables', note: 'Onshore wind cluster between Ardmore and Limavady. Synthetic sample output; approximate cluster location and capacity. Not live telemetry.' },
+  { id: 'crockdun', name: 'Crockdun Wind Farm', type: 'wind', region: 'northern-ireland', lat: 54.6305, lon: -7.0802, capacity: 12.5, output: 8, operator: 'ESB', note: 'Onshore wind near Loughmacrory, County Tyrone. Synthetic sample output; approximate location and capacity. Not live telemetry.' },
+  { id: 'ballygarvey', name: 'Ballygarvey Solar Farm', type: 'solar', region: 'northern-ireland', lat: 54.916, lon: -6.233, capacity: 8.2, output: 4, operator: 'Ballygarvey Solar', note: 'Solar generation near Ballymena, County Antrim. Synthetic sample output; approximate location and capacity. Not live telemetry.' }
 ];

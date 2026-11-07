@@ -14,11 +14,20 @@
   ];
   const seas = [
     ['N O R T H   S E A', 1.35, 56.3],
-    ['I R I S H   S E A', -5.5, 53.35],
+    ['I R I S H   S E A', -5.1, 53.7],
     ['A T L A N T I C', -9.4, 56.8],
     ['E N G L I S H   C H A N N E L', -2.2, 49.85]
   ];
   const fills = { wind: '#fafaf8', solar: '#b8b8b2', nuclear: '#202020', gas: '#777772', hydro: '#deded8', biomass: '#a0a09a', storage: '#fafaf8', interconnector: '#42423f' };
+  const nationalBounds = [[-9.0, 49.7], [3.4, 61.05]];
+  const regionalBounds = {
+    england: [[-6.0, 49.8], [3.1, 55.9]],
+    scotland: [[-8.6, 54.5], [0.5, 61.05]],
+    wales: [[-5.7, 51.2], [-2.5, 53.8]],
+    'northern-ireland': [[-8.4, 54.0], [-5.3, 55.5]],
+    northern_ireland: [[-8.4, 54.0], [-5.3, 55.5]],
+    northernireland: [[-8.4, 54.0], [-5.3, 55.5]]
+  };
 
   function svg(tag, attributes = {}, text) {
     const node = document.createElementNS(NS, tag);
@@ -32,20 +41,35 @@
     return { x: lon * DEG, y: -Math.log(Math.tan(Math.PI / 4 + safeLat * DEG / 2)) };
   }
 
+  function projectedBounds(bounds) {
+    const southWest = project(bounds[0][0], bounds[0][1]);
+    const northEast = project(bounds[1][0], bounds[1][1]);
+    return { left: southWest.x, right: northEast.x, top: northEast.y, bottom: southWest.y };
+  }
+
+  function shortName(name) {
+    const compact = String(name).replace(/\b(Offshore Wind Farm|Wind Farm|Power Station|Solar Farm|Solar Park|Interconnector|Battery)\b/gi, '').replace(/\s+/g, ' ').trim();
+    return compact.length > 27 ? `${compact.slice(0, 25)}…` : compact;
+  }
+
   class EnergyMap {
-    constructor({ element, geography, onSelect = () => {} }) {
+    constructor({ element, geography, onSelect = () => {}, scaleMaxima }) {
       if (!element) throw new Error('EnergyMap requires an SVG element.');
       this.element = element;
       this.onSelect = onSelect;
       this.sites = [];
       this.mode = 'output';
+      this.scaleMaxima = { output: 1, capacity: 1, utilisation: 100 };
+      this.fixedScale = false;
+      this.showSiteLabels = false;
       this.selectedId = null;
       this.zoom = 1;
       this.pan = { x: 0, y: 0 };
       this.pointers = new Map();
       this.markerNodes = new Map();
       this.listeners = [];
-      this.initialCentre = project(-3.7, 54.9);
+      const initial = projectedBounds(nationalBounds);
+      this.initialCentre = { x: (initial.left + initial.right) / 2, y: (initial.top + initial.bottom) / 2 };
       this.centre = { ...this.initialCentre };
       element.setAttribute('tabindex', '0');
       element.setAttribute('role', 'group');
@@ -56,7 +80,9 @@
       this.land = svg('g', { class: 'map-land', fill: '#e7e7e2', stroke: '#c5c5bf', 'stroke-width': 0.8, 'stroke-linejoin': 'round' });
       this.labels = svg('g', { class: 'map-labels', 'pointer-events': 'none' });
       this.markers = svg('g', { class: 'map-markers' });
-      element.append(this.background, this.land, this.labels, this.markers);
+      this.siteLabels = svg('g', { class: 'map-site-labels', 'pointer-events': 'none' });
+      element.append(this.background, this.land, this.labels, this.markers, this.siteLabels);
+      if (scaleMaxima) this.setScaleMaxima(scaleMaxima);
       this.drawGeography(geography);
       this.drawLabels();
       this.bindEvents();
@@ -72,12 +98,14 @@
 
     resize() {
       const bounds = this.element.getBoundingClientRect();
+      // A hidden list/map switch has no dimensions. Retain the existing camera
+      // until ResizeObserver sees the map's visible dimensions again.
+      if (!bounds.width || !bounds.height) return;
       this.width = Math.max(1, bounds.width || 1000);
       this.height = Math.max(1, bounds.height || 720);
       this.element.setAttribute('viewBox', `0 0 ${this.width} ${this.height}`);
-      const west = project(-10, 49.5);
-      const east = project(3, 59.5);
-      this.baseScale = Math.min(this.width / (east.x - west.x), this.height / (west.y - east.y)) * 0.94;
+      const initial = projectedBounds(nationalBounds);
+      this.baseScale = Math.min(this.width / (initial.right - initial.left), this.height / (initial.bottom - initial.top)) * 0.90;
       this.updateView();
     }
 
@@ -101,17 +129,23 @@
       this.labelNodes = [];
       for (const [name, lon, lat] of cities) {
         const node = svg('g');
+        const leftAligned = name === 'Glasgow' || name === 'Dublin';
+        const text = svg('text', { x: leftAligned ? -6 : 6, y: 3, 'text-anchor': leftAligned ? 'end' : 'start', fill: '#65655f', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10, 'paint-order': 'stroke', stroke: '#f2f2ee', 'stroke-width': 3, 'stroke-linejoin': 'round' }, name);
         node.append(
           svg('circle', { r: 1.7, fill: '#94948e' }),
-          svg('text', { x: 6, y: 3, fill: '#65655f', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10, 'paint-order': 'stroke', stroke: '#f2f2ee', 'stroke-width': 3, 'stroke-linejoin': 'round' }, name)
+          text
         );
         this.labels.append(node);
-        this.labelNodes.push({ node, world: project(lon, lat), city: true });
+        const width = text.getComputedTextLength() || name.length * 5.5;
+        const box = { left: leftAligned ? -8 - width : 4, right: leftAligned ? -4 : 8 + width, top: -9, bottom: 6 };
+        this.labelNodes.push({ node, name, box, world: project(lon, lat), city: true });
       }
       for (const [name, lon, lat] of seas) {
         const node = svg('text', { fill: '#71716b', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 9, 'text-anchor': 'middle' }, name);
         this.labels.append(node);
-        this.labelNodes.push({ node, world: project(lon, lat), city: false });
+        const width = node.getComputedTextLength() || name.length * 5;
+        const box = { left: -width / 2 - 2, right: width / 2 + 2, top: -10, bottom: 3 };
+        this.labelNodes.push({ node, box, world: project(lon, lat), city: false });
       }
     }
 
@@ -128,15 +162,48 @@
       return svg('circle', { r: radius, ...attributes });
     }
 
+    static radiusForValue(value, maximum) {
+      return Math.max(3.2, 12 * Math.sqrt(Math.min(1, Math.max(0, Number(value) || 0) / Math.max(1, Number(maximum) || 1))));
+    }
+
+    static createSymbol(type, size = 18) {
+      const symbol = svg('svg', { viewBox: '-12 -12 24 24', width: size, height: size, 'aria-hidden': 'true', focusable: 'false' });
+      symbol.append(EnergyMap.prototype.markerShape(type, 7, { fill: fills[type] || '#fff', stroke: '#242423', 'stroke-width': 1.25, 'stroke-linejoin': 'round' }));
+      if (type === 'wind') symbol.append(svg('circle', { r: 1.8, fill: '#242423' }));
+      if (type === 'biomass') symbol.append(svg('path', { d: 'M-3.2 0H3.2M0-3.2V3.2', stroke: '#fff', 'stroke-width': 1.2 }));
+      return symbol;
+    }
+
+    setScaleMaxima(maxima) {
+      for (const mode of ['output', 'capacity', 'utilisation']) {
+        const maximum = Number(maxima?.[mode]);
+        if (Number.isFinite(maximum) && maximum > 0) this.scaleMaxima[mode] = maximum;
+      }
+      this.fixedScale = true;
+      if (this.markerNodes.size) this.setSites(this.sites, this.mode);
+      return this;
+    }
+
+    setLabelVisibility(visible) {
+      this.showSiteLabels = Boolean(visible);
+      this.updateView();
+      return this;
+    }
+
     setSites(sites, mode = this.mode) {
       this.sites = Array.isArray(sites) ? sites : [];
       this.mode = mode;
       this.markers.replaceChildren();
+      this.siteLabels.replaceChildren();
       this.markerNodes.clear();
-      const maximum = this.mode === 'utilisation' ? 100 : Math.max(1, ...this.sites.map(site => this.valueFor(site)));
+      if (!this.fixedScale) {
+        this.scaleMaxima.output = Math.max(this.scaleMaxima.output, ...this.sites.map(site => Math.max(0, Number(site.output) || 0)));
+        this.scaleMaxima.capacity = Math.max(this.scaleMaxima.capacity, ...this.sites.map(site => Math.max(0, Number(site.capacity) || 0)));
+      }
+      const maximum = this.scaleMaxima[this.mode] || this.scaleMaxima.output;
       // Draw large sites first so nearby smaller sites remain available to click.
       [...this.sites].sort((a, b) => this.valueFor(b) - this.valueFor(a)).forEach(site => {
-        const radius = 3.2 + Math.sqrt(this.valueFor(site) / maximum) * 8.8;
+        const radius = EnergyMap.radiusForValue(this.valueFor(site), maximum);
         const group = svg('g', { class: 'map-marker', 'data-site-id': site.id, 'data-type': site.type, role: 'button', tabindex: 0, 'aria-label': `${site.name}, ${site.type}, ${Math.round(site.output).toLocaleString('en-GB')} megawatts output`, 'aria-pressed': 'false' });
         group.style.cursor = 'pointer';
         group.append(svg('title', {}, `${site.name} · ${site.type} · ${Math.round(site.output).toLocaleString('en-GB')} MW`));
@@ -152,6 +219,9 @@
         tooltip.append(svg('rect', { x: radius + 10, y: -12, width: labelWidth, height: 25, fill: '#fff', stroke: '#d0d0ca', 'stroke-width': 1, rx: 2 }));
         tooltip.append(svg('text', { x: radius + 20, y: 4, fill: '#252524', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10, 'font-weight': 500 }, site.name));
         group.append(tooltip);
+        const labelText = shortName(site.name);
+        const label = svg('text', { class: 'map-site-label', x: radius + 6, y: 3, fill: '#42453c', 'font-family': 'Arial, Helvetica, sans-serif', 'font-size': 10, 'paint-order': 'stroke', stroke: '#f7f7f4', 'stroke-width': 3, 'stroke-linejoin': 'round', visibility: 'hidden' }, labelText);
+        this.siteLabels.append(label);
         group.addEventListener('mouseenter', () => { tooltip.setAttribute('visibility', 'visible'); this.markers.append(group); });
         group.addEventListener('mouseleave', () => tooltip.setAttribute('visibility', 'hidden'));
         group.addEventListener('focus', () => tooltip.setAttribute('visibility', 'visible'));
@@ -167,7 +237,7 @@
           if (event.detail === 0) { event.stopPropagation(); this.choose(site.id); }
         });
         this.markers.append(group);
-        this.markerNodes.set(site.id, { group, selection, tooltip, radius, world: project(site.lon, site.lat) });
+        this.markerNodes.set(site.id, { group, selection, tooltip, label, labelText, radius, output: site.output, world: project(site.lon, site.lat) });
       });
       this.updateView();
       this.selectSite(this.selectedId);
@@ -203,6 +273,45 @@
       this.updateView();
     }
 
+    fitBounds(bounds, { padding = 42 } = {}) {
+      if (!this.baseScale || !Array.isArray(bounds) || bounds.length !== 2 || !bounds.every(point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite))) return this;
+      const extent = projectedBounds(bounds);
+      const worldWidth = Math.abs(extent.right - extent.left);
+      const worldHeight = Math.abs(extent.bottom - extent.top);
+      if (!worldWidth || !worldHeight) return this;
+      const availableWidth = Math.max(40, this.width - Math.min(padding * 2, this.width * 0.35));
+      const availableHeight = Math.max(40, this.height - Math.min(padding * 2, this.height * 0.35));
+      this.centre = { x: (extent.left + extent.right) / 2, y: (extent.top + extent.bottom) / 2 };
+      this.pan = { x: 0, y: 0 };
+      this.zoom = Math.max(0.8, Math.min(8, Math.min(availableWidth / worldWidth, availableHeight / worldHeight) / this.baseScale));
+      this.updateView();
+      return this;
+    }
+
+    fitSites(sites = this.sites) {
+      const positioned = (Array.isArray(sites) ? sites : []).filter(site => Number.isFinite(site.lon) && Number.isFinite(site.lat));
+      if (!positioned.length) return this;
+      if (positioned.length === 1) {
+        this.centre = project(positioned[0].lon, positioned[0].lat);
+        this.pan = { x: 0, y: 0 };
+        this.zoom = 3;
+        this.updateView();
+        return this;
+      }
+      const west = Math.min(...positioned.map(site => site.lon));
+      const east = Math.max(...positioned.map(site => site.lon));
+      const south = Math.min(...positioned.map(site => site.lat));
+      const north = Math.max(...positioned.map(site => site.lat));
+      return this.fitBounds([[west - 0.2, south - 0.18], [east + 0.2, north + 0.18]]);
+    }
+
+    focusRegion(region) {
+      if (!region || region === 'all') { this.reset(); return this; }
+      const bounds = regionalBounds[region];
+      if (bounds) return this.fitBounds(bounds);
+      return this.fitSites(this.sites.filter(site => site.region === region));
+    }
+
     screen(world) {
       const scale = this.baseScale * this.zoom;
       return { x: (world.x - this.centre.x) * scale + this.width / 2 + this.pan.x, y: (world.y - this.centre.y) * scale + this.height / 2 + this.pan.y };
@@ -212,18 +321,42 @@
       if (!this.baseScale) return;
       const scale = this.baseScale * this.zoom;
       this.land.setAttribute('transform', `matrix(${scale} 0 0 ${scale} ${this.width / 2 + this.pan.x - this.centre.x * scale} ${this.height / 2 + this.pan.y - this.centre.y * scale})`);
-      this.labelNodes?.forEach(({ node, world, city }) => {
+      const labelBoxes = [];
+      this.labelNodes?.forEach(({ node, box: localBox, world, city }) => {
         const p = this.screen(world);
         node.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
-        node.setAttribute('opacity', city ? 1 : Math.max(0, 1 - (this.zoom - 1) * 0.4));
+        const opacity = city ? 1 : Math.max(0, 1 - (this.zoom - 1) * 0.4);
+        node.setAttribute('opacity', opacity);
+        const box = { left: p.x + localBox.left, right: p.x + localBox.right, top: p.y + localBox.top, bottom: p.y + localBox.bottom };
+        // City labels take priority over sea names. The occupied rectangles use
+        // actual text widths and anchors, including labels placed left of cities.
+        const collides = !city && labelBoxes.some(other => box.left < other.right && box.right > other.left && box.top < other.bottom && box.bottom > other.top);
+        node.setAttribute('visibility', collides ? 'hidden' : 'visible');
+        if (!collides && opacity > 0.05 && box.right > 0 && box.bottom > 0 && box.left < this.width && box.top < this.height) labelBoxes.push(box);
       });
-      this.markerNodes.forEach(({ group, world }) => {
+      const visibleSiteIds = [];
+      this.markerNodes.forEach(({ group, label, world }) => {
         const p = this.screen(world);
         group.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
+        label.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
+        label.setAttribute('visibility', 'hidden');
+        if (p.x >= 0 && p.y >= 0 && p.x <= this.width && p.y <= this.height) visibleSiteIds.push(group.getAttribute('data-site-id'));
         // Off-screen sites leave the tab order until brought back into view.
         group.setAttribute('tabindex', p.x > -15 && p.y > -15 && p.x < this.width + 15 && p.y < this.height + 15 ? '0' : '-1');
       });
-      this.element.dispatchEvent(new CustomEvent('mapviewchange', { detail: { zoom: this.zoom }, bubbles: true }));
+      if (this.showSiteLabels) {
+        // Prioritise the selected site, then larger output. Hide colliding labels
+        // rather than obscuring other sites and place names at national scale.
+        [...this.markerNodes.entries()].sort(([idA, a], [idB, b]) => Number(idB === this.selectedId) - Number(idA === this.selectedId) || b.output - a.output).forEach(([, { label, labelText, radius, world }]) => {
+          const p = this.screen(world);
+          const box = { left: p.x + radius + 4, right: p.x + radius + 12 + labelText.length * 5.6, top: p.y - 9, bottom: p.y + 8 };
+          if (box.left < 5 || box.top < 5 || box.right > this.width - 5 || box.bottom > this.height - 5) return;
+          if (labelBoxes.some(other => box.left < other.right && box.right > other.left && box.top < other.bottom && box.bottom > other.top)) return;
+          label.setAttribute('visibility', 'visible');
+          labelBoxes.push(box);
+        });
+      }
+      this.element.dispatchEvent(new CustomEvent('mapviewchange', { detail: { zoom: this.zoom, visibleSiteIds }, bubbles: true }));
     }
 
     zoomBy(factor, anchor = { x: this.width / 2, y: this.height / 2 }) {
@@ -266,7 +399,8 @@
     bindEvents() {
       this.listen(this.element, 'wheel', event => {
         event.preventDefault();
-        this.zoomBy(Math.exp(-Math.max(-120, Math.min(120, event.deltaY)) * 0.002), this.point(event));
+        const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * this.height : event.deltaY;
+        this.zoomBy(Math.exp(-Math.max(-120, Math.min(120, delta)) * 0.002), this.point(event));
       }, { passive: false });
       this.listen(this.element, 'dblclick', event => {
         if (event.target.closest('[data-site-id]')) return;

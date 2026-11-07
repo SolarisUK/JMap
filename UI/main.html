@@ -4,81 +4,86 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fafaf8">
-  <meta name="description" content="Explore Britain's energy landscape. A minimal, interactive map of generation sites, capacity, and illustrative output.">
+  <meta name="description" content="Understand the UK's energy landscape. Explore generation, compare sites, and analyse regional and technology contributions in a curated sample.">
   <title>Energy map — JMap</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="map-system.css">
   <script src="assets/geography.js" defer></script>
   <script src="assets/sites.js" defer></script>
+  <script src="analysis.js" defer></script>
   <script src="map.js" defer></script>
   <script src="main.js" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#workspace">Skip to energy map</a>
+<body class="energy-page">
+  <a class="skip-link" href="#workspace">Skip to energy explorer</a>
   <header class="site-header">
     <a class="brand" href="main.html" aria-label="JMap energy map">jmap<span aria-hidden="true">↗</span></a>
-    <nav aria-label="Main navigation">
-      <a href="overview.html">Overview</a>
-      <a href="main.html" class="active" aria-current="page">Energy map <span class="nav-index">01</span></a>
-      <a class="site-directory-link" id="directory-nav" href="main.html#directory">Site directory</a>
-    </nav>
-    <div class="header-meta"><span class="status-dot"></span> Great Britain <span class="header-divider">/</span> Grid intelligence</div>
+    <nav aria-label="Main navigation"><a href="overview.html">Overview</a><a href="main.html" class="active" aria-current="page">Energy map <span class="nav-index">01</span></a><a class="site-directory-link" id="directory-nav" href="main.html#directory">Site directory</a></nav>
+    <div class="header-meta"><span class="status-dot"></span> United Kingdom <span class="header-divider">/</span> Grid intelligence</div>
   </header>
-
   <main>
-    <section class="intro" aria-labelledby="page-title">
-      <div><p class="eyebrow">[ A different perspective on power ]</p><h1 id="page-title">The energy <em>landscape.</em></h1><p class="intro-description">See what powers Britain. Explore the network, one site at a time.</p></div>
-      <div class="snapshot"><span class="sample-badge"><span class="status-dot"></span> Sample dataset</span><p>Illustrative output · Not live telemetry</p><button class="plain-link" type="button" id="about-data">About this data <span aria-hidden="true">↗</span></button></div>
-    </section>
-    <section class="metrics" aria-label="Filtered network summary" aria-live="polite">
-      <article><p class="eyebrow">Power supplied</p><p class="metric-value"><span id="total-output">—</span><span class="unit">GW</span></p><p class="metric-caption">Generation, storage &amp; imports</p></article>
-      <article><p class="eyebrow">Network capacity</p><p class="metric-value"><span id="total-capacity">—</span><span class="unit">GW</span></p><p class="metric-caption">Generation &amp; connection capacity</p></article>
-      <article><p class="eyebrow">Low-carbon share</p><p class="metric-value"><span id="low-carbon">—</span><span class="unit">%</span></p><p class="metric-caption">Of generation; excludes imports</p></article>
-      <article class="sites-metric"><p class="eyebrow">Filtered sites</p><p class="metric-value"><span id="total-sites">—</span><span class="metric-slash">/ <span id="all-sites">—</span></span></p><p class="metric-caption">A curated national sample</p></article>
+    <section class="intro" aria-labelledby="page-title"><div><p class="eyebrow">[ A clearer perspective on power ]</p><h1 id="page-title">UK energy, <em>understood.</em></h1><p class="intro-description">Find the sources. Understand the mix. Compare the contribution.</p></div><div class="snapshot"><span class="sample-badge"><span class="status-dot"></span> Sample dataset</span><p>Illustrative outputs · Approximate capacities</p><button class="plain-link" id="about-data" type="button">Coverage &amp; definitions <span aria-hidden="true">↗</span></button></div></section>
+
+    <div class="scope-heading"><p><span id="summary-scope">United Kingdom</span><span class="scope-separator">/</span> Filtered sample</p><p>Figures follow filters. Zoom changes the map only.</p></div>
+    <section class="metrics" aria-label="Filtered sample summary" aria-live="polite">
+      <article><p class="eyebrow">Power supplied</p><p class="metric-value"><span id="total-output">—</span><span class="unit">GW</span></p><p class="metric-caption">Generation + discharge + imports</p></article>
+      <article><p class="eyebrow">Combined asset capacity</p><p class="metric-value"><span id="total-capacity">—</span><span class="unit">GW</span></p><p class="metric-caption">Generation, storage &amp; connections</p></article>
+      <article><p class="eyebrow">Low-carbon share</p><p class="metric-value"><span id="low-carbon">—</span><span class="unit">%</span></p><p class="metric-caption">Wind, solar, nuclear &amp; hydro / generation</p></article>
+      <article><p class="eyebrow">Sites selected</p><p class="metric-value"><span id="total-sites">—</span><span class="metric-slash">/ <span id="all-sites">—</span></span></p><p class="metric-caption">A curated UK sample, not national totals</p></article>
     </section>
 
-    <section class="workspace" id="workspace" aria-label="Energy map explorer">
-      <aside class="sidebar" aria-label="Map filters">
-        <div class="sidebar-title"><h2>Explore the grid</h2><button class="plain-link" type="button" id="reset-filters">Reset <span aria-hidden="true">↺</span></button></div>
-        <label class="search-field"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><input type="search" id="site-search" placeholder="Find a site or technology" autocomplete="off" aria-label="Find a site or technology"><kbd aria-hidden="true">/</kbd></label>
-        <label class="region-label" for="region">Region</label><select id="region"><option value="all">All of Great Britain</option><option value="scotland">Scotland</option><option value="england">England</option><option value="wales">Wales</option></select>
-        <fieldset class="technology-filters"><legend class="eyebrow">Technology</legend><div class="filter-actions"><button class="plain-link" id="select-all" type="button">Select all</button><span>/</span><button class="plain-link" id="clear-types" type="button">Clear</button></div><div id="technology-list"></div></fieldset>
-        <div class="sidebar-bottom"><p class="eyebrow">A simpler view of a complex system.</p><p>Choose a marker to understand the site behind the power.</p><button class="export-button" id="export-sites" type="button">Export filtered sites <span aria-hidden="true">↓</span></button></div>
+    <section class="workspace" id="workspace" aria-label="UK energy explorer">
+      <aside class="sidebar" aria-label="Site search and filters">
+        <div class="sidebar-title"><h2>Find &amp; filter</h2><button class="plain-link" id="reset-filters" type="button">Reset <span aria-hidden="true">↺</span></button></div>
+        <label class="search-field"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><input id="site-search" type="search" placeholder="Site, technology or nation" aria-label="Search site, technology or nation" autocomplete="off"><kbd aria-hidden="true">/</kbd></label>
+        <button class="filters-toggle" id="toggle-filters" type="button" aria-expanded="false" aria-controls="filter-options">Refine this view <span id="mobile-filter-count">All technologies</span><span aria-hidden="true">⌄</span></button>
+        <div class="filter-options" id="filter-options">
+          <label class="region-label" for="region">Geographic focus</label><select id="region"><option value="all">United Kingdom</option><option value="england">England</option><option value="scotland">Scotland</option><option value="wales">Wales</option><option value="northern-ireland">Northern Ireland</option></select>
+          <fieldset class="filter-presets"><legend class="eyebrow">Start with a view</legend><button type="button" data-preset="all" aria-pressed="true">All supply</button><button type="button" data-preset="low-carbon" aria-pressed="false">Low carbon</button><button type="button" data-preset="flexible" aria-pressed="false">Storage &amp; imports</button></fieldset>
+          <fieldset class="technology-filters"><legend class="eyebrow">Technologies &amp; symbols</legend><div class="filter-actions"><button class="plain-link" id="select-all" type="button">All</button><span>/</span><button class="plain-link" id="clear-types" type="button">None</button></div><div id="technology-list"></div></fieldset>
+          <p class="filter-explanation">Shape identifies technology. Size shows the measure selected above the map.</p>
+        </div>
+        <div class="sidebar-bottom"><p class="eyebrow">Understand the scope</p><p>Generation sites and sample supply. Demand and transmission flows are not included.</p><button class="export-button" id="export-sites" type="button">Export this analysis <span aria-hidden="true">↓</span></button></div>
       </aside>
 
       <div class="map-workspace">
-        <div class="map-toolbar">
-          <div class="view-switch" role="group" aria-label="Explorer view"><button type="button" id="map-view" class="selected" aria-pressed="true"><span aria-hidden="true">⊞</span> Map</button><button type="button" id="list-view" aria-pressed="false"><span aria-hidden="true">☰</span> List</button></div>
-          <p class="results-label" id="results-label" role="status">Loading sites…</p>
-          <label class="size-control"><span>Size by</span><select id="size-mode" aria-label="Marker size measure"><option value="output">Output · MW</option><option value="capacity">Capacity · MW</option><option value="utilisation">Utilisation · %</option></select></label>
+        <div class="map-toolbar"><div class="view-switch" role="group" aria-label="Explorer view"><button id="map-view" class="selected" type="button" aria-pressed="true">Map</button><button id="list-view" type="button" aria-pressed="false">Directory</button></div><p class="results-label" id="results-label" role="status">Loading sites…</p><div class="toolbar-actions"><button class="plain-link" id="jump-comparison" type="button" hidden>Compare (<span id="comparison-count">0</span>/3) ↓</button><button class="plain-link" id="fit-results" type="button">Fit results <span aria-hidden="true">⤢</span></button><button class="plain-link" id="keyboard-help" type="button">Map guide <span aria-hidden="true">?</span></button></div></div>
+        <div class="explorer-body">
+          <div class="map-column">
+            <div class="map-measures"><label class="size-control"><span>Marker size</span><select id="size-mode" aria-label="Marker size measure"><option value="output">Output · MW</option><option value="capacity">Capacity · MW</option><option value="utilisation">Utilisation · %</option></select></label><label class="labels-toggle"><input type="checkbox" id="site-labels"> Site names</label></div>
+            <div class="map-stage" id="map-stage">
+              <svg id="energy-map" tabindex="0" role="group" aria-label="UK energy sites. Drag to pan, scroll to zoom, use arrow keys to pan, plus and minus to zoom, and Home for the UK view."></svg>
+              <div class="map-label"><span class="status-dot"></span><span id="map-scope">United Kingdom</span><span class="map-label-divider">/</span> Site locations</div>
+              <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Show the whole United Kingdom" title="UK view"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 3H3v3m11-3h3v3M3 14v3h3m11-3v3h-3M6 10h8m-4-4v8"/></svg></button></div>
+              <div class="north-indicator" aria-hidden="true">N<span>↑</span></div>
+              <div class="map-legend"><div><p id="legend-title">Site output</p><div id="legend-scale" class="legend-scale"></div><p id="legend-description">Same scale across every filter.</p></div></div>
+              <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a><span>·</span> Illustrative JMap data</div>
+              <div class="map-empty" id="map-empty" hidden><span aria-hidden="true">⊘</span><h3>No matching sites.</h3><p>Try a broader search or include more technologies.</p><button class="dark-button" id="empty-reset" type="button">Reset filters</button></div>
+            </div>
+            <div class="directory" id="directory" hidden><div class="directory-heading"><p>Select a site to locate it, or add up to three to compare.</p><label>Sort <select id="sort-sites"><option value="output">Highest output</option><option value="capacity">Largest capacity</option><option value="utilisation">Highest utilisation</option><option value="name">Name A–Z</option></select></label></div><div class="directory-scroll"><table><thead><tr><th scope="col">Site</th><th scope="col">Technology</th><th scope="col">Output</th><th scope="col">Capacity</th><th scope="col">Utilisation</th><th scope="col">Actions</th></tr></thead><tbody id="directory-body"></tbody></table><div class="directory-empty" id="directory-empty" hidden>No sites match your filters. Try a broader search.</div></div></div>
+          </div>
+
+          <aside class="analysis-rail" aria-label="Analysis and site details">
+            <div id="analysis-content"><div class="analysis-heading"><p class="eyebrow">[ Understand this view ]</p><h2>The power behind the points.</h2><p id="analysis-scope">All UK sample sites</p></div>
+              <div class="analysis-tabs" role="group" aria-label="Analysis breakdown"><button type="button" data-analysis="mix" aria-pressed="true" class="selected">Energy mix</button><button type="button" data-analysis="regions" aria-pressed="false">Nations</button><button type="button" data-analysis="leaders" aria-pressed="false">Top sites</button></div>
+              <div id="analysis-mix" class="analysis-section"><div class="supply-split"><div><span>Generation</span><strong id="supply-generation">—</strong></div><div><span>Storage discharge</span><strong id="supply-storage">—</strong></div><div><span>Imports</span><strong id="supply-imports">—</strong></div></div><p class="analysis-instruction">Share of filtered supply. Select a technology to focus.</p><div id="mix-breakdown"></div><button class="plain-link analysis-reset" id="mix-reset" type="button">Show all technologies <span aria-hidden="true">↗</span></button></div>
+              <div id="analysis-regions" class="analysis-section" hidden><p class="analysis-instruction">Compare all four nations with your current search and technology filters. Select a nation to explore.</p><div id="region-breakdown"></div><p class="analysis-footnote">Bars show shares of matching UK sample output. Imports are assigned to their UK landing site.</p></div>
+              <div id="analysis-leaders" class="analysis-section" hidden><label class="rank-control">Rank by <select id="rank-by"><option value="output">Output</option><option value="capacity">Capacity</option><option value="utilisation">Utilisation</option></select></label><div id="top-sites"></div><p class="analysis-footnote">Select a site for details and comparison.</p></div>
+              <p class="analysis-empty" id="analysis-empty" hidden>No sites selected. Reset your filters to explore the sample.</p>
+            </div>
+            <article class="site-detail" id="site-detail" aria-labelledby="detail-name" hidden><div class="detail-top"><button class="plain-link" id="back-analysis" type="button">← Back to analysis</button><button class="icon-button" id="close-detail" type="button" aria-label="Close site details">×</button></div><p class="eyebrow" id="detail-type"></p><h2 id="detail-name"></h2><p class="detail-location" id="detail-location"></p><div class="detail-output"><p class="eyebrow" id="detail-output-label">Illustrative output</p><p><span id="detail-output"></span><span class="unit">MW</span></p></div><div class="utilisation-head"><span>Capacity utilisation</span><span id="detail-utilisation"></span></div><div class="utilisation-track"><div id="utilisation-fill"></div></div><dl class="detail-facts"><div><dt>Capacity</dt><dd id="detail-capacity"></dd></div><div><dt>Share of filtered supply</dt><dd id="detail-share"></dd></div><div><dt>Operator</dt><dd id="detail-operator"></dd></div><div><dt>Coordinates</dt><dd id="detail-coordinates"></dd></div></dl><p class="detail-note" id="detail-note"></p><button class="dark-button" id="compare-site" type="button" aria-pressed="false">Add to comparison <span aria-hidden="true">+</span></button><button class="detail-focus" id="focus-site" type="button">Centre on this site <span aria-hidden="true">↗</span></button></article>
+          </aside>
         </div>
-        <div class="map-stage" id="map-stage">
-          <svg id="energy-map" tabindex="0" role="group" aria-label="Interactive map of energy sites in Great Britain. Drag to pan, scroll or use plus and minus to zoom. Arrow keys pan. Home resets the view."></svg>
-          <div class="map-label"><span class="status-dot"></span> Great Britain <span class="map-label-divider">/</span> Generation network</div>
-          <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map view"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 3H3v3m11-3h3v3M3 14v3h3m11-3v3h-3M6 10h8m-4-4v8"/></svg></button></div>
-          <div class="map-legend"><div class="legend-circles" aria-hidden="true"><span></span><span></span><span></span></div><div><p id="legend-title">Power supplied</p><p id="legend-description">Larger marker, more power</p></div></div>
-          <div class="map-hint">Drag to explore <span>·</span> Scroll to zoom</div>
-          <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a> <span>·</span> JMap sample data</div>
-          <div class="map-empty" id="map-empty" hidden><span aria-hidden="true">⊘</span><h3>No sites match your filters.</h3><p>Try another search or include more technologies.</p><button class="dark-button" id="empty-reset" type="button">Reset filters</button></div>
-          <article class="site-detail" id="site-detail" aria-labelledby="detail-name" hidden>
-            <div class="detail-top"><p class="eyebrow" id="detail-type">Generation site</p><button class="icon-button" id="close-detail" type="button" aria-label="Close site details">×</button></div>
-            <h2 id="detail-name"></h2><p class="detail-location" id="detail-location"></p>
-            <div class="detail-output"><p class="eyebrow">Illustrative output</p><p><span id="detail-output"></span><span class="unit">MW</span></p></div>
-            <div class="utilisation-head"><span>Capacity utilisation</span><span id="detail-utilisation"></span></div><div class="utilisation-track"><div id="utilisation-fill"></div></div>
-            <dl class="detail-facts"><div><dt>Installed capacity</dt><dd id="detail-capacity"></dd></div><div><dt>Operator</dt><dd id="detail-operator"></dd></div><div><dt>Coordinates</dt><dd id="detail-coordinates"></dd></div></dl>
-            <p class="detail-note" id="detail-note"></p><button class="detail-focus" id="focus-site" type="button">Centre on this site <span aria-hidden="true">↗</span></button>
-          </article>
-        </div>
-        <div class="directory" id="directory" hidden>
-          <div class="directory-heading"><p>Sites matching your filters</p><label>Sort by <select id="sort-sites"><option value="output">Highest output</option><option value="capacity">Largest capacity</option><option value="name">Name A–Z</option></select></label></div>
-          <div class="directory-scroll"><table><thead><tr><th scope="col">Site</th><th scope="col">Technology</th><th scope="col">Output</th><th scope="col">Capacity</th><th scope="col">Utilisation</th><th scope="col"><span class="sr-only">View site</span></th></tr></thead><tbody id="directory-body"></tbody></table><div id="directory-empty" class="directory-empty" hidden>No sites match your filters. Try a different search.</div></div>
-        </div>
-        <div class="map-status"><p><span class="status-dot"></span> <span id="filter-summary">All technologies</span></p><span id="zoom-label">National view</span><button class="plain-link" id="keyboard-help" type="button">Keyboard shortcuts <span aria-hidden="true">↗</span></button></div>
+        <div class="map-status"><p><span class="status-dot"></span><span id="filter-summary">All technologies</span></p><span id="visible-sites">— on map</span><span id="zoom-label">UK view</span></div>
       </div>
     </section>
+
+    <section class="comparison-section" id="comparison" aria-labelledby="comparison-title" hidden><div class="comparison-heading"><div><p class="eyebrow">[ Side by side ]</p><h2 id="comparison-title" tabindex="-1">Compare the contribution.</h2><p id="comparison-caption">Choose up to three sites.</p></div><div><button class="plain-link" id="export-comparison" type="button">Export comparison ↓</button><button class="plain-link" id="clear-comparison" type="button">Clear all ×</button></div></div><div id="comparison-body"></div></section>
+    <p class="coverage-note"><span class="status-dot"></span> Reading this map: a curated UK generation and supply sample. It does not represent national totals, local demand, grid capacity constraints, or electricity transfers between nations. <button class="plain-link" id="coverage-details" type="button">How to interpret the data ↗</button></p>
   </main>
   <footer><p>Built for a clearer perspective.</p><span>JMap / Energy intelligence</span><a href="overview.html">Back to overview <span aria-hidden="true">↗</span></a></footer>
-  <dialog id="info-dialog" aria-labelledby="dialog-title"><div class="dialog-heading"><p class="eyebrow" id="dialog-kicker">JMap / Field notes</p><button class="icon-button" id="close-dialog" type="button" aria-label="Close dialog">×</button></div><h2 id="dialog-title">About this data</h2><div id="dialog-body"></div><button class="dark-button" id="dialog-done" type="button">Got it <span aria-hidden="true">↗</span></button></dialog>
-  <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
-  <noscript><p class="noscript-message">Enable JavaScript to explore the energy map. The <a href="overview.html">grid overview</a> is also available.</p></noscript>
+  <dialog id="info-dialog" aria-labelledby="dialog-title"><div class="dialog-heading"><p class="eyebrow">JMap / Field notes</p><button class="icon-button" id="close-dialog" type="button" aria-label="Close dialog">×</button></div><h2 id="dialog-title">Understanding the map</h2><div id="dialog-body"></div><button class="dark-button" id="dialog-done" type="button">Got it <span aria-hidden="true">↗</span></button></dialog>
+  <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
+  <noscript><p class="noscript-message">Enable JavaScript to explore the energy map, or visit the <a href="overview.html">grid overview</a>.</p></noscript>
 </body>
 </html>

@@ -60,11 +60,11 @@ test('unknown member capacities stay unavailable and zero is preserved',()=>{
 
 test('regional bubbles use a fixed area domain and shrink on zoom out',()=>{
   assert.equal(OVERVIEW_REFERENCE_MW,25000);
-  assert.equal(overviewRadius(25000),30);
-  assert.equal(overviewRadius(6250),15);
+  assert.equal(overviewRadius(25000),20);
+  assert.equal(overviewRadius(6250),10);
   assert.equal(overviewRadius(25000)**2/overviewRadius(6250)**2,4);
   assert.ok(overviewRadius(6250,.5)<overviewRadius(6250));
   assert.equal(overviewRadius(null),2);
   assert.ok(overviewRadius(32)<overviewRadius(900));
-  assert.equal(overviewRadius(1e9,64),30);
+  assert.equal(overviewRadius(1e9,64),24);
 });

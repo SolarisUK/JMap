@@ -35,7 +35,7 @@
     async state(scenario, strategy, timestamp, step) {
       if (this.mode !== 'bundled') return this.request(`/state?${new URLSearchParams({ scenario, strategy, t: timestamp })}`);
       const frames = this.bundle.states[scenario]?.[strategy];
-      const result = frames?.find(frame => frame.timestamp_utc === timestamp) || frames?.[step];
+      const result = timestamp ? frames?.find(frame => frame.timestamp_utc === timestamp) : frames?.[step];
       if (!result) throw new Error('The requested state is not in the generated episode.');
       return clone(result);
     }
@@ -45,14 +45,16 @@
       if (!result) throw new Error('Comparison results are unavailable.');
       return clone(result);
     }
-    async forecast(zone, issueTime) {
+    async forecast(zone, issueTime, scenario) {
       if (this.mode !== 'bundled') return this.request(`/forecast/${encodeURIComponent(zone)}?${new URLSearchParams({ issue_time: issueTime })}`);
-      const result = this.bundle.forecasts[zone];
-      if (!result) throw new Error(`No bundled forecast for ${zone}.`);
+      const forecasts = this.bundle.scenario_forecasts && scenario ? this.bundle.scenario_forecasts[scenario] : this.bundle.forecasts;
+      const result = forecasts?.[zone];
+      if (!result) throw new Error(`No bundled forecast for ${zone}${scenario ? ` in ${scenario}` : ''}.`);
+      if (issueTime && Date.parse(result.issue_time_utc) !== Date.parse(issueTime)) throw new Error('The recorded forecast does not match this scenario start. Regenerate the simulation bundle.');
       return clone(result);
     }
     incident(scenario, incident) {
-      if (this.mode === 'bundled') throw new Error('Custom incident injection requires the API. Bundled preview provides the three pre-generated scenarios.');
+      if (this.mode === 'bundled') throw new Error('Custom incident injection requires the API. Bundled preview provides the listed pre-generated scenarios.');
       return this.request(`/incident?${new URLSearchParams({ scenario })}`, { method: 'POST', body: JSON.stringify(incident) });
     }
   }

@@ -55,8 +55,7 @@ body.energy-page { height: 100dvh; overflow: hidden; font-size: 12px; }
 .energy-page #regional-legend-host .map-legend { max-width: none; width: 100%; }
 .energy-page #regional-legend-host .map-legend > div { display: grid; grid-template-columns: minmax(100px,1fr) minmax(160px,230px); align-items: center; gap: 3px 14px; }
 .energy-page #regional-legend-host .map-legend #legend-title { font: 10px/1.6 Arial,sans-serif; }
-.energy-page #regional-legend-host .map-legend #legend-scale { grid-column: 2; grid-row: span 2; padding: 0; min-width: 0; }
-.energy-page #regional-legend-host .map-legend #legend-description { grid-row: 2; font-size: 8px; line-height: 1.5; }
+.energy-page #regional-legend-host .map-legend #legend-scale { grid-column: 2; padding: 0; min-width: 0; }
 .regional-colour-scale { height: 7px; }
 .heat-colour-captions { font-size: 8px; margin-top: 3px; }
 .map-reading-note { padding: 5px 12px; font: 9px/1.5 Arial,sans-serif; flex-shrink: 0; }
@@ -86,6 +85,15 @@ body.energy-page { height: 100dvh; overflow: hidden; font-size: 12px; }
 .regional-detail > .plain-link { margin-top: 7px; font-size: 10px; }
 .energy-page .map-status { min-height: 25px; padding: 4px 12px; flex-shrink: 0; gap: 12px; }
 .energy-page .map-status p, .energy-page .map-status > span { font-size: 8px; }
+.energy-page .data-context-notes { margin-top:20px; padding-top:14px; border-top:1px solid var(--line); }
+.energy-page .data-context-notes h3 { font-size:13px; font-weight:500; }
+.energy-page .data-context-notes .map-reading-note { padding:0; font-size:12px; }
+.energy-page .data-context-notes .map-status { display:block; border:0; padding:0; min-height:0; }
+.energy-page .data-context-notes .map-status p { font-size:12px; }
+.energy-page .data-context-notes .map-status > span { display:block; font-size:11px; color:var(--muted); }
+.energy-page .data-context-notes #dashboard-coverage { margin-left:0; font-size:12px; }
+.energy-page .source-actions { display:flex; flex-wrap:wrap; gap:10px 18px; margin:14px 0; }
+.energy-page .source-actions .plain-link { font-size:11px; }
 .energy-page .map-measures { min-height: 33px; padding: 5px 12px; flex-shrink: 0; }
 .energy-page .site-detail { padding: 12px; height: 100%; overflow-y: auto; }
 #analysis-content { height: 100%; overflow-y: auto; }

@@ -124,16 +124,20 @@ def run():
             assert any(row == ["Timestamp UTC", current(page)["snapshot"]["timestamp_utc"]] for row in metadata)
             print("PASS next-frame updates panel/map and CSV preserves signed flow/direction")
 
+            page.locator("#open-notes").click()
             page.locator("#show-transfer-values").uncheck()
             assert page.locator("#response-map .simulation-transfer-labels").get_attribute("display") == "none"
             page.locator("#animate-transfers").check()
             assert page.locator('#response-map .simulation-flow-particle[display="inline"]').count() > 0
+            page.locator('[data-close="notes-dialog"]').click()
             page.reload()
             ready(page)
             assert not page.locator("#show-transfer-values").is_checked()
             assert page.locator("#animate-transfers").is_checked()
             assert "values=0" in page.url and "motion=1" in page.url
+            page.locator("#open-notes").click()
             page.locator("#show-transfer-values").check()
+            page.locator('[data-close="notes-dialog"]').click()
             print("PASS MW/motion controls and URL reload persistence")
 
             page.evaluate("""() => {const original=OperationsApi.prototype.series;

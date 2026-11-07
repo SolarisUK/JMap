@@ -40,3 +40,5 @@ main { height:calc(100dvh - 40px); display:flex; flex-direction:column; padding:
 .map-context { font-size:10px; } .map-context small { font-size:9px; }
 .bubble-key { font-size:10px; } .bubble-key p { font-size:10px; line-height:1.5; }
 .map-footer,.map-footer .text-button { font-size:9px; }
+/* The highlighted marker and its readout provide the keyboard focus indicator. */
+.generation-region:focus-visible { outline:none; }

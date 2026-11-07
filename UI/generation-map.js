@@ -27,7 +27,7 @@
   function overviewRadius(capacityMW, zoom = 1) {
     const z = clamp(finite(zoom) ? zoom : 1, .35, 64);
     const factor = z <= 1 ? Math.sqrt(z) : 1 + .12 * Math.log2(z);
-    return clamp(30 * Math.sqrt(Math.max(0,finite(capacityMW)?capacityMW:0) / OVERVIEW_REFERENCE_MW) * factor,2,30);
+    return clamp(20 * Math.sqrt(Math.max(0,finite(capacityMW)?capacityMW:0) / OVERVIEW_REFERENCE_MW) * factor,2,24);
   }
 
   // x/y are projected screen units before camera translation. Anchoring the
@@ -89,6 +89,7 @@
       this.element = element; this.onSelect = onSelect; this.onHover = onHover; this.onViewChange = onViewChange; this.onClusterSelect = onClusterSelect;
       this.onClearSelect = onClearSelect;
       this.onRegionSelect=onRegionSelect;this.onReset=onReset;this.mode='overview';this.overviewGroups=[];this.regionNodes=new Map();
+      this.hoveredRegionId=null;this.focusedRegionId=null;this.previewedRegionId=null;
       this.colourFor = typeof customColour === 'function' ? customColour : colourFor;
       this.sites = []; this.points = []; this.byId = new Map(); this.nodes = new Map(); this.listeners = []; this.pointers = new Map();
       this.zoom = 1; this.selectedId = null; this.destroyed = false; this.frame = null;
@@ -107,7 +108,12 @@
       });
       this.markers = svg('g', { class: 'generation-markers' });
       this.regions=svg('g',{class:'generation-regions'});
-      element.replaceChildren(svg('rect', { width: '100%', height: '100%', fill: 'var(--map-sea, #080808)' }), this.land, this.countryLabels, this.regions, this.markers);
+      this.regionReadout=svg('g',{class:'generation-region-readout','aria-hidden':'true','pointer-events':'none',display:'none'});
+      this.regionReadoutBox=svg('rect',{fill:'var(--surface, #111)',stroke:'var(--line, #333)','stroke-width':1,rx:3});
+      this.regionReadoutName=svg('text',{x:12,y:18,fill:'var(--ink, #eee)','font-family':'Arial, sans-serif','font-size':12,'font-weight':500,class:'generation-region-label'});
+      this.regionReadoutCapacity=svg('text',{x:12,y:35,fill:'var(--muted, #aaa)','font-family':'Arial, sans-serif','font-size':11});
+      this.regionReadout.append(this.regionReadoutBox,this.regionReadoutName,this.regionReadoutCapacity);
+      element.replaceChildren(svg('rect', { width: '100%', height: '100%', fill: 'var(--map-sea, #080808)' }), this.land, this.countryLabels, this.regions, this.markers,this.regionReadout);
       this.bindEvents(); this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(element); this.resize();
     }
     static markerRadius(capacity, zoom) { return markerRadius(capacity, zoom); }
@@ -135,12 +141,13 @@
       this.render(true); return this;
     }
     setOverviewGroups(groups) {
+      this.hoveredRegionId=null;this.focusedRegionId=null;this.previewedRegionId=null;
       this.overviewGroups=(Array.isArray(groups)?groups:[]).filter(group=>group?.id&&finite(group.lat)&&finite(group.lon));
       this.render(true);return this;
     }
     setMode(mode) {
       if(!['overview','sites'].includes(mode))throw new TypeError('Map mode must be overview or sites.');
-      if(this.mode!==mode){this.mode=mode;if(mode==='overview'){this.nodes.clear();this.markers.replaceChildren();}}
+      if(this.mode!==mode){this.mode=mode;this.hoveredRegionId=null;this.focusedRegionId=null;this.previewedRegionId=null;if(mode==='overview'){this.nodes.clear();this.markers.replaceChildren();}}
       this.element.dataset.mode=mode;
       this.element.setAttribute('aria-label',mode==='overview'?'Installed capacity by named UK source region. Select a region for its sites.':'UK registered generating sites. Every bubble shows installed capacity; nearby sites can share a combined-capacity bubble.');
       this.render(true);return this;
@@ -168,20 +175,21 @@
       this.markers.append(group); this.nodes.set(key, entry); return entry;
     }
     renderOverview() {
-      const keep=new Set(),placements=[];
-      const shortNames={'yorkshire-and-the-humber':['Yorkshire','& Humber'],'east-of-england':['East of','England'],'northern-ireland':['Northern','Ireland'],'offshore':['Offshore sites','UK-wide']};
+      const keep=new Set();
       for(const item of this.overviewGroups){
         let entry=this.regionNodes.get(item.id);
         if(!entry){
           const group=svg('g',{class:'generation-region','data-region-id':item.id,role:'button',tabindex:0});group.style.cursor='pointer';
-          const title=svg('title'),circle=svg('circle',{class:'generation-region-bubble',fill:'#ddd','fill-opacity':.16,stroke:'#aaa','stroke-width':1.2});
-          const leader=svg('line',{stroke:'#777','stroke-width':.7,'pointer-events':'none'});
-          const hit=svg('circle',{fill:'transparent'}),label=svg('text',{class:'generation-region-label',fill:'#eee','font-family':'Arial, sans-serif','font-size':12,'font-weight':500,'text-anchor':'middle','paint-order':'stroke',stroke:'var(--map-sea, #080808)','stroke-width':3.5,'stroke-linejoin':'round'});
-          group.append(title,leader,circle,hit,label);
-          entry={group,title,circle,hit,label,leader,item:null,kind:'region'};
+          const circle=svg('circle',{class:'generation-region-bubble',fill:'#ddd','fill-opacity':.07,stroke:'#888','stroke-width':1});
+          const hit=svg('circle',{fill:'transparent'});
+          group.append(circle,hit);
+          entry={group,circle,hit,item:null,kind:'region'};
           group.addEventListener('keydown',event=>{if(!event.ctrlKey&&!event.metaKey&&!event.altKey&&(event.key==='Enter'||event.key===' ')){event.preventDefault();event.stopPropagation();this.choose(entry);}});
           group.addEventListener('click',event=>{if(event.detail===0){event.stopPropagation();this.choose(entry);}});
-          group.addEventListener('mouseenter',()=>circle.setAttribute('fill-opacity',.3));group.addEventListener('mouseleave',()=>circle.setAttribute('fill-opacity',.16));
+          group.addEventListener('mouseenter',()=>{this.hoveredRegionId=item.id;this.renderRegionReadout();});
+          group.addEventListener('mouseleave',()=>{if(this.hoveredRegionId===item.id)this.hoveredRegionId=null;this.renderRegionReadout();});
+          group.addEventListener('focus',()=>{this.focusedRegionId=item.id;this.renderRegionReadout();});
+          group.addEventListener('blur',()=>{if(this.focusedRegionId===item.id)this.focusedRegionId=null;this.renderRegionReadout();});
           this.regions.append(group);this.regionNodes.set(item.id,entry);
         }
         keep.add(item.id);entry.item={kind:'region',group:item};
@@ -190,38 +198,38 @@
         entry.group.setAttribute('transform',`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);entry.group.setAttribute('display',visible?'inline':'none');entry.group.setAttribute('tabindex',visible?0:-1);
         entry.group.dataset.capacityMw=finite(item.capacityMW)?item.capacityMW:'';entry.group.dataset.count=item.siteCount??item.sites?.length??0;
         const amount=finite(item.capacityMW)?`${(item.capacityMW/1000).toLocaleString('en-GB',{maximumFractionDigits:2})} GW`:'Capacity unavailable';
-        const description=`${item.name}: ${amount} installed capacity. Select to explore the underlying sites.${item.isOffshore?' This is a UK-wide offshore summary, not a single site.':''}`;
-        entry.title.textContent=description;entry.group.setAttribute('aria-label',description);
+        entry.group.setAttribute('aria-label',`${item.name}: ${amount} installed capacity. Select to explore the underlying sites.${item.isOffshore?' This is a UK-wide offshore summary, not a single site.':''}`);
         entry.circle.setAttribute('r',radius);entry.circle.setAttribute('stroke-dasharray',!finite(item.capacityMW)?'2 2':item.isOffshore?'4 3':'none');entry.hit.setAttribute('r',Math.max(radius,14));
-        const parts=shortNames[item.id]||[item.name],width=Math.max(...parts.map(text=>text.length))*6.4+6,height=parts.length*14;
-        entry.label.replaceChildren(...parts.map((text,index)=>svg('tspan',{x:0,dy:index?14:0},text)));
-        placements.push({entry,p,radius,width,height,visible});
       }
-      const occupied=[];
-      // Text is adjacent to its actual summary marker, never an arbitrary grid
-      // position. Compact two-line names keep the English regions readable.
-      placements.sort((a,b)=>a.p.y-b.p.y).forEach(({entry,p,radius,width,height,visible})=>{
-        const candidates=[];
-        for(let extra=0;extra<=180;extra+=12){
-          const left=-radius-width/2-7-extra,right=radius+width/2+7+extra,top=-radius-height+2-extra,bottom=radius+13+extra;
-          candidates.push([0,top],[right,-height/2+4],[left,-height/2+4],[0,bottom],[right,top],[left,top],[right,bottom],[left,bottom]);
-        }
-        let chosen;
-        for(const [dx,dy]of candidates){
-          const box={left:p.x+dx-width/2,right:p.x+dx+width/2,top:p.y+dy-11,bottom:p.y+dy+height-10};
-          if(box.left<5||box.right>this.width-5||box.top<5||box.bottom>this.height-5)continue;
-          if(occupied.some(other=>box.left<other.right+4&&box.right>other.left-4&&box.top<other.bottom+3&&box.bottom>other.top-3))continue;
-          chosen={dx,dy,box};break;
-        }
-        chosen||={dx:0,dy:radius+13,box:{left:p.x-width/2,right:p.x+width/2,top:p.y+radius+2,bottom:p.y+radius+height+3}};
-        entry.label.setAttribute('transform',`translate(${chosen.dx} ${chosen.dy})`);
-        const end={x:clamp(p.x,chosen.box.left,chosen.box.right)-p.x,y:clamp(p.y,chosen.box.top,chosen.box.bottom)-p.y};
-        const distance=Math.hypot(end.x,end.y),startFactor=Math.min(1,(radius+2)/Math.max(1,distance));
-        entry.leader.setAttribute('x1',end.x*startFactor);entry.leader.setAttribute('y1',end.y*startFactor);
-        entry.leader.setAttribute('x2',end.x);entry.leader.setAttribute('y2',end.y);entry.leader.setAttribute('display',distance>radius+5?'inline':'none');
-        if(visible)occupied.push(chosen.box);
-      });
       this.regionNodes.forEach((entry,id)=>{if(!keep.has(id)){entry.group.remove();this.regionNodes.delete(id);}});
+      this.renderRegionReadout();
+    }
+    previewRegion(id) {
+      this.previewedRegionId=this.regionNodes.has(id)?id:null;
+      this.renderRegionReadout();return this;
+    }
+    renderRegionReadout() {
+      this.regionReadout.setAttribute('display','none');
+      const id=this.hoveredRegionId||this.previewedRegionId||this.focusedRegionId;
+      const active=this.mode==='overview'?this.regionNodes.get(id):null;
+      this.regionNodes.forEach((entry,key)=>{
+        const highlighted=active&&key===id;
+        entry.group.dataset.highlighted=String(Boolean(highlighted));
+        entry.group.setAttribute('opacity',active&&!highlighted ? .55 : 1);
+        entry.circle.setAttribute('fill-opacity',highlighted ? .18 : .07);
+        entry.circle.setAttribute('stroke',highlighted?'#eee':'#888');
+        entry.circle.setAttribute('stroke-width',highlighted?1.5:1);
+      });
+      if(!active?.item||!this.width||!this.height)return;
+      const item=active.item.group,p=this.screen(project(item.lon,item.lat));
+      if(p.x<0||p.x>this.width||p.y<0||p.y>this.height)return;
+      this.regionReadoutName.textContent=item.isOffshore?`${item.name} \u00b7 UK-wide`:item.name;
+      this.regionReadoutCapacity.textContent=finite(item.capacityMW)?`${(item.capacityMW/1000).toLocaleString('en-GB',{maximumFractionDigits:2})} GW installed`:'Capacity unavailable';
+      const width=Math.min(this.width-16,Math.max(this.regionReadoutName.textContent.length*6.7,this.regionReadoutCapacity.textContent.length*6)+24),height=46;
+      const radius=overviewRadius(item.capacityMW,this.zoom);
+      const x=clamp(p.x-width/2,8,this.width-width-8),y=clamp(p.y-radius-height-8>=8?p.y-radius-height-8:p.y+radius+8,8,this.height-height-8);
+      this.regionReadoutBox.setAttribute('width',width);this.regionReadoutBox.setAttribute('height',height);
+      this.regionReadout.setAttribute('transform',`translate(${x} ${y})`);this.regionReadout.setAttribute('display','inline');
     }
     screen(world) {
       const scale=this.baseScale*this.zoom;
@@ -234,6 +242,7 @@
       this.element.dataset.mode=this.mode;
       this.regions.setAttribute('display',this.mode==='overview'?'inline':'none');
       this.markers.setAttribute('display',this.mode==='sites'?'inline':'none');
+      if(this.mode!=='overview')this.regionReadout.setAttribute('display','none');
       this.countryLabels.setAttribute('display',this.mode==='sites'?'inline':'none');
       this.countryNodes.forEach(({ node, world }) => { node.setAttribute('x', world.x * scale + tx); node.setAttribute('y', world.y * scale + ty); node.setAttribute('display', this.zoom > 4 ? 'none' : 'inline'); });
       let visibleCount = 0;

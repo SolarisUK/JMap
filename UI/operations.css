@@ -122,3 +122,12 @@ dialog p { color:var(--muted); }
 .simulation-edge[data-band="healthy"] > path:nth-of-type(2) { stroke:#83cdb7; }
 .simulation-edge[data-band="healthy"] > path:nth-of-type(3) { fill:#83cdb7; }
 .simulation-edge[data-band="healthy"] > .simulation-flow-particle { stroke:#83cdb7; }
+#zone-selector { position:relative; }
+#zone-selector > #clear-map-selection { position:absolute; right:10px; top:6px; font-size:9px; }
+.map-display-settings { border:1px solid var(--line); margin:14px 0; padding:10px 12px; }
+.map-display-settings legend { padding:0 5px; color:var(--muted); font-size:11px; }
+.map-display-settings label { display:inline-flex; align-items:center; gap:6px; margin:4px 16px 4px 0; font-size:11px; }
+.map-display-settings input { accent-color:var(--accent); }
+#notes-dialog #model-status { margin-left:0; }
+/* SVG selections use corner brackets while ordinary controls retain focus outlines. */
+.simulation-edge:focus-visible,.simulation-zone-label:focus-visible,.simulation-zone:focus-visible { outline:none; }

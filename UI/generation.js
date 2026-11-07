@@ -51,7 +51,6 @@
     $('#capacity-total').textContent=summaryCapacity(summary);
     $('#capacity-total').title=`Sum of ${number(summary.capacityKnownCount)} known capacities; ${number(summary.capacityUnknownCount)} unavailable. Installed equipment, not current output.`;
     $('#empty-map').hidden=state.filtered.length>0;
-    $('#map-scope').textContent=region?region.name.toUpperCase():state.country==='all'?'UNITED KINGDOM':state.country.toUpperCase().replaceAll('_',' ');
     map.setOverviewGroups(state.groups);
     map.setMode(state.mode);
     map.setSites(state.filtered);
@@ -70,19 +69,18 @@
       button.append(name,node('span','',number(site.capacityMW,1)));button.title=`${site.name}, ${power(site.capacityMW)} installed`;
       button.addEventListener('click',()=>selectSite(site.id,true));return button;
     }));
-    $('#list-note').textContent=ranked.length>120?`Showing the 120 largest of ${number(ranked.length)} matching sites. Search or filter to find others; exports include every match.`:ranked.length?`${number(ranked.length)} matching ${ranked.length===1?'site':'sites'}. Select a marker or row for its source and details.`:'No matching sites. Try another name or reset the filters.';
+    $('#list-note').textContent=ranked.length>120?`120 of ${number(ranked.length)} sites · export includes all.`:ranked.length?'':'No matching sites.';
+    $('#list-note').hidden=!$('#list-note').textContent;
   }
   function updatePresentation() {
     const overview=state.mode==='overview',region=state.groups.find(group=>group.id===state.regionId);
     $('#overview-view').setAttribute('aria-pressed',String(overview));$('#sites-view').setAttribute('aria-pressed',String(!overview));
     $('#overview-panel').hidden=!overview;$('#site-results').hidden=overview;$('#sites-tab').textContent=overview?'Regions':'Sites';
     $('#map-title').textContent=overview?'Capacity by region':'Installed capacity by site';
-    $('#fit-results').textContent=overview?'Explore matching sites ↗':'Fit results ⤢';
-    $('#map-reading').textContent=overview?'Bigger circles mean more installed capacity':'Bigger bubbles mean more capacity · colour shows technology';
-    $('#map-context-note').textContent=overview?'Regional totals · click a name to explore':'Actual site locations · click a bubble for details';
+    $('#fit-results').textContent=overview?'Explore sites ↗':'Fit results ⤢';
     $('#bubble-scale-label').textContent=overview?'Installed capacity · GW':'Installed capacity · MW';
-    $('#bubble-scale-note').textContent=overview?'Circles show capacity, not site counts. Click a region to see its sites.':'Every bubble shows capacity. Nearby sites share a combined-capacity bubble.';
-    $('#overview-scope-chip').hidden=!region;$('#overview-scope-chip').textContent=region?`${region.name} · Back to overview ×`:'';
+    $('#bubble-scale-note').textContent=overview?'Select a region to see its sites.':'Groups show combined capacity.';
+    $('#overview-scope-chip').hidden=!region;$('#overview-scope-chip').textContent=region?`${region.name} · Overview ×`:'';
     $('#selected-region-detail').hidden=!region;
     if(region){
       $('#selected-region-name').textContent=region.name;
@@ -99,6 +97,8 @@
       button.append(node('span','',group.name),node('strong','',capacity(group.capacityMW)));
       button.title=`${group.name}: ${capacity(group.capacityMW)} installed, ${number(group.siteCount)} sites. Select to explore.${group.isOffshore?' A UK-wide offshore summary, not one location.':''}`;
       if(finite(group.capacityMW)){const bar=node('i');bar.style.width=`${Math.min(100,group.capacityMW/max*100)}%`;button.append(bar);}
+      button.addEventListener('mouseenter',()=>map.previewRegion(group.id));button.addEventListener('mouseleave',()=>map.previewRegion(null));
+      button.addEventListener('focus',()=>map.previewRegion(group.id));button.addEventListener('blur',()=>map.previewRegion(null));
       button.addEventListener('click',()=>selectRegion(group));return button;
     }));
   }
@@ -140,7 +140,7 @@
     state.zoom=view.zoom || 1;
     const visible=view.visibleCount ?? view.visibleSiteCount;
     const clusters=view.clusterCount;
-    $('#map-view-status').textContent=state.mode==='overview'?`${number(state.groups.length)} named source regions · total installed capacity · Natural Earth geography`:`${finite(visible)?`${number(visible)} sites in view`:`${number(state.filtered.length)} filtered sites`}${finite(clusters)&&clusters?` · ${number(clusters)} combined-capacity bubbles`:''} · Natural Earth geography`;
+    $('#map-view-status').textContent=state.mode==='overview'?`${number(state.groups.length)} regions`:`${finite(visible)?`${number(visible)} sites in view`:`${number(state.filtered.length)} filtered sites`}${finite(clusters)&&clusters?` · ${number(clusters)} groups`:''}`;
     renderBubbleScale();
   }
   function selectSite(id,focus=false) {
@@ -254,7 +254,7 @@
   $('#sites-tab').addEventListener('click',()=>setTab('sites'));$('#snapshot-tab').addEventListener('click',()=>setTab('snapshot'));$('#open-snapshot').addEventListener('click',()=>setTab('snapshot'));
   $('#clear-site').addEventListener('click',()=>clearSite({restoreFocus:true}));$('#export-sites').addEventListener('click',download);$('#refresh-live').addEventListener('click',refreshLive);
   $('#clear-cluster').addEventListener('click',()=>{state.clusterIds=null;renderList();});
-  ['#open-sources','#map-sources'].forEach(id=>$(id).addEventListener('click',()=>$('#sources-dialog').showModal()));$('#close-sources').addEventListener('click',()=>$('#sources-dialog').close());
+  $('#open-sources').addEventListener('click',()=>$('#sources-dialog').showModal());$('#close-sources').addEventListener('click',()=>$('#sources-dialog').close());
   window.addEventListener('pagehide',()=>{clearInterval(refreshTimer);clearInterval(statusTimer);controller?.abort();});
   window.addEventListener('pageshow',event=>{if(event.persisted){startTimers();refreshLive();}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){updateLiveStatus();refreshLive();}});

@@ -228,6 +228,7 @@
     return (state.areaSort === 'ascending' ? a.value - b.value : b.value - a.value) || a.name.localeCompare(b.name);
   }
   function clearRegionalDetail(title, note) {
+    $('.regional-detail').hidden = true;
     $('#regional-detail-title').textContent = title; $('#regional-detail-status').textContent = '';
     $('#regional-detail-facts').replaceChildren(); $('#regional-detail-note').textContent = note;
     $('#zoom-regional-selection').disabled = true; $('#clear-detail').hidden = true;
@@ -260,7 +261,8 @@
     $('#dashboard-scope').textContent = scopeText; $('#clear-area-selection').hidden = !state.annualSelected || state.layer === 'sites';
   }
   function showAreaHover(key) {
-    if (!key) { $('#area-hover').textContent = state.layer === 'sites' ? 'Select a sample site for its output and capacity.' : 'Hover or select an area. Scroll to zoom; drag to pan.'; return; }
+    $('#area-hover').hidden = !key;
+    if (!key) { $('#area-hover').textContent = ''; return; }
     const row = state.resolution === 'local' ? localByKey.get(key) : annualRows.find(row => row.key === key);
     if (!row) return;
     $('#area-hover').textContent = `${row.name} · ${regionalValue(row).label}${state.resolution === 'local' ? ` · ${row.region}` : ''}`;
@@ -298,7 +300,7 @@
     const selected = localByKey.get(state.annualSelected);
     renderDashboardKpis();
     if (!selected) { clearRegionalDetail('Select an area', 'Click a local authority to inspect domestic use, non-domestic use, meters and renewable capacity.'); return; }
-    $('#clear-detail').hidden = false; $('#zoom-regional-selection').disabled = false;
+    $('.regional-detail').hidden = false; $('#clear-detail').hidden = false; $('#zoom-regional-selection').disabled = false;
     $('#regional-detail-title').textContent = selected.name;
     $('#regional-detail-status').textContent = `${selected.key} · ${selected.region}`;
     const facts = $('#regional-detail-facts'); facts.replaceChildren();
@@ -370,7 +372,7 @@
     const selected = comparisonRows.find(row => row.key === state.annualSelected);
     renderDashboardKpis(selected ? [selected] : comparisonRows);
     if (!selected) { clearRegionalDetail('Select a nation', 'Select the map or ranking to inspect annual generation and demand.'); return; }
-    $('#clear-detail').hidden = false; $('#zoom-regional-selection').disabled = false;
+    $('.regional-detail').hidden = false; $('#clear-detail').hidden = false; $('#zoom-regional-selection').disabled = false;
     $('#regional-detail-title').textContent = selected.name;
     $('#regional-detail-status').textContent = `${selected.balanceTWh < 0 ? 'Annual deficit' : selected.balanceTWh > 0 ? 'Annual surplus' : 'Balanced'} · ${selected.balanceTWh < 0 ? '−' : '+'}${fixed(Math.abs(selected.balanceTWh))} TWh`;
     const facts = $('#regional-detail-facts'); facts.replaceChildren();
@@ -393,7 +395,7 @@
     $('#geography-level').value = state.resolution; $('#local-nation').value = state.localNation;
     $('#area-search').value = state.areaQuery; $('#area-sort').value = state.areaSort;
     $('#local-nation').closest('label').hidden = state.resolution !== 'local';
-    $('#local-coverage-note').textContent = state.resolution === 'local' ? '2024 use: 350 GB authorities. Grey = unavailable or outside filters. Renewables are a separate measure.' : '2025 official nation balances. Local authorities have use and renewable data, not complete supply balances.';
+    $('#local-coverage-note').textContent = 'Grey = unavailable or outside filters.';
     document.querySelectorAll('[data-heat-metric]').forEach(button => {
       button.hidden = !!button.dataset.resolution && button.dataset.resolution !== state.resolution;
       if (button.dataset.heatMetric === 'demand' || button.dataset.heatMetric === 'renewable') {
@@ -577,7 +579,7 @@
   $('#area-sort').addEventListener('change', event => { state.areaSort = event.target.value; renderRegionalMap(); syncUrl(); });
   const clearSelection = () => { state.annualSelected = ''; renderRegionalMap(); syncUrl(); };
   $('#clear-area-selection').addEventListener('click', clearSelection); $('#clear-detail').addEventListener('click', clearSelection);
-  $('#open-balance').addEventListener('click', () => $('#balance-dialog').showModal());
+  $('#open-balance').addEventListener('click', () => { $('#info-dialog').close(); $('#balance-dialog').showModal(); });
   $('#close-balance').addEventListener('click', () => $('#balance-dialog').close());
   document.querySelectorAll('a[href="#regional-balance"]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); $('#balance-dialog').showModal(); }));
   $('#export-map').addEventListener('click', () => {
@@ -607,7 +609,7 @@
   $('#jump-comparison').addEventListener('click', () => { $('#comparison').scrollIntoView({ block: 'start' }); $('#comparison-title').focus({ preventScroll: true }); });
   $('#export-comparison').addEventListener('click', () => { const members = state.compared.map(id => sites.find(s => s.id === id)); downloadCsv([['JMap illustrative sample site comparison'], ['Measure', ...members.map(s => s.name)], ...comparisonRows(members)], 'jmap-sample-comparison.csv'); announce('Comparison exported.'); });
   $('#map-view').addEventListener('click', () => setView('map')); $('#list-view').addEventListener('click', () => setView('list'));
-  $('#directory-nav').addEventListener('click', event => { event.preventDefault(); setView('list'); $('#workspace').scrollIntoView({ block: 'start' }); $('#list-view').focus({ preventScroll: true }); });
+  $('#directory-nav').addEventListener('click', event => { event.preventDefault(); $('#info-dialog').close(); setView('list'); $('#workspace').scrollIntoView({ block: 'start' }); $('#list-view').focus({ preventScroll: true }); });
   window.addEventListener('hashchange', () => setView(window.location.hash === '#directory' ? 'list' : 'map'));
   $('#export-sites').addEventListener('click', exportAnalysis); $('#about-data').addEventListener('click', () => showDialog('data')); $('#coverage-details').addEventListener('click', () => showDialog('data')); $('#keyboard-help').addEventListener('click', () => showDialog('guide'));
   $('#close-dialog').addEventListener('click', () => $('#info-dialog').close()); $('#dialog-done').addEventListener('click', () => $('#info-dialog').close());

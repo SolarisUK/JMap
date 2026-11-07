@@ -100,7 +100,7 @@
       this.state = {}; this.zoom = 1; this.selectedZone = null; this.selectedEdge = null;
       this.networkExtent = null;
       this.transferOptions = { showValues: true, animate: false, showAreas: false };
-      this.hoveredEdge = null; this.focusedEdge = null; this.idLabelBoxes = [];
+      this.hoveredEdge = null; this.focusedEdge = null; this.idLabelBoxes = []; this.focusTarget = null;
       this.reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
       const southWest = project(...BOUNDS[0]), northEast = project(...BOUNDS[1]);
       this.initialCentre = { x: (southWest.x + northEast.x) / 2, y: (southWest.y + northEast.y) / 2 };
@@ -115,7 +115,8 @@
       this.zoneLabels = svg('g', { class: 'simulation-zone-labels' });
       this.transferLeaders = svg('g', { class: 'simulation-transfer-leaders', display: 'none', 'pointer-events': 'none' });
       this.transferLabels = svg('g', { class: 'simulation-transfer-labels' });
-      element.replaceChildren(svg('rect', { width: '100%', height: '100%', fill: 'var(--map-sea, #1f2d35)' }), this.land, this.zones, this.edges, this.transferLeaders, this.zoneLabels, this.transferLabels);
+      this.reticle = svg('path', { class: 'simulation-selection-reticle', fill: 'none', stroke: 'var(--accent, #dedede)', 'stroke-width': 1.2, 'stroke-opacity': .8, 'vector-effect': 'non-scaling-stroke', 'pointer-events': 'none', 'aria-hidden': 'true', display: 'none' });
+      element.replaceChildren(svg('rect', { width: '100%', height: '100%', fill: 'var(--map-sea, #1f2d35)' }), this.land, this.zones, this.edges, this.transferLeaders, this.zoneLabels, this.transferLabels, this.reticle);
       this.bindEvents();
       this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(element); this.resize();
     }
@@ -154,6 +155,8 @@
 
     bindSelectable(element, kind, id) {
       element.style.cursor = 'pointer';
+      element.addEventListener('focus', () => { this.focusTarget = element; this.renderReticle(); });
+      element.addEventListener('blur', () => { if (this.focusTarget === element) this.focusTarget = null; this.renderReticle(); });
       element.addEventListener('keydown', event => {
         if (event.key !== 'Enter' && event.key !== ' ') return;
         event.preventDefault(); event.stopPropagation(); this.choose(kind, id);
@@ -318,6 +321,27 @@
         entry.halo.setAttribute('stroke-width', width + (highlighted ? 4 : 2.4));
       });
       this.renderTransfers();
+      this.renderReticle();
+    }
+
+    renderReticle() {
+      const target = this.focusTarget?.isConnected ? this.focusTarget : this.edgeNodes.get(this.selectedEdge)?.group || this.zoneNodes.get(this.selectedZone)?.label;
+      this.reticle.setAttribute('display', 'none');
+      if (!target || !this.width || !this.height) return;
+      // Use the corridor itself rather than its hit area or animated particle.
+      const geometry = target.classList.contains('simulation-edge') ? this.edgeNodes.get(target.dataset.edgeId)?.line : target;
+      const rootMatrix = this.element.getScreenCTM(), targetMatrix = geometry?.getScreenCTM();
+      if (!rootMatrix || !targetMatrix) return;
+      const box = geometry.getBBox(), matrix = rootMatrix.inverse().multiply(targetMatrix);
+      const points = [[box.x,box.y],[box.x+box.width,box.y],[box.x,box.y+box.height],[box.x+box.width,box.y+box.height]].map(([x,y]) => new DOMPoint(x,y).matrixTransform(matrix));
+      const xs = points.map(point=>point.x), ys = points.map(point=>point.y);
+      const x1 = Math.min(...xs)-12, x2 = Math.max(...xs)+12, y1 = Math.min(...ys)-12, y2 = Math.max(...ys)+12;
+      if (x2<4 || x1>this.width-4 || y2<4 || y1>this.height-4) return;
+      const left = Math.max(4,x1), right = Math.min(this.width-4,x2), top = Math.max(4,y1), bottom = Math.min(this.height-4,y2);
+      const arm = Math.min(12,(right-left)/3,(bottom-top)/3);
+      // Four screen-sized corner brackets; no solid enclosing rectangle.
+      this.reticle.setAttribute('d', `M${left} ${top+arm}V${top}H${left+arm} M${right-arm} ${top}H${right}V${top+arm} M${right} ${bottom-arm}V${bottom}H${right-arm} M${left+arm} ${bottom}H${left}V${bottom-arm}`);
+      this.reticle.setAttribute('display', 'inline');
     }
 
     setTransferOptions(options = {}) {

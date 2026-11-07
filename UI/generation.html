@@ -20,7 +20,7 @@
 </head>
 <body class="generation-page">
   <a class="skip" href="#generation-map">Skip to map</a>
-  <header class="app-header"><a class="brand" href="generation.html" aria-label="JMap generation map">jmap<span aria-hidden="true">&#8599;</span></a><nav aria-label="Main navigation"><a href="generation.html" aria-label="Generation map" aria-current="page"><span class="desktop-name">Generation map</span><span class="mobile-name" aria-hidden="true">Sites</span></a><a href="transfers.html" aria-label="Live transfers"><span class="desktop-name">Live transfers</span><span class="mobile-name" aria-hidden="true">Transfers</span></a><a href="explorer.html" aria-label="Energy context"><span class="desktop-name">Energy context</span><span class="mobile-name" aria-hidden="true">Context</span></a><a href="operations.html" aria-label="Simulation"><span class="desktop-name">Simulation</span><span class="mobile-name" aria-hidden="true">Simulation</span></a></nav><div class="header-end"><button id="open-sources" class="text-button" type="button">Data &amp; method</button></div></header>
+  <header class="app-header"><a class="brand" href="generation.html" aria-label="JMap generation map">jmap<span aria-hidden="true">&#8599;</span></a><nav aria-label="Main navigation"><a href="generation.html" aria-label="Generation map" aria-current="page"><span class="desktop-name">Generation map</span><span class="mobile-name" aria-hidden="true">Sites</span></a><a href="transfers.html" aria-label="Live transfers"><span class="desktop-name">Live transfers</span><span class="mobile-name" aria-hidden="true">Transfers</span></a><a href="explorer.html" aria-label="Energy context"><span class="desktop-name">Energy context</span><span class="mobile-name" aria-hidden="true">Context</span></a><a href="operations.html" aria-label="Simulation"><span class="desktop-name">Simulation</span><span class="mobile-name" aria-hidden="true">Simulation</span></a></nav><div class="header-end"><button id="open-sources" class="text-button" type="button">Sources</button></div></header>
   <main>
     <section class="filter-bar" aria-label="Site filters">
       <h1>UK generation sites</h1>
@@ -31,35 +31,34 @@
       <button id="export-sites" class="text-button" type="button" disabled>Export ↓</button>
     </section>
     <div class="summary-strip" aria-label="Filtered site summary" aria-live="polite">
-      <p><strong id="site-count">—</strong> reported operating sites</p>
-      <p><strong id="capacity-total">—</strong> registered capacity</p>
-      <span id="catalogue-period">Loading official registers…</span>
+      <p><strong id="site-count">—</strong> sites</p>
+      <p><strong id="capacity-total">—</strong> installed</p>
+
       <button id="open-snapshot" class="feed-status" type="button">GB snapshot: connecting</button>
     </div>
     <div id="catalogue-error" class="error-banner" role="alert" hidden></div>
     <section class="generation-workspace" aria-label="Generation sites and data">
       <div class="map-column">
-        <div class="map-heading"><h2 id="map-title">Capacity by region</h2><div class="map-view-switch" role="group" aria-label="Map view"><button id="overview-view" type="button" aria-pressed="true">Overview</button><button id="sites-view" type="button" aria-pressed="false">Sites</button></div><span id="map-reading">Bigger circles mean more installed capacity</span><button id="fit-results" class="text-button" type="button">Explore matching sites ↗</button></div>
+        <div class="map-heading"><h2 id="map-title">Capacity by region</h2><div class="map-view-switch" role="group" aria-label="Map view"><button id="overview-view" type="button" aria-pressed="true">Overview</button><button id="sites-view" type="button" aria-pressed="false">Sites</button></div><button id="fit-results" class="text-button" type="button">Explore matching sites ↗</button></div>
         <div class="map-stage">
           <svg id="generation-map" aria-label="Installed capacity by named UK source region. Select a region to explore its sites."></svg>
-          <div class="map-context"><span id="map-scope">UNITED KINGDOM</span><small id="map-context-note">Regional totals · select a name to explore</small></div>
+
           <button id="overview-scope-chip" class="overview-scope-chip" type="button" hidden></button>
           <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map" title="Reset map">&#8634;</button></div>
           <p id="empty-map" class="empty-map" hidden>No sites match these filters.</p>
         </div>
         <div class="bubble-key" aria-label="Capacity marker scale"><span id="bubble-scale-label">Installed capacity · GW</span><div id="bubble-scale"></div><p id="bubble-scale-note">Circles show capacity, not site counts. Click a region to see its sites.</p></div>
         <div id="technology-key" class="technology-key" aria-label="Technology colours"></div>
-        <div class="map-footer"><span id="map-view-status">Preparing map…</span><span>Capacity is not current output · <button id="map-sources" class="text-button" type="button">Sources</button></span></div>
+        <span id="map-view-status" class="sr-only" role="status"></span>
       </div>
       <aside class="data-panel" aria-label="Sites and generation readings">
         <div class="panel-tabs" role="group" aria-label="Data panel"><button id="sites-tab" type="button" aria-pressed="true">Regions</button><button id="snapshot-tab" type="button" aria-pressed="false">GB snapshot</button></div>
         <section id="sites-panel" class="panel-body">
           <section id="overview-panel">
-            <div class="list-heading"><h2>Where capacity is installed</h2></div>
-            <p class="overview-intro">Compare total capacity by source region, then select a region to explore its sites.</p>
+
             <div class="overview-column-head" aria-hidden="true"><span>Region</span><span>Capacity</span></div>
             <div id="overview-list"></div>
-            <p class="reading-note">Includes generation and storage equipment. Offshore projects are one UK-wide summary group. Capacity is not current output or a measure of local electricity supply.</p>
+            <p class="reading-note">Installed capacity, not live output. Offshore totals are UK-wide.</p>
           </section>
           <section id="site-results" hidden>
           <div id="selected-region-detail" class="selected-region-detail" hidden><h2 id="selected-region-name"></h2><p id="selected-region-summary"></p><div id="selected-region-mix"></div></div>
@@ -67,10 +66,10 @@
             <div class="detail-heading"><span id="detail-technology"></span><button id="clear-site" class="text-button" type="button">Close ×</button></div>
             <h2 id="detail-name"></h2><p id="detail-place"></p><p class="detail-capacity"><strong id="detail-capacity"></strong><span>installed capacity</span></p>
             <dl id="detail-facts" class="facts"></dl>
-            <p class="reading-note">This register records installed capacity. Current output for this site is unavailable.</p>
+
             <a id="detail-source" target="_blank" rel="noreferrer">Official source ↗</a>
           </article>
-          <div class="list-heading"><h2 id="site-list-title">Filtered sites</h2><span>Largest capacity first</span><button id="clear-cluster" class="text-button" type="button" hidden>All results ×</button></div>
+          <div class="list-heading"><h2 id="site-list-title">Filtered sites</h2><button id="clear-cluster" class="text-button" type="button" hidden>All results ×</button></div>
           <div class="list-column-head" aria-hidden="true"><span>Site / technology</span><span>MW</span></div>
           <div id="site-list" class="site-list"></div>
           <p id="list-note" class="list-note"></p>
@@ -83,14 +82,14 @@
           <dl id="live-totals" class="facts"></dl>
           <div class="list-heading"><h2>Metered output by fuel</h2><span>MW · includes storage discharge</span></div>
           <div id="generation-mix" class="generation-mix"></div>
-          <p class="reading-note">This GB-wide reading is separate from the site-capacity map and omits most embedded generation. Negative fuel readings indicate net absorption, including pumped-storage charging. It does not measure local demand or shortage risk.</p>
-          <a class="panel-link" href="transfers.html">Explore live interconnector flows ↗</a>
-          <a id="live-source" class="panel-link" href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST" target="_blank" rel="noreferrer">Elexon source ↗</a>
+
+
+
         </section>
       </aside>
     </section>
   </main>
-  <dialog id="sources-dialog" aria-labelledby="sources-title"><div class="dialog-heading"><h2 id="sources-title">Sources and map method</h2><button id="close-sources" type="button" aria-label="Close sources">×</button></div><div id="catalogue-sources"></div><p>Each site comes from an official operating-asset register. Capacity describes installed equipment, not current output or guaranteed supply. Small installations and subsequent changes may be absent.</p><p>Overview adds the published capacities within each source region. Its markers represent regional summaries, not power stations or exact service boundaries. Offshore sites are a separate UK-wide group; their summary marker is not a single location. Filtered totals use the same fixed size scale, with summary positions held constant for comparison.</p><p>Sites shows the underlying locations. All bubbles represent installed capacity; nearby sites may share a capacity-total bubble until you zoom closer. No map number represents a site count. The side panel supplies names, capacities, record counts and technology breakdowns. Reset map returns to Overview without clearing your other filters.</p><p>The GB snapshot requests public <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST" target="_blank" rel="noreferrer">Elexon FUELINST</a> observations directly. It uses one interval and identifies missing or stale readings. National generation is never allocated to individual sites.</p><p>The <a href="operations.html">simulation</a> is separate and does not generate this map’s data.</p><p>Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth, public domain</a>. Register data: <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noreferrer">Open Government Licence</a>.</p></dialog>
+  <dialog id="sources-dialog" aria-labelledby="sources-title"><div class="dialog-heading"><h2 id="sources-title">Sources and map method</h2><button id="close-sources" type="button" aria-label="Close sources">×</button></div><p id="catalogue-period"></p><div id="catalogue-sources"></div><p>Each site comes from an official operating-asset register. Capacity describes installed equipment, not current output or guaranteed supply. Small installations and subsequent changes may be absent.</p><p>Overview adds the published capacities within each source region. Its markers represent regional summaries, not power stations or exact service boundaries. Offshore sites are a separate UK-wide group; their summary marker is not a single location. Filtered totals use the same fixed size scale, with summary positions held constant for comparison.</p><p>Sites shows the underlying locations. All bubbles represent installed capacity; nearby sites may share a capacity-total bubble until you zoom closer. No map number represents a site count. The side panel supplies names, capacities, record counts and technology breakdowns. Reset map returns to Overview without clearing your other filters.</p><p>The GB snapshot requests public <a href="https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST" target="_blank" rel="noreferrer">Elexon FUELINST</a> observations directly. It uses one interval and identifies missing or stale readings. National generation is never allocated to individual sites.</p><p>The <a href="operations.html">simulation</a> is separate and does not generate this map’s data.</p><p>Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth, public domain</a>. Register data: <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noreferrer">Open Government Licence</a>.</p></dialog>
   <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
   <noscript><p>Enable JavaScript to explore generating sites and request the current GB snapshot.</p></noscript>
 </body>

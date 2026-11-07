@@ -60,3 +60,26 @@ test('bundled mode cannot post custom incidents or invent absent scenarios', asy
   assert.throws(() => api.incident('cold_snap',{}),/requires the API/);
   await assert.rejects(api.series('absent','agents'),/No bundled episode/);
 });
+
+test('recorded states never substitute a different timestamp by slider index', async () => {
+  const stamp='2026-11-07T00:30:00Z';
+  const api=client('file:///C:/JMap/UI/operations.html',{bundle:{states:{fixed:{none:[{timestamp_utc:stamp}]}}}});
+  assert.equal((await api.state('fixed','none',stamp,0)).timestamp_utc,stamp);
+  await assert.rejects(api.state('fixed','none','2026-11-08T00:30:00Z',0),/not in the generated episode/);
+});
+
+test('scenario-specific forecasts follow each fixed start instead of the global reference date', async () => {
+  const first={zone_id:'LOND',issue_time_utc:'2026-11-07T00:00:00Z'};
+  const second={zone_id:'LOND',issue_time_utc:'2026-11-08T00:00:00Z'};
+  const api=client('file:///C:/JMap/UI/operations.html',{bundle:{forecasts:{LOND:first},scenario_forecasts:{first:{LOND:first},second:{LOND:second}}}});
+  assert.equal((await api.forecast('LOND',second.issue_time_utc,'second')).issue_time_utc,second.issue_time_utc);
+  await assert.rejects(api.forecast('LOND',first.issue_time_utc,'second'),/scenario start/);
+  await assert.rejects(api.forecast('LOND',first.issue_time_utc,'absent'),/No bundled forecast/);
+});
+
+test('legacy forecasts remain available only for their actual recorded day', async () => {
+  const stamp='2026-11-07T00:00:00+00:00';
+  const api=client('file:///C:/JMap/UI/operations.html',{bundle:{forecasts:{LOND:{zone_id:'LOND',issue_time_utc:stamp}}}});
+  assert.equal((await api.forecast('LOND','2026-11-07T00:00:00Z','fixed')).issue_time_utc,stamp);
+  await assert.rejects(api.forecast('LOND','2026-11-08T00:00:00Z','fixed'),/scenario start/);
+});

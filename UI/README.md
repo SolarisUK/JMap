@@ -8,13 +8,29 @@ Navigation, header sizing and map controls are shared through `site-shell.css`. 
 
 The generation map uses `assets/generation-sites.js`, imported from the official DESNZ REPD July 2026 and DUKES May 2026 operating-asset registers. It includes renewable/storage projects and conventional gas/nuclear stations, with published capacities, coordinates, operators and source links. The original CSV/XLSX publications and their hashes are retained in `data/raw/`; `scripts/build-generation-sites.py` reproduces the import. Source coverage and excluded records are documented in the bundle and the Data & method dialog. Extensions and co-located units can be separate register records.
 
-The generation map opens with 13 named source-region summaries. Every circle represents total installed capacity on one fixed scale; offshore projects form an explicitly UK-wide summary. Selecting a region opens its actual sites and scopes the totals, list and export. Overview and Reset map return to the regional comparison while preserving search, country and technology filters. Reset filters restores the full catalogue.
+The generation map opens with 13 source-region summaries using small, subdued capacity markers. One region name and capacity appears on hover or keyboard focus; the side panel keeps the full named comparison. Hovering or focusing a panel row identifies its map marker. Every circle represents total installed capacity on one fixed scale; offshore projects form an explicitly UK-wide summary. Selecting a region opens its actual sites and scopes the totals, list and export. Overview and Reset map return to the regional comparison while preserving search, country and technology filters. Reset filters restores the full catalogue.
 
 Sites mode uses technology colours and one MW scale for individual sites and nearby groups. Groups show combined capacity at their members' capacity-weighted locations; record counts appear in the panel, never as numbers on the map. Bubble area scales with capacity within bounded screen sizes and shrinks when zooming out. Search Enter or Fit results opens and frames matching sites, while typing alone preserves the camera. Filters and exports operate on actual register records, independently of grouping. No site output or capacity factor is fabricated. The separate GB snapshot requests signed Elexon national fuel observations, preserving missing values and stale/error states; these totals are never allocated to individual sites.
 
 The live transfer page requests the public [Elexon FUELINST dataset](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST) from the browser. No API key or backend change is required. It preserves signed imports/exports, selects one five-minute observation interval for all ten links, refreshes every 60 seconds, and identifies missing or stale observations. Routes join approximate terminal areas; they are not surveyed cable paths. Cross-border imports do not determine local shortage risk. The Data & method dialog links to source definitions and terminal references.
 
-The operations page defaults to the existing UI-contained simulation bundle. These episodes are explicitly labelled synthetic and simulated. Small zone markers show shortage status; curved routes show transfer direction, loading colour and a fixed width scale for absolute MW. The map shows at most one corridor value, on hover, keyboard focus or selection. Full readings stay in a compact side-panel table; selecting a zone or route reveals its details. Blank-map clicks, Escape and Clear focus return to the whole network. Snapshot exports preserve the original signed measurements. `Focused MW` and `Motion` settings are retained in the URL; motion respects reduced-motion settings.
+The operations page defaults to the existing UI-contained simulation bundle. These episodes are explicitly labelled synthetic and simulated. Small zone markers show shortage status; curved routes show transfer direction, loading colour and a fixed width scale for absolute MW. The map shows at most one corridor value, on hover, keyboard focus or selection. Full readings stay in a compact side-panel table; selecting a zone or route reveals its details. Blank-map clicks, Escape and Clear focus return to the whole network. Snapshot exports preserve the original signed measurements. Route-value and animation controls are under Sources, and their settings are retained in the URL; motion respects reduced-motion settings.
+
+Refresh the simulation bundle after changes to `GridEnv`, scenario inputs or baseline policies:
+
+```powershell
+python -B UI/scripts/build-simulation-stubs.py
+```
+
+The builder reads the backend's `scenarios/*.json`, calls `make_scenario_env(name)` separately for each strategy, and writes only `UI/assets/simulation-stubs.js`. It uses each scenario's `episode_start_utc` and `selected_from`, discovers additional scenario files, and retains explicit untrained-agent and illustrative-forecast labels. Scenario-specific forecasts use that scenario's recorded start. Source hashes accompany the generated data. The simulator dependencies and selected data files must be available; missing inputs leave the existing preview unchanged. If the baseline module was supplied under another name, use `--agents-file "agents_baseline(1).py"`. Use `--backend-root` or `--scenarios-dir` to read a separate backend checkout without modifying it.
+
+Every refresh checks all 48 half-hours, aligned strategy/snapshot timelines, forecast issue times, and scoreboard totals against final snapshots before replacing the bundle. It supports the simulator's post-step timestamps without shifting measurements to another interval. Updating the root `stubs/` alone does not update this bundled preview. A complete exported replay bundle can also be validated and packaged:
+
+```powershell
+python -B UI/scripts/build-simulation-stubs.py --import-bundle path/to/replay.json
+python -B UI/scripts/build-simulation-stubs.py --import-bundle UI/assets/simulation-stubs.js --check-only
+python -B UI/tests/simulation-bundle.test.py
+```
 
 To connect the operations page to a separately managed contract-compatible API, open:
 
@@ -40,6 +56,7 @@ python -B UI/tests/live-transfers-browser.py
 python -B UI/tests/map-presentation-browser.py
 python -B UI/tests/generation-browser.py
 python -B UI/tests/site-workflow-browser.py
+python -B UI/tests/simulation-refresh-browser.py
 ```
 
 The live browser suite can additionally check Elexon itself when `JMAP_LIVE_NETWORK_TEST=1` and outbound network access is available.

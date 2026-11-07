@@ -26,6 +26,11 @@ dialog { max-width:590px; width:calc(100% - 32px); border:1px solid var(--line);
 .route-label-group.selected .route-label { font-weight:700; }
 #transfer-map { user-select:none; -webkit-user-select:none; }
 #transfer-map.is-panning { cursor:grabbing; }
+.schematic-label { color:var(--muted); font-size:10px; font-weight:400; }
+.connection-details { margin-top:10px; font-size:10px; color:var(--muted); }
+.connection-details summary { cursor:pointer; padding:3px 0; }
+.connection-details a { display:inline-block; margin-top:5px; font:9px/1.5 monospace; text-decoration:underline; text-underline-offset:3px; }
+@media(max-width:850px) { .control-bar #mobile-feed-status { display:inline; font:9px/1.5 monospace; } }
 @media (max-width:800px) { .route-label-group.selected .route-label { display:inline; } }
 @media (max-width:600px) {
   .app-header { height:40px; min-height:40px; flex-wrap:nowrap; padding:0 10px; gap:10px; }

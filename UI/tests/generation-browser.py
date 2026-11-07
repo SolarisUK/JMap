@@ -140,6 +140,21 @@ def run():
             capacity_total = page.evaluate('JMAP_GENERATION_SITES.sites.reduce((sum,site)=>sum+site.capacityMW,0)')
             assert abs(sum(region['capacity'] for region in actual_regions) - capacity_total) < .00001
             assert_no_count_glyphs(page)
+            readout = page.locator('.generation-region-readout')
+            assert readout.is_hidden(), 'The overview should not start with floating region labels'
+            row = page.locator('#overview-list [data-region-id="scotland"]')
+            row.hover()
+            assert readout.is_visible() and 'Scotland' in readout.text_content()
+            assert 'GW installed' in readout.text_content()
+            assert page.locator('.generation-region[data-highlighted="true"]').count() == 1
+            assert page.locator('.generation-region[data-region-id="scotland"]').get_attribute('data-highlighted') == 'true'
+            page.mouse.move(1, 1)
+            assert readout.is_hidden()
+            page.locator('.generation-region[data-region-id="scotland"]').focus()
+            assert readout.is_visible() and 'Scotland' in readout.text_content()
+            page.locator('#site-search').focus()
+            assert readout.is_hidden()
+            assert page.locator('.generation-region text,.generation-region line').count() == 0
             exported = export_rows(page)
             assert len(exported) == total
             assert {row['ID'] for row in exported} == set(page.evaluate('JMAP_GENERATION_SITES.sites.map(site=>site.id)'))
@@ -264,10 +279,15 @@ def run():
             print("PASS real site source/capacity, unavailable output, marker selection, shrinking bubbles/legend and fixed filter scale")
 
             page.locator('#reset-filters').click()
+            # Compare camera scales in the same layout: Overview has a different legend height.
+            page.locator('#sites-view').click()
+            page.wait_for_timeout(80)
             national_scale = map_scale(page)
+            page.locator('#overview-view').click()
             page.evaluate('''id=>{const input=document.querySelector('#site-search');input.value=id;input.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#fit-results').click();}''', chosen_id)
             assert site_count(page) == 1
             assert_mode(page, 'sites')
+            page.wait_for_timeout(80)
             first_fit = map_scale(page)
             assert first_fit >= national_scale*7.9, 'Fit results must flush a search that is still being debounced'
             page.locator('#fit-results').click()

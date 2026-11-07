@@ -204,7 +204,7 @@ dialog .dark-button { width: 100%; margin-top: 15px; }
 }
 @media (max-width: 620px) {
   .site-header { height: 67px; gap: 15px; padding-inline: 5%; } .brand { font-size: 29px; } .brand > span { font-size: 19px; }
-  .site-header nav { gap: 18px; } .site-header nav a, .site-header nav button { font-size: 10px; } .site-header nav button { display: none; }
+  .site-header nav { gap: 18px; } .site-header nav a, .site-header nav button { font-size: 10px; } .site-header nav .site-directory-link { display: none; }
   main { padding-inline: 5%; } .intro { align-items: flex-start; flex-direction: column; gap: 20px; padding: 27px 0 24px; }
   h1 { font-size: clamp(34px, 8.4vw, 49px); } .intro .eyebrow { font-size: 8px; } .intro-description { font-size: 11px; }
   .snapshot { text-align: left; align-self: flex-start; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 0; }

@@ -159,6 +159,10 @@
     $('#list-view').setAttribute('aria-pressed', String(view === 'list'));
     $('#size-mode').disabled = view !== 'map';
     if (view === 'list') renderDirectory();
+    const url = new URL(window.location.href);
+    if (view === 'list') url.hash = 'directory';
+    else if (url.hash === '#directory') url.hash = '';
+    if (url.href !== window.location.href) history.replaceState(null, '', url.href);
   }
 
   function resetFilters() {
@@ -235,6 +239,10 @@
     announce('Map files could not be loaded. Use the site directory to browse available data.');
   }
   render();
+  if (window.location.hash === '#directory') {
+    setView('list');
+    requestAnimationFrame(() => $('#workspace').scrollIntoView({ block: 'start' }));
+  }
 
   $('#site-search').addEventListener('input', event => { state.query = event.target.value.trim(); render(); });
   $('#region').addEventListener('change', event => { state.region = event.target.value; render(); });
@@ -265,11 +273,13 @@
   $('#focus-site').addEventListener('click', () => map?.focusSite(state.selectedId));
   $('#map-view').addEventListener('click', () => setView('map'));
   $('#list-view').addEventListener('click', () => setView('list'));
-  $('#directory-nav').addEventListener('click', () => {
+  $('#directory-nav').addEventListener('click', event => {
+    event.preventDefault();
     setView('list');
     $('#workspace').scrollIntoView({ block: 'start', behavior: 'smooth' });
     $('#list-view').focus({ preventScroll: true });
   });
+  window.addEventListener('hashchange', () => setView(window.location.hash === '#directory' ? 'list' : 'map'));
   $('#export-sites').addEventListener('click', exportSites);
   $('#about-data').addEventListener('click', () => showDialog('data'));
   $('#keyboard-help').addEventListener('click', () => showDialog('keyboard'));

@@ -2,7 +2,7 @@
 
 A minimalist interface for exploring Britain's energy infrastructure.
 
-Open `UI/main.html` in a browser to explore the black-and-white energy map. It works directly from the filesystem and needs no install, API key, or external map tiles. The previous dashboard remains at `UI/overview.html`.
+Open `UI/main.html` in a browser to explore the black-and-white energy map. It works directly from the filesystem and needs no install, API key, or external map tiles. The operations overview is at `UI/overview.html`; both pages use the same light, monochrome layout and shared stylesheet. Site directory links open the map's list view directly.
 
 Search sites, filter by region and technology, switch marker sizes between output/capacity/utilisation, or use the sortable directory to locate an asset. Select a marker for details. Drag to pan, scroll/pinch to zoom, and use the map controls to reset. Keyboard help is available below the map. Export downloads the filtered dataset as CSV.
 

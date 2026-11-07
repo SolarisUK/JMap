@@ -6,13 +6,13 @@ period.addEventListener('change', () => {
   const today = period.value === 'today';
   const values = { demand: today ? '4,820' : '4,707', peak: today ? '5,140' : '4,990', reserve: today ? '14.2' : '15.1', 'demand-change': today ? '↗ 2.4%' : '↗ 1.8%', comparison: today ? 'vs. yesterday' : 'vs. previous day', 'peak-time': today ? '18:30' : '18:00', 'alert-count': today ? '03' : '02', attention: today ? '1 requires attention' : 'No action required', 'open-count': today ? '03 open' : '02 recorded', 'chart-note': today ? 'As of 10:42' : 'Full day / historical', 'alert-summary': today ? 'One item needs your attention.' : 'Historical alerts. No action required.' };
   Object.entries(values).forEach(([id, value]) => { document.getElementById(id).textContent = value; });
-  document.querySelector('.nav-count').textContent = today ? '03' : '02';
+  document.querySelector('#section-alert-count').textContent = today ? '03' : '02';
   document.querySelector('.alert-list .alert').hidden = !today;
   document.querySelector('#actual-line').setAttribute('d', today ? todayActual : yesterdayActual);
   document.querySelector('#actual-point').setAttribute('cx', today ? '280' : '700');
   document.querySelector('#actual-point').setAttribute('cy', today ? '116' : '153');
   document.querySelector('#current-marker').style.display = today ? '' : 'none';
-  document.querySelector('.chart').setAttribute('aria-label', today ? "Today's forecast peaks at 5,140 MW at 18:30. Actual demand is 4,820 MW at 10:42." : "Yesterday's actual demand peaked at 4,990 MW at 18:00, below the forecast of 5,140 MW. The complete day's actual demand is shown.");
+  document.querySelector('.chart').setAttribute('aria-label', today ? "Today's illustrative forecast peaks at 5,140 MW at 18:30. Actual demand is 4,820 MW at 10:42." : "Yesterday's illustrative actual demand peaked at 4,990 MW at 18:00, below the forecast of 5,140 MW. The complete day's actual demand is shown.");
 });
 
 document.querySelector('#view-assets').addEventListener('click', (event) => {
@@ -41,10 +41,17 @@ document.querySelector('#export-report').addEventListener('click', () => {
   document.querySelector('#export-status').textContent = 'Report exported as CSV.';
 });
 
-const navLinks = [...document.querySelectorAll('nav a[href^="#"]')];
+const navLinks = [...document.querySelectorAll('.section-links a')];
 const sections = navLinks.map(link => document.querySelector(link.getAttribute('href')));
 function updateNavigation() {
-  const current = sections.filter(section => section.getBoundingClientRect().top <= 180).sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).at(-1) || sections[0];
+  const requested = sections.find(section => '#' + section.id === window.location.hash);
+  const requestedBounds = requested?.getBoundingClientRect();
+  const requestedVisible = requestedBounds && requestedBounds.top < window.innerHeight && requestedBounds.bottom > 0;
+  const passed = sections.filter(section => section.getBoundingClientRect().top <= 180);
+  // Forecast and alerts share a row on desktop. Preserve DOM order on ties,
+  // and honour the selected anchor when the viewport cannot scroll it to the top.
+  const nearest = passed.reduce((best, section) => !best || section.getBoundingClientRect().top > best.getBoundingClientRect().top + 1 ? section : best, null);
+  const current = requestedVisible ? requested : nearest || sections[0];
   navLinks.forEach(link => {
     const active = link.getAttribute('href') === '#' + current.id;
     link.classList.toggle('active', active);
@@ -53,4 +60,15 @@ function updateNavigation() {
   });
 }
 window.addEventListener('scroll', updateNavigation, { passive: true });
+window.addEventListener('hashchange', updateNavigation);
 updateNavigation();
+
+const dataDialog = document.querySelector('#overview-data-dialog');
+document.querySelector('#about-data').addEventListener('click', () => dataDialog.showModal());
+document.querySelector('#close-dialog').addEventListener('click', () => dataDialog.close());
+document.querySelector('#dialog-done').addEventListener('click', () => dataDialog.close());
+dataDialog.addEventListener('click', event => {
+  if (event.target !== dataDialog) return;
+  const bounds = dataDialog.getBoundingClientRect();
+  if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dataDialog.close();
+});

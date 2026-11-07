@@ -3,188 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Grid Operations — Wireframe</title>
-  <style>
-    :root {
-      color-scheme: light;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #242424;
-      background: #f3f3f1;
-    }
-
-    * { box-sizing: border-box; }
-
-    body { margin: 0; min-width: 320px; }
-
-    button {
-      border: 1px solid #999;
-      background: #fff;
-      color: inherit;
-      padding: 8px 12px;
-      font: inherit;
-    }
-
-    .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-    aside { padding: 20px 14px; background: #e7e7e4; border-right: 1px solid #bcbcb8; }
-    .brand { margin: 0 0 28px; font-size: 15px; letter-spacing: .08em; }
-    .section-label { margin: 24px 8px 8px; color: #666; font-size: 10px; font-weight: bold; letter-spacing: .12em; }
-    nav a { display: block; padding: 10px 8px; color: inherit; text-decoration: none; font-size: 13px; }
-    nav a.active { background: #d3d3cf; border-left: 3px solid #555; }
-    main { min-width: 0; padding: 22px 26px; }
-    .topbar, .page-heading, .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .topbar { padding-bottom: 16px; border-bottom: 1px solid #c9c9c5; color: #555; font-size: 12px; }
-    .page-heading { margin: 24px 0 20px; align-items: flex-end; }
-    h1 { margin: 0; font-size: 23px; font-weight: 500; }
-    h2 { margin: 0; font-size: 14px; font-weight: 600; }
-    .subtle { color: #666; font-size: 12px; }
-    .grid { display: grid; gap: 14px; }
-    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .main-grid { grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr); margin-top: 14px; }
-    .panel, .metric { background: #fff; border: 1px solid #bdbdb9; }
-    .metric { min-height: 100px; padding: 14px; }
-    .metric-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
-    .metric-value { margin-top: 12px; font-size: 25px; }
-    .metric-note { margin-top: 5px; color: #666; font-size: 11px; }
-    .panel { padding: 16px; }
-    .panel-heading { padding-bottom: 12px; border-bottom: 1px solid #dededb; }
-    .chart { position: relative; height: 220px; margin-top: 12px; border: 1px solid #d5d5d1; background: repeating-linear-gradient(to bottom, #fff 0, #fff 43px, #e8e8e5 44px); }
-    .chart svg { width: 100%; height: 100%; }
-    .chart-label { position: absolute; left: 8px; bottom: 7px; color: #777; font-size: 10px; }
-    .legend { display: flex; gap: 16px; margin-top: 10px; color: #555; font-size: 11px; }
-    .legend span::before { content: ""; display: inline-block; width: 12px; height: 2px; margin: 0 6px 3px 0; background: #555; }
-    .legend span:last-child::before { background: #999; }
-    .alerts { display: grid; gap: 10px; margin-top: 12px; }
-    .alert { padding: 10px; border: 1px solid #d0d0cc; font-size: 12px; }
-    .alert strong { display: block; margin-bottom: 5px; }
-    .status { display: inline-block; padding: 3px 6px; border: 1px solid #999; color: #555; font-size: 10px; text-transform: uppercase; }
-    table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid #dededb; text-align: left; }
-    th { color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
-    .asset-panel { margin-top: 14px; }
-
-    @media (max-width: 850px) {
-      .shell { grid-template-columns: 1fr; }
-      aside { padding: 12px; border-right: 0; border-bottom: 1px solid #bcbcb8; }
-      .brand { margin: 0 0 8px; }
-      .section-label { display: none; }
-      nav { display: flex; overflow-x: auto; }
-      nav a { white-space: nowrap; }
-      main { padding: 18px 14px; }
-      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .main-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 460px) {
-      .topbar .subtle { display: none; }
-      .page-heading { align-items: flex-start; flex-direction: column; }
-      .metrics { gap: 8px; }
-      .metric { padding: 10px; }
-      .metric-value { font-size: 21px; }
-      .panel { padding: 12px; }
-      .chart { height: 180px; }
-      table { font-size: 11px; }
-      th, td { padding: 8px 5px; }
-    }
-  </style>
+  <meta name="theme-color" content="#fafaf8">
+  <meta name="description" content="Explore Britain's energy landscape. A minimal, interactive map of generation sites, capacity, and illustrative output.">
+  <title>Energy map — JMap</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="assets/geography.js" defer></script>
+  <script src="assets/sites.js" defer></script>
+  <script src="map.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-  <div class="shell">
-    <aside>
-      <p class="brand">GRID / CONTROL</p>
-      <nav aria-label="Main navigation">
-        <p class="section-label">WORKSPACE</p>
-        <a class="active" href="#overview">Overview</a>
-        <a href="#forecast">Demand forecast</a>
-        <a href="#assets">Assets</a>
-        <a href="#alerts">Alerts</a>
-        <p class="section-label">SYSTEM</p>
-        <a href="#reports">Reports</a>
-      </nav>
-    </aside>
+  <a class="skip-link" href="#workspace">Skip to energy map</a>
+  <header class="site-header">
+    <a class="brand" href="main.html" aria-label="JMap energy map">jmap<span aria-hidden="true">↗</span></a>
+    <nav aria-label="Main navigation">
+      <a href="overview.html">Overview</a>
+      <a href="main.html" class="active" aria-current="page">Energy map <span class="nav-index">01</span></a>
+      <button type="button" id="directory-nav">Site directory</button>
+    </nav>
+    <div class="header-meta"><span class="status-dot"></span> Great Britain <span class="header-divider">/</span> Grid intelligence</div>
+  </header>
 
-    <main id="overview">
-      <div class="topbar">
-        <span>REGION: NORTH DISTRICT &nbsp; / &nbsp; LIVE OPERATIONS</span>
-        <span class="subtle">Last updated: 10:42:18 &nbsp; · &nbsp; Operator: J. Morgan</span>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div><p class="eyebrow">[ A different perspective on power ]</p><h1 id="page-title">The energy <em>landscape.</em></h1><p class="intro-description">See what powers Britain. Explore the network, one site at a time.</p></div>
+      <div class="snapshot"><span class="sample-badge"><span class="status-dot"></span> Sample dataset</span><p>Illustrative output · Not live telemetry</p><button class="plain-link" type="button" id="about-data">About this data <span aria-hidden="true">↗</span></button></div>
+    </section>
+    <section class="metrics" aria-label="Filtered network summary" aria-live="polite">
+      <article><p class="eyebrow">Power supplied</p><p class="metric-value"><span id="total-output">—</span><span class="unit">GW</span></p><p class="metric-caption">Generation, storage &amp; imports</p></article>
+      <article><p class="eyebrow">Network capacity</p><p class="metric-value"><span id="total-capacity">—</span><span class="unit">GW</span></p><p class="metric-caption">Generation &amp; connection capacity</p></article>
+      <article><p class="eyebrow">Low-carbon share</p><p class="metric-value"><span id="low-carbon">—</span><span class="unit">%</span></p><p class="metric-caption">Of generation; excludes imports</p></article>
+      <article class="sites-metric"><p class="eyebrow">Filtered sites</p><p class="metric-value"><span id="total-sites">—</span><span class="metric-slash">/ <span id="all-sites">—</span></span></p><p class="metric-caption">A curated national sample</p></article>
+    </section>
+
+    <section class="workspace" id="workspace" aria-label="Energy map explorer">
+      <aside class="sidebar" aria-label="Map filters">
+        <div class="sidebar-title"><h2>Explore the grid</h2><button class="plain-link" type="button" id="reset-filters">Reset <span aria-hidden="true">↺</span></button></div>
+        <label class="search-field"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><input type="search" id="site-search" placeholder="Find a site or technology" autocomplete="off" aria-label="Find a site or technology"><kbd aria-hidden="true">/</kbd></label>
+        <label class="region-label" for="region">Region</label><select id="region"><option value="all">All of Great Britain</option><option value="scotland">Scotland</option><option value="england">England</option><option value="wales">Wales</option></select>
+        <fieldset class="technology-filters"><legend class="eyebrow">Technology</legend><div class="filter-actions"><button class="plain-link" id="select-all" type="button">Select all</button><span>/</span><button class="plain-link" id="clear-types" type="button">Clear</button></div><div id="technology-list"></div></fieldset>
+        <div class="sidebar-bottom"><p class="eyebrow">A simpler view of a complex system.</p><p>Choose a marker to understand the site behind the power.</p><button class="export-button" id="export-sites" type="button">Export filtered sites <span aria-hidden="true">↓</span></button></div>
+      </aside>
+
+      <div class="map-workspace">
+        <div class="map-toolbar">
+          <div class="view-switch" role="group" aria-label="Explorer view"><button type="button" id="map-view" class="selected" aria-pressed="true"><span aria-hidden="true">⊞</span> Map</button><button type="button" id="list-view" aria-pressed="false"><span aria-hidden="true">☰</span> List</button></div>
+          <p class="results-label" id="results-label" role="status">Loading sites…</p>
+          <label class="size-control"><span>Size by</span><select id="size-mode" aria-label="Marker size measure"><option value="output">Output · MW</option><option value="capacity">Capacity · MW</option><option value="utilisation">Utilisation · %</option></select></label>
+        </div>
+        <div class="map-stage" id="map-stage">
+          <svg id="energy-map" tabindex="0" role="group" aria-label="Interactive map of energy sites in Great Britain. Drag to pan, scroll or use plus and minus to zoom. Arrow keys pan. Home resets the view."></svg>
+          <div class="map-label"><span class="status-dot"></span> Great Britain <span class="map-label-divider">/</span> Generation network</div>
+          <div class="map-controls" role="group" aria-label="Map navigation"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map view"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 3H3v3m11-3h3v3M3 14v3h3m11-3v3h-3M6 10h8m-4-4v8"/></svg></button></div>
+          <div class="map-legend"><div class="legend-circles" aria-hidden="true"><span></span><span></span><span></span></div><div><p id="legend-title">Power supplied</p><p id="legend-description">Larger marker, more power</p></div></div>
+          <div class="map-hint">Drag to explore <span>·</span> Scroll to zoom</div>
+          <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a> <span>·</span> JMap sample data</div>
+          <div class="map-empty" id="map-empty" hidden><span aria-hidden="true">⊘</span><h3>No sites match your filters.</h3><p>Try another search or include more technologies.</p><button class="dark-button" id="empty-reset" type="button">Reset filters</button></div>
+          <article class="site-detail" id="site-detail" aria-labelledby="detail-name" hidden>
+            <div class="detail-top"><p class="eyebrow" id="detail-type">Generation site</p><button class="icon-button" id="close-detail" type="button" aria-label="Close site details">×</button></div>
+            <h2 id="detail-name"></h2><p class="detail-location" id="detail-location"></p>
+            <div class="detail-output"><p class="eyebrow">Illustrative output</p><p><span id="detail-output"></span><span class="unit">MW</span></p></div>
+            <div class="utilisation-head"><span>Capacity utilisation</span><span id="detail-utilisation"></span></div><div class="utilisation-track"><div id="utilisation-fill"></div></div>
+            <dl class="detail-facts"><div><dt>Installed capacity</dt><dd id="detail-capacity"></dd></div><div><dt>Operator</dt><dd id="detail-operator"></dd></div><div><dt>Coordinates</dt><dd id="detail-coordinates"></dd></div></dl>
+            <p class="detail-note" id="detail-note"></p><button class="detail-focus" id="focus-site" type="button">Centre on this site <span aria-hidden="true">↗</span></button>
+          </article>
+        </div>
+        <div class="directory" id="directory" hidden>
+          <div class="directory-heading"><p>Sites matching your filters</p><label>Sort by <select id="sort-sites"><option value="output">Highest output</option><option value="capacity">Largest capacity</option><option value="name">Name A–Z</option></select></label></div>
+          <div class="directory-scroll"><table><thead><tr><th scope="col">Site</th><th scope="col">Technology</th><th scope="col">Output</th><th scope="col">Capacity</th><th scope="col">Utilisation</th><th scope="col"><span class="sr-only">View site</span></th></tr></thead><tbody id="directory-body"></tbody></table><div id="directory-empty" class="directory-empty" hidden>No sites match your filters. Try a different search.</div></div>
+        </div>
+        <div class="map-status"><p><span class="status-dot"></span> <span id="filter-summary">All technologies</span></p><span id="zoom-label">National view</span><button class="plain-link" id="keyboard-help" type="button">Keyboard shortcuts <span aria-hidden="true">↗</span></button></div>
       </div>
-
-      <header class="page-heading">
-        <div>
-          <h1>Grid operations overview</h1>
-          <div class="subtle" style="margin-top: 6px">Predictive power management</div>
-        </div>
-        <button type="button">Today ▾</button>
-      </header>
-
-      <section class="grid metrics" aria-label="Key metrics">
-        <article class="metric">
-          <div class="metric-label">Current demand</div>
-          <div class="metric-value">4,820 <span class="subtle">MW</span></div>
-          <div class="metric-note">+2.4% vs. yesterday</div>
-        </article>
-        <article class="metric">
-          <div class="metric-label">Peak forecast</div>
-          <div class="metric-value">5,140 <span class="subtle">MW</span></div>
-          <div class="metric-note">Expected at 18:30</div>
-        </article>
-        <article class="metric">
-          <div class="metric-label">Reserve margin</div>
-          <div class="metric-value">14.2<span class="subtle">%</span></div>
-          <div class="metric-note">Target: 15%</div>
-        </article>
-        <article class="metric">
-          <div class="metric-label">Active alerts</div>
-          <div class="metric-value">03</div>
-          <div class="metric-note">1 requires attention</div>
-        </article>
-      </section>
-
-      <section class="grid main-grid">
-        <article class="panel" id="forecast">
-          <div class="panel-heading">
-            <h2>Demand forecast</h2>
-            <span class="subtle">MW · next 24 hours</span>
-          </div>
-          <div class="chart" role="img" aria-label="Placeholder chart comparing actual and forecast demand">
-            <svg viewBox="0 0 700 220" preserveAspectRatio="none" aria-hidden="true">
-              <polyline points="0,158 80,150 150,162 230,130 310,138 390,102 470,116 550,74 630,88 700,48" fill="none" stroke="#555" stroke-width="2"/>
-              <polyline points="0,167 80,159 150,165 230,144 310,146 390,120 470,124 550,97 630,101 700,72" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="6 5"/>
-            </svg>
-            <span class="chart-label">06:00 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12:00 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18:00 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00</span>
-          </div>
-          <div class="legend"><span>Forecast demand</span><span>Actual demand</span></div>
-        </article>
-
-        <article class="panel" id="alerts">
-          <div class="panel-heading">
-            <h2>System alerts</h2>
-            <span class="status">3 open</span>
-          </div>
-          <div class="alerts">
-            <div class="alert"><strong>Reserve margin below target</strong><span class="subtle">North district · Forecast · 10:31</span></div>
-            <div class="alert"><strong>Substation load rising</strong><span class="subtle">Riverside 04 · Asset · 10:18</span></div>
-            <div class="alert"><strong>Weather model updated</strong><span class="subtle">Coastal region · Data · 09:56</span></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="panel asset-panel" id="assets">
-        <div class="panel-heading">
-          <h2>Asset status</h2>
-          <button type="button">View all</button>
-        </div>
-        <table>
-          <thead>
-            <tr><th>Asset</th><th>Type</th><th>Output / Load</th><th>Status</th><th>Forecast</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>North Plant 01</td><td>Generation</td><td>820 MW</td><td><span class="status">Online</span></td><td>Stable</td></tr>
-            <tr><td>Riverside 04</td><td>Substation</td><td>91% load</td><td><span class="status">Watch</span></td><td>Rising</td></tr>
-            <tr><td>East Storage</td><td>Battery</td><td>68% charge</td><td><span class="status">Available</span></td><td>Discharge 18:00</td></tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
-  </div>
+    </section>
+  </main>
+  <footer><p>Built for a clearer perspective.</p><span>JMap / Energy intelligence</span><a href="overview.html">Back to overview <span aria-hidden="true">↗</span></a></footer>
+  <dialog id="info-dialog" aria-labelledby="dialog-title"><div class="dialog-heading"><p class="eyebrow" id="dialog-kicker">JMap / Field notes</p><button class="icon-button" id="close-dialog" type="button" aria-label="Close dialog">×</button></div><h2 id="dialog-title">About this data</h2><div id="dialog-body"></div><button class="dark-button" id="dialog-done" type="button">Got it <span aria-hidden="true">↗</span></button></dialog>
+  <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+  <noscript><p class="noscript-message">Enable JavaScript to explore the energy map. The <a href="overview.html">grid overview</a> is also available.</p></noscript>
 </body>
 </html>

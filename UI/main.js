@@ -19,7 +19,7 @@
   const power = value => value >= 1000 ? gw(value) : `${number(value)} MW`;
   const percent = value => value === null ? '—' : value > 0 && value < .1 ? '<0.1%' : `${value.toFixed(1)}%`;
   const utilisation = site => site.capacity > 0 ? site.output / site.capacity * 100 : null;
-  const state = { selectedTypes: new Set(presets.all), query: '', region: 'all', mode: 'output', view: 'map', analysis: 'mix', rank: 'output', sort: 'output', labels: false, selectedId: null, compared: [], filtered: [], summary: null };
+  const state = { selectedTypes: new Set(presets.all), query: '', region: 'all', mode: 'output', layer: 'heatmap', view: 'map', analysis: 'mix', rank: 'output', sort: 'output', labels: false, selectedId: null, compared: [], filtered: [], summary: null };
   let map;
   let detailTrigger;
 
@@ -43,6 +43,7 @@
     state.query = params.get('q') || '';
     state.selectedTypes = new Set(params.has('types') ? params.get('types').split(',').filter(t => Object.hasOwn(technologies, t)) : presets.all);
     state.mode = ['output', 'capacity', 'utilisation'].includes(params.get('measure')) ? params.get('measure') : 'output';
+    state.layer = params.get('layer') === 'sites' ? 'sites' : 'heatmap';
     state.analysis = ['mix', 'regions', 'leaders'].includes(params.get('analysis')) ? params.get('analysis') : 'mix';
     state.rank = ['output', 'capacity', 'utilisation'].includes(params.get('rank')) ? params.get('rank') : 'output';
     state.sort = ['output', 'capacity', 'utilisation', 'name'].includes(params.get('sort')) ? params.get('sort') : 'output';
@@ -56,6 +57,7 @@
     set('region', state.region, 'all'); set('q', state.query, '');
     set('types', Object.keys(technologies).filter(t => state.selectedTypes.has(t)).join(','), presets.all.join(','));
     set('measure', state.mode, 'output'); set('analysis', state.analysis, 'mix');
+    set('layer', state.layer, 'heatmap');
     set('rank', state.rank, 'output'); set('sort', state.sort, 'output');
     set('names', state.labels ? '1' : '', ''); set('compare', state.compared.join(','), '');
     if (state.view === 'list') url.hash = 'directory';
@@ -168,6 +170,24 @@
       item.append(circle, node('small', '', state.mode === 'utilisation' ? `${value}%` : value < 1000 ? `${number(value)} MW` : `${(value / 1000).toFixed(value === 1000 ? 0 : 2)} GW`));
       $('#legend-scale').append(item);
     });
+    $('.map-legend').classList.toggle('heatmap-legend', state.layer === 'heatmap');
+    if (state.layer === 'heatmap') {
+      $('#legend-title').textContent = 'Sample output concentration';
+      $('#legend-description').textContent = '50 km smoothing · Fixed relative scale';
+      const scale = node('div', 'heat-colour-scale');
+      const captions = node('div', 'heat-colour-captions'); captions.append(node('span', '', 'Lower'), node('span', '', 'Higher'));
+      $('#legend-scale').replaceChildren(scale, captions);
+    }
+  }
+  function applyMapLayer() {
+    const heat = state.layer === 'heatmap';
+    map?.setHeatmap(heat);
+    document.querySelectorAll('[data-layer]').forEach(button => {
+      const active = button.dataset.layer === state.layer;
+      button.classList.toggle('selected', active); button.setAttribute('aria-pressed', String(active));
+    });
+    $('#layer-description').textContent = heat ? 'Colour shows sample output concentration.' : 'Shape shows technology. Size shows your measure.';
+    renderLegend();
   }
   function sortedSites(list, key) {
     return [...list].sort((a, b) => key === 'name' ? a.name.localeCompare(b.name, 'en-GB') : key === 'utilisation' ? (utilisation(b) ?? -1) - (utilisation(a) ?? -1) || a.name.localeCompare(b.name) : b[key] - a[key] || a.name.localeCompare(b.name));
@@ -252,6 +272,7 @@
   }
   function setView(view) {
     state.view = view; $('#map-stage').hidden = view !== 'map'; $('#directory').hidden = view !== 'list'; $('.map-measures').hidden = view !== 'map';
+    $('.map-layer-controls').hidden = view !== 'map'; $('#map-reading-note').hidden = view !== 'map';
     ['map', 'list'].forEach(key => { $(`#${key}-view`).classList.toggle('selected', view === key); $(`#${key}-view`).setAttribute('aria-pressed', String(view === key)); });
     $('#size-mode').disabled = view !== 'map'; $('#fit-results').disabled = !state.filtered.length || !map;
     $('#visible-sites').hidden = view !== 'map'; $('#zoom-label').hidden = view !== 'map';
@@ -280,9 +301,10 @@
       const shortcuts = node('dl');
       [['/', 'Find a site'], ['+ / −', 'Zoom the focused map'], ['Arrow keys', 'Pan the focused map'], ['Home', 'Whole UK view'], ['Tab, Enter', 'Explore and select sites'], ['Esc', 'Close site details or this guide']].forEach(([key, action]) => { const row = node('div'); row.append(node('dt', '', key), node('dd', '', action)); shortcuts.append(row); });
       body.append(shortcuts, node('p', '', 'Drag to pan, scroll to zoom, or use two fingers to pinch on a touch screen. Use the directory for closely located sites.'));
+      body.append(node('p', '', 'Heatmap colour shows output-weighted concentration within a 50 km smoothing radius. It always uses output in MW, independently of marker size. Filters change the included sites; the colour scale stays fixed. Empty areas mean no sample output, not no electricity.'), node('p', '', 'Surplus & deficit below the map uses official annual national data, independently of site filters. The scenario controls change annual generation and gross demand; they do not predict outages.'));
     } else {
       $('#dialog-title').textContent = 'Understand the scope.';
-      body.append(node('p', '', `This curated sample contains ${sites.length} sites across England, Scotland, Wales, and Northern Ireland. Outputs are synthetic examples. Capacities, coordinates, and operator labels are approximate. The sample does not describe national totals or a single UK electricity balance.`), node('p', '', 'Power supplied adds generation, storage discharge, and interconnector imports. Stored energy is not counted as new generation. The low-carbon share is wind, solar, nuclear, and conventional hydro output divided by generation output; storage and imports are excluded.'), node('p', '', 'The map shows where assets are located. It contains no demand, transmission flows, cross-border transfers, network constraints, or real-time measurements. Regional shares describe the selected sample and do not measure regional self-sufficiency.'), node('p', '', 'Headlines, energy mix, and rankings follow your filters, independently of map zoom. Nations compares your search and technologies across all four nations. Pinned comparison sites remain available outside current filters.'));
+      body.append(node('p', '', `This curated map sample contains ${sites.length} sites across England, Scotland, Wales, and Northern Ireland. Outputs are synthetic examples. Capacities, coordinates, and operator labels are approximate. The sample does not describe national totals or a single UK electricity balance.`), node('p', '', 'Power supplied adds generation, storage discharge, and interconnector imports. Stored energy is not counted as new generation. The low-carbon share is wind, solar, nuclear, and conventional hydro output divided by generation output; storage and imports are excluded.'), node('p', '', 'The map shows where assets are located. Its heatmap shows sample output concentration, not transmission, coverage or household access. Site data contains no demand or real-time measurements.'), node('p', '', 'The separate regional balance uses official annual generation and gross demand from DESNZ. Its sources and definitions are below the table. Annual surplus or deficit does not establish local shortage risk. Scenario values are illustrative arithmetic, not forecasts.'), node('p', '', 'Sample headlines, energy mix, and rankings follow your site filters, independently of map zoom. Nations compares your search and technologies across all four nations. Official annual balances remain independent of these filters.'));
       const paragraph = node('p'); const link = node('a', '', 'Geography: Natural Earth (public domain) ↗'); link.href = 'https://www.naturalearthdata.com/about/terms-of-use/'; link.target = '_blank'; link.rel = 'noreferrer'; paragraph.append(link); body.append(paragraph);
     }
     $('#info-dialog').showModal();
@@ -295,12 +317,14 @@
     map = new window.EnergyMap({ element: $('#energy-map'), geography: window.JMAP_GEOGRAPHY, scaleMaxima: maxima, onSelect: id => selectSite(id) });
     map.setLabelVisibility(state.labels);
   } else { state.view = 'list'; $('#map-view').disabled = true; announce('Map could not load. Use the directory and analysis panels.'); }
-  render(); setView(state.view); if (state.region !== 'all') map?.focusRegion(state.region);
+  render(); applyMapLayer(); setView(state.view); if (state.region !== 'all') map?.focusRegion(state.region);
   if (state.view === 'list') requestAnimationFrame(() => $('#workspace').scrollIntoView({ block: 'start' }));
   $('#site-search').addEventListener('input', event => { state.query = event.target.value.trim(); render(); });
   $('#region').addEventListener('change', event => setRegion(event.target.value));
   $('#size-mode').addEventListener('change', event => { state.mode = event.target.value; map?.setSites(state.filtered, state.mode); renderLegend(); syncUrl(); });
   $('#site-labels').addEventListener('change', event => { state.labels = event.target.checked; map?.setLabelVisibility(state.labels); syncUrl(); });
+  document.querySelectorAll('[data-layer]').forEach(button => button.addEventListener('click', () => { state.layer = button.dataset.layer; applyMapLayer(); syncUrl(); announce(state.layer === 'heatmap' ? 'Output heatmap enabled. Colour shows sample supply concentration.' : 'Site markers enabled.'); }));
+  document.addEventListener('jmapregionfocus', event => { if (Object.hasOwn(regions, event.detail)) { setRegion(event.detail); $('#workspace').scrollIntoView({ block: 'start' }); $('#region').focus({ preventScroll: true }); } });
   $('#sort-sites').addEventListener('change', event => { state.sort = event.target.value; renderDirectory(); syncUrl(); });
   $('#rank-by').addEventListener('change', event => { state.rank = event.target.value; renderAnalysis(); syncUrl(); });
   document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => setTypes(presets[button.dataset.preset])));

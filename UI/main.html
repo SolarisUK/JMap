@@ -4,15 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fafaf8">
-  <meta name="description" content="Understand the UK's energy landscape. Explore generation, compare sites, and analyse regional and technology contributions in a curated sample.">
+  <meta name="description" content="Explore a UK supply heatmap, compare official regional electricity generation and demand, and understand annual surplus, deficit and supply dependence.">
   <title>Energy map — JMap</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="map-system.css">
   <script src="assets/geography.js" defer></script>
   <script src="assets/sites.js" defer></script>
+  <script src="assets/regions.js" defer></script>
   <script src="analysis.js" defer></script>
+  <script src="balance.js" defer></script>
   <script src="map.js" defer></script>
   <script src="main.js" defer></script>
+  <script src="distribution.js" defer></script>
+  <link rel="stylesheet" href="distribution.css">
 </head>
 <body class="energy-page">
   <a class="skip-link" href="#workspace">Skip to energy explorer</a>
@@ -22,7 +26,10 @@
     <div class="header-meta"><span class="status-dot"></span> United Kingdom <span class="header-divider">/</span> Grid intelligence</div>
   </header>
   <main>
-    <section class="intro" aria-labelledby="page-title"><div><p class="eyebrow">[ A clearer perspective on power ]</p><h1 id="page-title">UK energy, <em>understood.</em></h1><p class="intro-description">Find the sources. Understand the mix. Compare the contribution.</p></div><div class="snapshot"><span class="sample-badge"><span class="status-dot"></span> Sample dataset</span><p>Illustrative outputs · Approximate capacities</p><button class="plain-link" id="about-data" type="button">Coverage &amp; definitions <span aria-hidden="true">↗</span></button></div></section>
+    <section class="intro" aria-labelledby="page-title"><div><p class="eyebrow">[ A clearer perspective on power ]</p><h1 id="page-title">UK energy, <em>understood.</em></h1><p class="intro-description">See where power comes from. Compare what each nation generates and uses.</p></div><div class="snapshot"><span class="sample-badge"><span class="status-dot"></span> Two data perspectives</span><p>Sample site outputs · Official annual balances</p><button class="plain-link" id="about-data" type="button">Coverage &amp; definitions <span aria-hidden="true">↗</span></button></div></section>
+
+    <nav class="perspective-nav" aria-label="Power distribution perspectives"><a href="#workspace"><span class="perspective-index">01</span><strong>Supply heatmap</strong><span>Where is supply concentrated? ↓</span></a><a href="#regional-balance"><span class="perspective-index">02</span><strong>Surplus &amp; deficit</strong><span>Who generates more than they use? ↓</span></a></nav>
+    <div class="distribution-insights" id="distribution-insights" aria-label="Official annual electricity insights"></div>
 
     <div class="scope-heading"><p><span id="summary-scope">United Kingdom</span><span class="scope-separator">/</span> Filtered sample</p><p>Figures follow filters. Zoom changes the map only.</p></div>
     <section class="metrics" aria-label="Filtered sample summary" aria-live="polite">
@@ -43,13 +50,14 @@
           <fieldset class="technology-filters"><legend class="eyebrow">Technologies &amp; symbols</legend><div class="filter-actions"><button class="plain-link" id="select-all" type="button">All</button><span>/</span><button class="plain-link" id="clear-types" type="button">None</button></div><div id="technology-list"></div></fieldset>
           <p class="filter-explanation">Shape identifies technology. Size shows the measure selected above the map.</p>
         </div>
-        <div class="sidebar-bottom"><p class="eyebrow">Understand the scope</p><p>Generation sites and sample supply. Demand and transmission flows are not included.</p><button class="export-button" id="export-sites" type="button">Export this analysis <span aria-hidden="true">↓</span></button></div>
+        <div class="sidebar-bottom"><p class="eyebrow">Understand the scope</p><p>These sites show sample supply. Compare official annual demand in the regional balance below.</p><a class="plain-link balance-shortcut" href="#regional-balance">Surplus &amp; deficit ↓</a><button class="export-button" id="export-sites" type="button">Export this analysis <span aria-hidden="true">↓</span></button></div>
       </aside>
 
       <div class="map-workspace">
         <div class="map-toolbar"><div class="view-switch" role="group" aria-label="Explorer view"><button id="map-view" class="selected" type="button" aria-pressed="true">Map</button><button id="list-view" type="button" aria-pressed="false">Directory</button></div><p class="results-label" id="results-label" role="status">Loading sites…</p><div class="toolbar-actions"><button class="plain-link" id="jump-comparison" type="button" hidden>Compare (<span id="comparison-count">0</span>/3) ↓</button><button class="plain-link" id="fit-results" type="button">Fit results <span aria-hidden="true">⤢</span></button><button class="plain-link" id="keyboard-help" type="button">Map guide <span aria-hidden="true">?</span></button></div></div>
         <div class="explorer-body">
           <div class="map-column">
+            <div class="map-layer-controls"><div class="view-switch" role="group" aria-label="Map layer"><button type="button" data-layer="heatmap" aria-pressed="true" class="selected">Heatmap</button><button type="button" data-layer="sites" aria-pressed="false">Site markers</button></div><p id="layer-description">Colour shows sample output concentration.</p></div>
             <div class="map-measures"><label class="size-control"><span>Marker size</span><select id="size-mode" aria-label="Marker size measure"><option value="output">Output · MW</option><option value="capacity">Capacity · MW</option><option value="utilisation">Utilisation · %</option></select></label><label class="labels-toggle"><input type="checkbox" id="site-labels"> Site names</label></div>
             <div class="map-stage" id="map-stage">
               <svg id="energy-map" tabindex="0" role="group" aria-label="UK energy sites. Drag to pan, scroll to zoom, use arrow keys to pan, plus and minus to zoom, and Home for the UK view."></svg>
@@ -60,6 +68,7 @@
               <div class="map-attribution">Geography: <a href="https://www.naturalearthdata.com/about/terms-of-use/" target="_blank" rel="noreferrer">Natural Earth</a><span>·</span> Illustrative JMap data</div>
               <div class="map-empty" id="map-empty" hidden><span aria-hidden="true">⊘</span><h3>No matching sites.</h3><p>Try a broader search or include more technologies.</p><button class="dark-button" id="empty-reset" type="button">Reset filters</button></div>
             </div>
+            <p class="map-reading-note" id="map-reading-note">Heat shows the concentration of sample supply, including imports and storage discharge. It does not show electricity access or the area served by a site.</p>
             <div class="directory" id="directory" hidden><div class="directory-heading"><p>Select a site to locate it, or add up to three to compare.</p><label>Sort <select id="sort-sites"><option value="output">Highest output</option><option value="capacity">Largest capacity</option><option value="utilisation">Highest utilisation</option><option value="name">Name A–Z</option></select></label></div><div class="directory-scroll"><table><thead><tr><th scope="col">Site</th><th scope="col">Technology</th><th scope="col">Output</th><th scope="col">Capacity</th><th scope="col">Utilisation</th><th scope="col">Actions</th></tr></thead><tbody id="directory-body"></tbody></table><div class="directory-empty" id="directory-empty" hidden>No sites match your filters. Try a broader search.</div></div></div>
           </div>
 
@@ -76,6 +85,22 @@
         </div>
         <div class="map-status"><p><span class="status-dot"></span><span id="filter-summary">All technologies</span></p><span id="visible-sites">— on map</span><span id="zoom-label">UK view</span></div>
       </div>
+    </section>
+
+    <section class="balance-section" id="regional-balance" aria-labelledby="balance-title">
+      <div class="balance-heading"><div><p class="eyebrow">[ 02 / Supply meets demand ]</p><h2 id="balance-title">Who generates enough for their demand?</h2><p>Compare official annual electricity balances across the four UK nations.</p></div><span class="data-year" id="balance-data-year">Official annual data</span></div>
+      <div class="balance-context"><p id="balance-context">Annual energy in TWh. This comparison is independent of the sample site filters above.</p><button type="button" class="plain-link" id="export-balance">Export annual balance ↓</button></div>
+      <div class="balance-layout">
+        <div class="balance-main">
+          <div class="balance-chart-heading"><div class="balance-key"><span class="deficit-key">− Annual deficit</span><span class="surplus-key">+ Annual surplus</span></div><label for="balance-sort">Rank by <select id="balance-sort"><option value="coverage">Highest generation / demand</option><option value="deficit">Largest deficit</option><option value="generation">Most generation</option><option value="name">Nation A–Z</option></select></label></div>
+          <div class="balance-table-scroll"><table class="balance-table"><caption class="sr-only" id="balance-table-caption">Official annual generation, gross demand, surplus or deficit and generation coverage by nation.</caption><thead><tr><th scope="col">Nation</th><th scope="col">Generation<br><small>TWh / year</small></th><th scope="col">Gross demand<br><small>TWh / year</small></th><th scope="col">Annual balance<br><small>Generation − demand</small></th><th scope="col">Generation / demand<br><small>100% = annual demand</small></th></tr></thead><tbody id="balance-rows"></tbody></table></div>
+          <div class="balance-reading"><p><strong>Read the balance.</strong> A surplus means annual generation exceeded gross demand. A deficit means local generation was lower. Gross demand includes losses and the electricity used by generation and storage.</p><p><strong>Read the coverage.</strong> 150% means annual generation equals 1.5 times annual demand. It does not mean every hour is covered or that households have better access.</p></div>
+          <details class="scenario-controls"><summary>Explore a change in demand or generation <span>Illustrative scenario</span></summary><div class="scenario-body"><p>Apply the same annual change to each nation. This simple calculation does not model weather, dispatch, storage or network limits.</p><div class="scenario-sliders"><label for="demand-change">Demand increase <output id="demand-change-value" for="demand-change">+0%</output><input id="demand-change" type="range" min="0" max="40" step="5" value="0"></label><label for="generation-change">Generation reduction <output id="generation-change-value" for="generation-change">−0%</output><input id="generation-change" type="range" min="0" max="40" step="5" value="0"></label></div><div class="scenario-footer"><span id="scenario-status" role="status">Showing the published baseline.</span><button type="button" class="plain-link" id="reset-scenario">Reset to official data ↺</button></div></div></details>
+        </div>
+        <aside class="risk-explainer" aria-labelledby="risk-title"><p class="eyebrow">[ Understanding vulnerability ]</p><h3 id="risk-title">Does a deficit mean a shortage?</h3><p>A nation can meet demand through transfers and imports. An annual deficit signals reliance on supply from elsewhere; it is not evidence of unmet demand.</p><div id="balance-risk-insight"></div><div class="risk-availability"><span>Local shortage risk</span><strong>Not assessed</strong></div><p>Assessing actual shortage risk needs peak demand, available generation, storage duration, interconnector availability and network constraints.</p><p>Electricity access and outage reliability need separate household connection and interruption data.</p></aside>
+      </div>
+      <details class="balance-methodology"><summary>Sources, definitions &amp; limitations</summary><div id="balance-sources"></div></details>
+      <p class="balance-data-error" id="balance-data-error" role="status" hidden>Annual data could not load. The site map remains available.</p>
     </section>
 
     <section class="comparison-section" id="comparison" aria-labelledby="comparison-title" hidden><div class="comparison-heading"><div><p class="eyebrow">[ Side by side ]</p><h2 id="comparison-title" tabindex="-1">Compare the contribution.</h2><p id="comparison-caption">Choose up to three sites.</p></div><div><button class="plain-link" id="export-comparison" type="button">Export comparison ↓</button><button class="plain-link" id="clear-comparison" type="button">Clear all ×</button></div></div><div id="comparison-body"></div></section>

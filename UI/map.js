@@ -4,6 +4,9 @@
 
   const NS = 'http://www.w3.org/2000/svg';
   const DEG = Math.PI / 180;
+  const EARTH_RADIUS_KM = 6371;
+  const HEAT_RADIUS_KM = 50;
+  let mapSequence = 0;
   const cities = [
     ['Edinburgh', -3.1883, 55.9533], ['Glasgow', -4.2518, 55.8642],
     ['Newcastle', -1.6178, 54.9783], ['Manchester', -2.2426, 53.4808],
@@ -62,6 +65,8 @@
       this.scaleMaxima = { output: 1, capacity: 1, utilisation: 100 };
       this.fixedScale = false;
       this.showSiteLabels = false;
+      this.showHeatmap = false;
+      this.heatNodes = [];
       this.selectedId = null;
       this.zoom = 1;
       this.pan = { x: 0, y: 0 };
@@ -78,11 +83,12 @@
       element.style.cursor = 'grab';
       this.background = svg('rect', { width: '100%', height: '100%', fill: '#f7f7f4' });
       this.land = svg('g', { class: 'map-land', fill: '#e7e7e2', stroke: '#c5c5bf', 'stroke-width': 0.8, 'stroke-linejoin': 'round' });
+      this.createHeatmap();
       this.labels = svg('g', { class: 'map-labels', 'pointer-events': 'none' });
       this.markers = svg('g', { class: 'map-markers' });
       this.siteLabels = svg('g', { class: 'map-site-labels', 'pointer-events': 'none' });
       this.tooltips = svg('g', { class: 'map-tooltips', 'pointer-events': 'none', 'aria-hidden': 'true' });
-      element.append(this.background, this.land, this.labels, this.markers, this.siteLabels, this.tooltips);
+      element.append(this.definitions, this.background, this.land, this.heatmap, this.labels, this.markers, this.siteLabels, this.tooltips);
       if (scaleMaxima) this.setScaleMaxima(scaleMaxima);
       this.drawGeography(geography);
       this.drawLabels();
@@ -124,6 +130,58 @@
         path.append(svg('title', {}, feature.name || 'Land'));
         this.land.append(path);
       }
+    }
+
+    createHeatmap() {
+      // Each site's MW weights the same 50 km radial kernel. Source-over alpha
+      // accumulates nearby contributions as 1 - product(1 - weight * kernel),
+      // then one colour ramp maps that concentration. The shared output maximum
+      // and geographic radius remain fixed across filters and marker measures.
+      // This is a relative supply concentration, not a grid service area.
+      const prefix = `jmap-heat-${++mapSequence}`;
+      this.definitions = svg('defs');
+      const gradient = svg('radialGradient', { id: `${prefix}-kernel` });
+      [[0, 1], [.2, .82], [.45, .48], [.7, .17], [1, 0]].forEach(([offset, opacity]) => {
+        gradient.append(svg('stop', { offset, 'stop-color': '#000', 'stop-opacity': opacity }));
+      });
+      this.heatFilter = svg('filter', { id: `${prefix}-colour`, filterUnits: 'userSpaceOnUse', x: 0, y: 0, 'color-interpolation-filters': 'sRGB' });
+      this.heatFilter.append(svg('feColorMatrix', { type: 'matrix', values: '0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 1 0' }));
+      const colour = svg('feComponentTransfer');
+      const channels = {
+        R: '0.18 0.05 0.22 0.66 0.97 0.98 0.91 0.68',
+        G: '0.40 0.63 0.73 0.79 0.81 0.59 0.30 0.12',
+        B: '0.72 0.74 0.64 0.39 0.27 0.18 0.14 0.14',
+        A: '0 0.20 0.38 0.55 0.70 0.80 0.88 0.93'
+      };
+      Object.entries(channels).forEach(([channel, tableValues]) => colour.append(svg(`feFunc${channel}`, { type: 'table', tableValues })));
+      this.heatFilter.append(colour);
+      this.definitions.append(gradient, this.heatFilter);
+      this.heatFill = `url(#${prefix}-kernel)`;
+      this.heatmap = svg('g', { class: 'map-heatmap', 'pointer-events': 'none', 'aria-hidden': 'true', visibility: 'hidden', filter: `url(#${prefix}-colour)` });
+    }
+
+    setHeatmap(enabled) {
+      this.showHeatmap = Boolean(enabled);
+      this.heatmap.setAttribute('visibility', this.showHeatmap && this.heatNodes.length ? 'visible' : 'hidden');
+      this.element.classList.toggle('has-heatmap', this.showHeatmap);
+      this.updateView();
+      return this;
+    }
+
+    drawHeatmap() {
+      this.heatmap.replaceChildren();
+      this.heatNodes = [];
+      const maximum = Math.max(1, this.scaleMaxima.output);
+      this.sites.forEach(site => {
+        if (!Number.isFinite(site.lon) || !Number.isFinite(site.lat) || !Number.isFinite(site.output) || site.output <= 0) return;
+        const circle = svg('circle', { fill: this.heatFill, opacity: Math.min(.95, .95 * site.output / maximum) });
+        this.heatmap.append(circle);
+        // Mercator scale varies by latitude. Compensate so each site's kernel
+        // covers approximately 50 km on the ground, including offshore sites.
+        const radius = HEAT_RADIUS_KM / EARTH_RADIUS_KM / Math.cos(Math.max(-85, Math.min(85, site.lat)) * DEG);
+        this.heatNodes.push({ circle, world: project(site.lon, site.lat), radius });
+      });
+      this.heatmap.setAttribute('visibility', this.showHeatmap && this.heatNodes.length ? 'visible' : 'hidden');
     }
 
     drawLabels() {
@@ -202,6 +260,7 @@
         this.scaleMaxima.output = Math.max(this.scaleMaxima.output, ...this.sites.map(site => Math.max(0, Number(site.output) || 0)));
         this.scaleMaxima.capacity = Math.max(this.scaleMaxima.capacity, ...this.sites.map(site => Math.max(0, Number(site.capacity) || 0)));
       }
+      this.drawHeatmap();
       const maximum = this.scaleMaxima[this.mode] || this.scaleMaxima.output;
       // Draw large sites first so nearby smaller sites remain available to click.
       [...this.sites].sort((a, b) => this.valueFor(b) - this.valueFor(a)).forEach(site => {
@@ -328,6 +387,14 @@
       if (!this.baseScale) return;
       const scale = this.baseScale * this.zoom;
       this.land.setAttribute('transform', `matrix(${scale} 0 0 ${scale} ${this.width / 2 + this.pan.x - this.centre.x * scale} ${this.height / 2 + this.pan.y - this.centre.y * scale})`);
+      this.heatFilter.setAttribute('width', this.width);
+      this.heatFilter.setAttribute('height', this.height);
+      this.heatNodes.forEach(({ circle, world, radius }) => {
+        const p = this.screen(world);
+        circle.setAttribute('cx', p.x.toFixed(2));
+        circle.setAttribute('cy', p.y.toFixed(2));
+        circle.setAttribute('r', (radius * scale).toFixed(2));
+      });
       const labelBoxes = [];
       this.labelNodes?.forEach(({ node, box: localBox, world, city }) => {
         const p = this.screen(world);

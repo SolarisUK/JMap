@@ -1,0 +1,94 @@
+/* Colour is reserved for quantitative supply and balance views. */
+.perspective-nav { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); margin: 0 0 20px; background: #fff; }
+.perspective-nav a { display: grid; grid-template-columns: 26px 1fr; gap: 6px 12px; padding: 16px 20px; align-items: center; }
+.perspective-nav a + a { border-left: 1px solid var(--line); }
+.perspective-nav a:hover { background: #f0f4f1; color: var(--ink); }
+.perspective-index { grid-row: span 2; font: 10px monospace; color: var(--muted); }
+.perspective-nav strong { font-size: 13px; font-weight: 400; }
+.perspective-nav a > span:last-child { font-size: 11px; color: var(--muted); }
+.distribution-insights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.distribution-insights:empty { display: none; }
+.distribution-insights a { display: block; border: 1px solid var(--line); padding: 17px 19px; background: #fff; }
+.distribution-insights a:hover { border-color: #778b86; color: var(--ink); }
+.insight-title { display: block; font: 9px/1.6 monospace; color: var(--muted); }
+.insight-value { display: block; font-size: 24px; letter-spacing: -.04em; margin: 7px 0; }
+.insight-detail { display: block; font-size: 11px; line-height: 1.7; color: #606660; }
+.insight-source { display: block; font: 8px/1.6 monospace; color: var(--muted); margin-top: 10px; }
+.balance-shortcut { margin: 10px 0 0; text-decoration: underline; text-underline-offset: 3px; }
+.map-layer-controls { display: flex; align-items: center; gap: 10px 15px; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; background: #fff; }
+.map-layer-controls p { font: 9px/1.6 monospace; color: #606660; }
+.map-reading-note { padding: 12px 18px; border-top: 1px solid var(--line); color: #62685f; background: #f7f9f6; font: 10px/1.8 Arial, sans-serif; }
+.heatmap-legend .legend-scale { display: block; min-width: 180px; }
+.heat-colour-scale { height: 8px; background: linear-gradient(90deg, #2e66b8, #0da1bd 14%, #38baa3 29%, #a8c963 43%, #f7cf45 57%, #fa962e 71%, #e84d24 86%, #ad1f24); border-radius: 2px; }
+.heat-colour-captions { display: flex; justify-content: space-between; margin-top: 5px; font: 9px/1.5 monospace; color: #535b55; }
+.balance-section { border: 1px solid var(--line); background: #fff; margin: 28px 0 0; scroll-margin-top: 20px; }
+.balance-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 26px 26px 22px; }
+.balance-heading h2 { font-size: clamp(24px, 2.3vw, 34px); font-weight: 400; line-height: 1.25; letter-spacing: -.04em; margin: 10px 0; }
+.balance-heading > div > p:last-child { font-size: 12px; line-height: 1.8; color: #62685f; }
+.data-year { white-space: nowrap; font: 9px/1.6 monospace; border: 1px solid #c8d7cf; background: #f0f5f2; padding: 6px 9px; color: #345f51; }
+.data-year.is-scenario { background: #fff5e5; border-color: #e1c9a5; color: #7b481b; }
+.balance-context { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 13px 26px; background: #f7f8f5; border-block: 1px solid var(--line); }
+.balance-context p { font: 10px/1.8 monospace; color: #62685f; }
+.balance-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; }
+.balance-main { min-width: 0; padding: 20px 26px 24px; }
+.balance-chart-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 18px; }
+.balance-key { display: flex; gap: 16px; font: 10px/1.6 monospace; }
+.deficit-key { color: #9d491e; }
+.surplus-key { color: #17685a; }
+.balance-chart-heading label { font: 10px monospace; color: var(--muted); }
+.balance-chart-heading select { border: 1px solid var(--line); background: #fff; padding: 7px; font: 10px monospace; margin-left: 5px; max-width: 215px; }
+.balance-table-scroll { overflow-x: auto; }
+.balance-table { width: 100%; border-collapse: collapse; min-width: 650px; }
+.balance-table th { font: 10px/1.7 Arial, sans-serif; text-transform: none; letter-spacing: 0; background: #f8f9f6; color: #525a53; vertical-align: top; padding: 12px 10px; text-align: right; white-space: nowrap; }
+.balance-table th:first-child { text-align: left; width: 17%; }
+.balance-table th small { font: 8px/1.6 monospace; color: #767c73; }
+.balance-table tbody th { background: #fff; color: var(--ink); font-size: 12px; vertical-align: middle; }
+.balance-table tbody td { font: 13px/1.6 monospace; padding: 17px 10px; text-align: right; vertical-align: middle; }
+.balance-table tbody td, .balance-table tbody th { border-bottom: 1px solid #e8eae3; }
+.nation-explore { display: block; padding: 0; margin-top: 5px; color: #626f64; text-decoration: underline; text-underline-offset: 3px; font: 9px/1.6 monospace; }
+.balance-track { position: relative; height: 7px; background: #f0f1ec; min-width: 150px; margin: 8px 0 5px; }
+.balance-track::after { content: ''; position: absolute; inset: -3px auto -3px 50%; width: 1px; background: #a1aaa0; }
+.balance-fill { position: absolute; top: 0; bottom: 0; background: #25816c; }
+.balance-fill.is-deficit { background: #bd6a32; }
+.balance-number { font-weight: 400; color: #17685a; }
+.balance-number.is-deficit { color: #9d491e; }
+.balance-status { display: block; color: #73786e; font: 8px/1.7 monospace; }
+.coverage-ratio { display: block; font: 16px/1.5 monospace; }
+.coverage-context { display: block; font: 8px/1.7 monospace; color: #62685f; }
+.balance-reading { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 20px 0; font: 11px/1.9 Arial, sans-serif; color: #62685f; }
+.balance-reading strong { font-weight: 400; color: var(--ink); }
+.scenario-controls { border: 1px solid #d9dfd7; background: #fafbf8; }
+.scenario-controls summary { cursor: pointer; padding: 14px 16px; font-size: 12px; line-height: 1.7; }
+.scenario-controls summary > span { float: right; font: 8px/1.9 monospace; text-transform: uppercase; color: #72796b; }
+.scenario-controls[open] summary { border-bottom: 1px solid #d9dfd7; }
+.scenario-body { padding: 15px 16px; }
+.scenario-body > p { color: #62685f; font: 11px/1.8 Arial, sans-serif; }
+.scenario-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 18px 0; }
+.scenario-sliders label { font: 11px/1.8 Arial, sans-serif; }
+.scenario-sliders output { float: right; font-family: monospace; color: #7d471a; }
+.scenario-sliders input { display: block; width: 100%; margin: 10px 0 0; accent-color: #36745c; }
+.scenario-footer { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; font: 9px/1.8 monospace; color: #62685f; }
+.risk-explainer { padding: 25px 22px; border-left: 1px solid var(--line); background: #f7f8f4; }
+.risk-explainer h3 { font-size: 22px; line-height: 1.35; font-weight: 400; letter-spacing: -.03em; margin: 10px 0 14px; }
+.risk-explainer > p:not(.eyebrow) { font: 11px/1.9 Arial, sans-serif; color: #62685f; margin: 12px 0; }
+#balance-risk-insight { font: 11px/1.9 Arial, sans-serif; color: #805021; border-left: 2px solid #c48548; padding-left: 12px; margin: 20px 0; }
+.risk-availability { border-block: 1px solid #dce1d7; padding: 13px 0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font: 10px/1.7 monospace; }
+.risk-availability strong { font-weight: 400; color: #6c7167; }
+.balance-methodology { border-top: 1px solid var(--line); padding: 15px 26px; }
+.balance-methodology summary { cursor: pointer; font: 10px/1.8 monospace; }
+#balance-sources { color: #62685f; font: 11px/1.9 Arial, sans-serif; max-width: 1000px; }
+#balance-sources p { margin: 12px 0; }
+#balance-sources a { color: #275e4d; text-decoration: underline; text-underline-offset: 3px; }
+.balance-data-error { padding: 22px 26px; font-size: 12px; color: #9d491e; }
+@media (max-width: 1200px) { .balance-layout { grid-template-columns: minmax(0, 1fr) 245px; } .balance-main { padding-inline: 18px; } .risk-explainer { padding-inline: 18px; } }
+@media (max-width: 1000px) { .balance-layout { grid-template-columns: 1fr; } .risk-explainer { border-left: 0; border-top: 1px solid var(--line); } .risk-explainer h3 { font-size: 21px; } .risk-explainer > p, #balance-risk-insight { max-width: 780px; } .map-layer-controls { padding-inline: 13px; } }
+@media (max-width: 620px) {
+  .perspective-nav { grid-template-columns: 1fr; margin-bottom: 14px; } .perspective-nav a { padding: 13px 14px; gap: 5px 8px; } .perspective-nav a + a { border-left: 0; border-top: 1px solid var(--line); } .perspective-nav strong { font-size: 12px; } .perspective-nav a > span:last-child { font-size: 10px; }
+  .distribution-insights { grid-template-columns: 1fr; gap: 0; margin-bottom: 20px; border: 1px solid var(--line); } .distribution-insights a { border: 0; padding: 13px 15px; display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: baseline; } .distribution-insights a + a { border-top: 1px solid var(--line); } .insight-title { font-size: 8px; } .insight-value { font-size: 20px; margin: 0; grid-row: span 3; grid-column: 2; } .insight-detail { font-size: 10px; } .insight-source { font-size: 7px; margin-top: 4px; }
+  .map-layer-controls { padding: 9px 12px; gap: 8px; } .map-layer-controls p { font-size: 8px; } .map-reading-note { padding: 11px 12px; font-size: 9px; }
+  .heatmap-legend .legend-scale { min-width: 160px; }
+  .balance-heading { padding: 20px 14px 16px; flex-direction: column; gap: 8px; } .balance-heading h2 { font-size: 25px; } .balance-heading > div > p:last-child { font-size: 11px; } .balance-context { padding: 12px 14px; } .balance-context p { font-size: 9px; }
+  .balance-main { padding: 18px 14px; } .balance-key { font-size: 9px; } .balance-chart-heading { gap: 12px; } .balance-chart-heading label { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .balance-reading { grid-template-columns: 1fr; gap: 10px; font-size: 10px; } .scenario-controls summary { padding: 12px; font-size: 11px; } .scenario-controls summary > span { float: none; display: block; margin-left: 14px; font-size: 7px; } .scenario-body { padding: 12px; } .scenario-body > p { font-size: 10px; } .scenario-sliders { grid-template-columns: 1fr; gap: 18px; } .scenario-footer { font-size: 8px; } .scenario-footer .plain-link { font-size: 8px; }
+  .risk-explainer { padding: 20px 14px; } .balance-methodology { padding: 14px; } .balance-methodology summary { font-size: 9px; } #balance-sources { font-size: 10px; }
+}

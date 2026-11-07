@@ -1,15 +1,49 @@
-# JMap
+﻿# JMap
 
-A minimalist interface for exploring the UK's energy infrastructure.
+An offline interface for understanding UK electricity supply and distribution.
 
-Open `UI/main.html` in a browser to explore the black-and-white energy map. It works directly from the filesystem and needs no install, API key, or external map tiles. The operations overview is at `UI/overview.html`; both pages use the same light, monochrome layout and shared stylesheet. Site directory links open the map's list view directly.
+Open `UI/main.html` in a browser. No installation, API key or external map tiles are needed. The operations overview is at `UI/overview.html`.
 
-Search sites, choose a nation or technology preset, and switch marker sizes between output/capacity/utilisation. The quantitative marker scale stays fixed across filters. Fit results frames the matching sites; choosing a nation frames that area. Site labels, pan/zoom, full-UK reset, touch gestures and keyboard controls are available. On mobile, expand “Refine this view” for filters.
+## Supply heatmap
 
-The analysis panel separates generation, storage discharge and imports; breaks supply down by technology; compares all four nations with the current technology/search filters; and ranks matching sites. Nation comparisons use site location, not electricity transfers. Select a site to inspect it and pin up to three sites for a side-by-side comparison. Pins persist outside current filters and are labelled accordingly. The directory supports sorting and comparison. Export downloads the filtered summary and site rows; comparison has its own CSV export. Filters, measure, labels, analysis tab and comparison pins are retained in the page URL.
+The map opens with an output-weighted heatmap. Colour shows the concentration of sample supply within a 50 km smoothing radius, including generation, storage discharge and interconnector imports. Both the radius and relative output scale remain fixed across filters. Empty areas indicate no output in this sample; they do not indicate a lack of electricity access.
 
-The 45-site dataset is a curated demonstration across England, Scotland, Wales and Northern Ireland. Output figures are synthetic, and locations/capacities approximate. It is not live telemetry or a complete register. Storage output means discharge and interconnector output means imports. Low-carbon share excludes both and covers wind, solar, nuclear and conventional hydro generation. UK aggregates describe this portfolio, not a single electricity-system balance. Demand, transmission flows and constraints are not included, so the map cannot infer local supply adequacy or transfers between nations.
+Switch to Site markers for the original technology symbols and quantitative marker sizes. Search, nation and technology filters, output/capacity/utilisation measures, site labels, pan/zoom, touch and keyboard controls remain available. Fit results frames matching sites. On mobile, expand “Refine this view” for filters.
 
-Geography is bundled from Natural Earth (public domain); attribution is in `UI/assets/README.md`. Dataset source references are documented in `UI/assets/sites.js`. Replace that data file with validated telemetry to connect a production data source.
+The analysis panel separates generation, storage discharge and imports, breaks supply down by technology, compares all four nations within the sample and ranks sites. Pin up to three sites for comparison. Site and comparison exports remain available. Site filters, map layer, measures, analysis tabs and pins persist in the URL.
 
-Run the analytical checks with `node --test tests/analysis.test.cjs`. The UI remains buildless and can be opened directly in a browser.
+## Official annual balance
+
+The separate Surplus & deficit section compares **2025 official annual data** for England, Scotland, Wales and Northern Ireland. Headline insights identify the most generation relative to demand, the largest annual deficit and the largest electricity generator. This section is independent of sample site filters.
+
+The table shows gross generation, renewable share, gross demand, signed annual balance and generation divided by demand. Teal bars indicate a surplus and orange bars a deficit; both use the same TWh scale and central zero. Rank by generation/demand, deficit, generation or name. Explore sample sites links focus the corresponding nation on the map.
+
+Gross demand is generation plus net imports, including network losses and generation/storage own use. It differs from final-user consumption. Baseline annual balance equals net exports; a deficit was covered by net imports, not unmet demand. Sources, exact definitions, final consumption figures and limitations are available below the table. The bundled data does not refresh automatically.
+
+Source: [DESNZ electricity generation and supply, 2021 to 2025, published 29 September 2026](https://www.gov.uk/government/statistics/energy-trends-september-2026-special-feature-article-electricity-generation-and-supply-in-scotland-wales-northern-ireland-and-england-2021-to-2025). Dataset values, workbook links and cell provenance are in `UI/assets/regions.js`.
+
+Expand the scenario controls to increase annual demand or reduce annual generation by up to 40%. These are uniform sensitivity calculations, not dispatch or outage forecasts. Scenario values, labels and CSV exports are distinguished from the official baseline; headline insights retain the published figures. Scenario inputs and table sorting persist in the URL. Reset restores the baseline.
+
+An annual deficit does not establish local shortage risk. That requires peak demand, available generation, storage duration, transfer availability and network constraints. Household electricity access and outage reliability need separate measurements. Northern Ireland is part of the all-island electricity market; UK totals would be accounting sums rather than one operational grid.
+
+## Sample and geography
+
+The 45-site map is a curated demonstration. Outputs are synthetic, and locations/capacities approximate. It is not live telemetry or a complete register. Storage output means discharge and interconnector output means imports. Low-carbon share excludes both and covers wind, solar, nuclear and conventional hydro generation. Do not compare the sample MW/GW snapshot with official annual TWh totals.
+
+Geography is bundled from Natural Earth (public domain); attribution is in `UI/assets/README.md`. Site source references are documented in `UI/assets/sites.js`.
+
+## Verification
+
+Run the analytical and dataset checks with:
+
+```sh
+node --test tests/analysis.test.cjs tests/balance.test.cjs tests/regions-data.test.cjs
+```
+
+Optional browser checks require Python Playwright and an installed Chromium browser:
+
+```sh
+python tests/browser-smoke.py
+```
+
+The browser check covers annual ranking, CSV contents, keyboard scenario controls, reset, URL restoration, linked map filtering, layer persistence, runtime errors and responsive widths from 320 to 1440 pixels. It writes review screenshots to the system temporary directory. The application remains buildless.

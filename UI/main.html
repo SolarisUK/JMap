@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid Operations — Wireframe</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #242424;
+      background: #f3f3f1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { margin: 0; min-width: 320px; }
+
+    button {
+      border: 1px solid #999;
+      background: #fff;
+      color: inherit;
+      padding: 8px 12px;
+      font: inherit;
+    }
+
+    .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+    aside { padding: 20px 14px; background: #e7e7e4; border-right: 1px solid #bcbcb8; }
+    .brand { margin: 0 0 28px; font-size: 15px; letter-spacing: .08em; }
+    .section-label { margin: 24px 8px 8px; color: #666; font-size: 10px; font-weight: bold; letter-spacing: .12em; }
+    nav a { display: block; padding: 10px 8px; color: inherit; text-decoration: none; font-size: 13px; }
+    nav a.active { background: #d3d3cf; border-left: 3px solid #555; }
+    main { min-width: 0; padding: 22px 26px; }
+    .topbar, .page-heading, .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .topbar { padding-bottom: 16px; border-bottom: 1px solid #c9c9c5; color: #555; font-size: 12px; }
+    .page-heading { margin: 24px 0 20px; align-items: flex-end; }
+    h1 { margin: 0; font-size: 23px; font-weight: 500; }
+    h2 { margin: 0; font-size: 14px; font-weight: 600; }
+    .subtle { color: #666; font-size: 12px; }
+    .grid { display: grid; gap: 14px; }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .main-grid { grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr); margin-top: 14px; }
+    .panel, .metric { background: #fff; border: 1px solid #bdbdb9; }
+    .metric { min-height: 100px; padding: 14px; }
+    .metric-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+    .metric-value { margin-top: 12px; font-size: 25px; }
+    .metric-note { margin-top: 5px; color: #666; font-size: 11px; }
+    .panel { padding: 16px; }
+    .panel-heading { padding-bottom: 12px; border-bottom: 1px solid #dededb; }
+    .chart { position: relative; height: 220px; margin-top: 12px; border: 1px solid #d5d5d1; background: repeating-linear-gradient(to bottom, #fff 0, #fff 43px, #e8e8e5 44px); }
+    .chart svg { width: 100%; height: 100%; }
+    .chart-label { position: absolute; left: 8px; bottom: 7px; color: #777; font-size: 10px; }
+    .legend { display: flex; gap: 16px; margin-top: 10px; color: #555; font-size: 11px; }
+    .legend span::before { content: ""; display: inline-block; width: 12px; height: 2px; margin: 0 6px 3px 0; background: #555; }
+    .legend span:last-child::before { background: #999; }
+    .alerts { display: grid; gap: 10px; margin-top: 12px; }
+    .alert { padding: 10px; border: 1px solid #d0d0cc; font-size: 12px; }
+    .alert strong { display: block; margin-bottom: 5px; }
+    .status { display: inline-block; padding: 3px 6px; border: 1px solid #999; color: #555; font-size: 10px; text-transform: uppercase; }
+    table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid #dededb; text-align: left; }
+    th { color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+    .asset-panel { margin-top: 14px; }
+
+    @media (max-width: 850px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { padding: 12px; border-right: 0; border-bottom: 1px solid #bcbcb8; }
+      .brand { margin: 0 0 8px; }
+      .section-label { display: none; }
+      nav { display: flex; overflow-x: auto; }
+      nav a { white-space: nowrap; }
+      main { padding: 18px 14px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 460px) {
+      .topbar .subtle { display: none; }
+      .page-heading { align-items: flex-start; flex-direction: column; }
+      .metrics { gap: 8px; }
+      .metric { padding: 10px; }
+      .metric-value { font-size: 21px; }
+      .panel { padding: 12px; }
+      .chart { height: 180px; }
+      table { font-size: 11px; }
+      th, td { padding: 8px 5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <p class="brand">GRID / CONTROL</p>
+      <nav aria-label="Main navigation">
+        <p class="section-label">WORKSPACE</p>
+        <a class="active" href="#overview">Overview</a>
+        <a href="#forecast">Demand forecast</a>
+        <a href="#assets">Assets</a>
+        <a href="#alerts">Alerts</a>
+        <p class="section-label">SYSTEM</p>
+        <a href="#reports">Reports</a>
+      </nav>
+    </aside>
+
+    <main id="overview">
+      <div class="topbar">
+        <span>REGION: NORTH DISTRICT &nbsp; / &nbsp; LIVE OPERATIONS</span>
+        <span class="subtle">Last updated: 10:42:18 &nbsp; · &nbsp; Operator: J. Morgan</span>
+      </div>
+
+      <header class="page-heading">
+        <div>
+          <h1>Grid operations overview</h1>
+          <div class="subtle" style="margin-top: 6px">Predictive power management</div>
+        </div>
+        <button type="button">Today ▾</button>
+      </header>
+
+      <section class="grid metrics" aria-label="Key metrics">
+        <article class="metric">
+          <div class="metric-label">Current demand</div>
+          <div class="metric-value">4,820 <span class="subtle">MW</span></div>
+          <div class="metric-note">+2.4% vs. yesterday</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">Peak forecast</div>
+          <div class="metric-value">5,140 <span class="subtle">MW</span></div>
+          <div class="metric-note">Expected at 18:30</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">Reserve margin</div>
+          <div class="metric-value">14.2<span class="subtle">%</span></div>
+          <div class="metric-note">Target: 15%</div>
+        </article>
+        <article class="metric">
+          <div class="metric-label">Active alerts</div>
+          <div class="metric-value">03</div>
+          <div class="metric-note">1 requires attention</div>
+        </article>
+      </section>
+
+      <section class="grid main-grid">
+        <article class="panel" id="forecast">
+          <div class="panel-heading">
+            <h2>Demand forecast</h2>
+            <span class="subtle">MW · next 24 hours</span>
+          </div>
+          <div class="chart" role="img" aria-label="Placeholder chart comparing actual and forecast demand">
+            <svg viewBox="0 0 700 220" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,158 80,150 150,162 230,130 310,138 390,102 470,116 550,74 630,88 700,48" fill="none" stroke="#555" stroke-width="2"/>
+              <polyline points="0,167 80,159 150,165 230,144 310,146 390,120 470,124 550,97 630,101 700,72" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="6 5"/>
+            </svg>
+            <span class="chart-label">06:00 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12:00 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18:00 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00:00</span>
+          </div>
+          <div class="legend"><span>Forecast demand</span><span>Actual demand</span></div>
+        </article>
+
+        <article class="panel" id="alerts">
+          <div class="panel-heading">
+            <h2>System alerts</h2>
+            <span class="status">3 open</span>
+          </div>
+          <div class="alerts">
+            <div class="alert"><strong>Reserve margin below target</strong><span class="subtle">North district · Forecast · 10:31</span></div>
+            <div class="alert"><strong>Substation load rising</strong><span class="subtle">Riverside 04 · Asset · 10:18</span></div>
+            <div class="alert"><strong>Weather model updated</strong><span class="subtle">Coastal region · Data · 09:56</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel asset-panel" id="assets">
+        <div class="panel-heading">
+          <h2>Asset status</h2>
+          <button type="button">View all</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Asset</th><th>Type</th><th>Output / Load</th><th>Status</th><th>Forecast</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>North Plant 01</td><td>Generation</td><td>820 MW</td><td><span class="status">Online</span></td><td>Stable</td></tr>
+            <tr><td>Riverside 04</td><td>Substation</td><td>91% load</td><td><span class="status">Watch</span></td><td>Rising</td></tr>
+            <tr><td>East Storage</td><td>Battery</td><td>68% charge</td><td><span class="status">Available</span></td><td>Discharge 18:00</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

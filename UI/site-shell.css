@@ -28,7 +28,7 @@ header.app-header,body.energy-page header.app-header.site-header {
   display:flex;align-items:center;gap:7px;flex-shrink:0;
   font:700 24px/1 Arial,Helvetica,sans-serif;letter-spacing:-1.5px;
 }
-.app-header .brand > span,.energy-page .app-header .brand > span {font:400 14px/1 Arial,sans-serif;padding-top:3px;}
+.app-header .brand-wordmark {display:block;width:87px;height:auto;}
 .app-header nav,.energy-page .app-header nav {display:flex;align-self:stretch;gap:24px;margin:0;}
 .app-header nav a,.energy-page .app-header nav a {
   display:flex;align-items:center;padding:0;
@@ -60,7 +60,7 @@ header.app-header,body.energy-page header.app-header.site-header {
 @media(max-width:600px) {
   header.app-header,body.energy-page header.app-header.site-header {gap:10px;padding:0 8px;}
   .app-header .brand,.energy-page .app-header .brand {font-size:21px;gap:3px;}
-  .app-header .brand > span,.energy-page .app-header .brand > span {font-size:12px;}
+  .app-header .brand-wordmark {width:76px;}
   .app-header nav,.energy-page .app-header nav {gap:11px;}
   .app-header nav a,.energy-page .app-header nav a {font-size:10px;}
   .app-header .desktop-name {display:none;}
@@ -68,4 +68,7 @@ header.app-header,body.energy-page header.app-header.site-header {
   .header-end {gap:0;}
   .header-end > .text-button,.energy-page .header-end > .text-button {font-size:8px;}
   .map-controls,.map-navigation,.energy-page .map-controls {top:10px;right:8px;}
+}
+@media(max-width:360px) {
+  .app-header .brand-wordmark {width:64px;}
 }

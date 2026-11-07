@@ -4,6 +4,10 @@
   user-select:none;
   -webkit-touch-callout:none;
 }
+/* Keep focus on the map without drawing a frame around the whole canvas. */
+svg[data-map-surface]:focus,svg[data-map-surface]:focus-visible {
+  outline:none;
+}
 body.is-map-panning,body.is-map-panning * {
   -webkit-user-select:none!important;
   user-select:none!important;

@@ -87,6 +87,7 @@ class GridEnv(gym.Env):
         forecaster=None,
         scenario: list[S.Incident] | None = None,
         random_incidents: bool = True,
+        start_utc: str | None = None,
     ):
         super().__init__()
 
@@ -99,6 +100,7 @@ class GridEnv(gym.Env):
 
         self.forecaster = forecaster
         self.fixed_scenario = scenario
+        self.start_utc = start_utc
         self.random_incidents = random_incidents
 
         self._load_data(Path(data_path))
@@ -355,12 +357,26 @@ class GridEnv(gym.Env):
     def _solve_flows(
         self, net: np.ndarray, limits: np.ndarray, demand: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Flows and per-zone imbalance, solved separately for each electrical island.
+        """DC power flow, solved separately for each electrical island.
 
-        Minimum-norm solution of the nodal balance, which is DC power flow with every reactance
-        equal; the real version weights by susceptance. Solving per island is what makes a line
-        trip bite locally: power stranded behind a dead corridor cannot help the zones on the
-        other side, which is the entire point of the demo.
+        Linearised AC power flow, the standard approximation for transmission studies: flat
+        voltage magnitudes, small angle differences, lossless lines. Then for each island:
+
+            B = A diag(1/x) A^T          nodal susceptance matrix
+            B theta = p                  solved with the island's slack angle fixed at zero
+            f_e = (theta_from - theta_to) / x_e
+
+        Flows follow the path of least reactance, so a short fat corridor carries far more than
+        a long thin one at the same angle difference. That is the difference from an
+        equal-reactance solve, and it is what makes the Scotland-England boundary behave like a
+        bottleneck rather than one path among many.
+
+        Thermal limits are deliberately NOT enforced. Physics does not respect them; a flow may
+        exceed its limit and the operator's job -- here, the agent's -- is to redispatch until it
+        does not. Overload is penalised in the reward instead.
+
+        Solving per island is what makes a trip bite locally: power stranded behind a dead
+        corridor cannot reach the zones on the other side.
 
         Returns (flows, imbalance). Negative imbalance is demand that could not be reached;
         positive is generation with nowhere to go.
@@ -370,26 +386,49 @@ class GridEnv(gym.Env):
 
         for comp in self._components(limits):
             idx = np.array(comp)
+            members = set(comp)
             e_ids = [
                 e_i
                 for e_i in range(S.N_EDGES)
                 if limits[e_i] > 0.0
-                and S.ZONE_INDEX[S.EDGES[e_i].frm] in set(comp)
-                and S.ZONE_INDEX[S.EDGES[e_i].to] in set(comp)
+                and S.ZONE_INDEX[S.EDGES[e_i].frm] in members
+                and S.ZONE_INDEX[S.EDGES[e_i].to] in members
             ]
+
             net_c = net[idx]
             surplus = float(net_c.sum())
 
-            # Spread the island's imbalance across its own zones, in proportion to demand so a
+            # Spread the island's imbalance across its own zones in proportion to demand, so a
             # big zone carries more of a shortfall than a small one.
             w = demand[idx]
             w = w / w.sum() if w.sum() > 0 else np.full(len(idx), 1.0 / len(idx))
             imbalance[idx] = surplus * w
 
-            if e_ids:
-                A_c = self.A[np.ix_(idx, e_ids)]
-                # Balance the injections before solving, or the flow solve absorbs the imbalance.
-                flows[e_ids] = np.linalg.pinv(A_c) @ (net_c - surplus * w)
+            if not e_ids:
+                continue  # a single islanded zone: nothing to solve
+
+            # Injections must sum to zero before solving, or the imbalance has nowhere to go.
+            p = net_c - surplus * w
+
+            A_c = self.A[np.ix_(idx, e_ids)]
+            b_diag = np.array([1.0 / S.EDGES[e_i].x_pu for e_i in e_ids])
+            B = A_c @ np.diag(b_diag) @ A_c.T
+
+            # Slack bus for this island: the contract's slack if it is here, else the largest
+            # demand. B is singular by construction (angles are relative), so one angle is
+            # fixed at zero and that row and column are removed.
+            slack_local = (
+                comp.index(S.ZONE_INDEX[S.SLACK_ZONE])
+                if S.ZONE_INDEX[S.SLACK_ZONE] in members
+                else int(np.argmax(demand[idx]))
+            )
+            keep = [k for k in range(len(comp)) if k != slack_local]
+
+            theta = np.zeros(len(comp))
+            if keep:
+                theta[keep] = np.linalg.solve(B[np.ix_(keep, keep)], p[keep])
+
+            flows[e_ids] = b_diag * (A_c.T @ theta)
 
         return flows, imbalance
 
@@ -400,7 +439,21 @@ class GridEnv(gym.Env):
         self.step_idx = 0
 
         max_start = max(1, self.n_t - S.STEPS_PER_EPISODE - 1)
-        self.t0 = int(self.np_random.integers(0, max_start))
+        start = (options or {}).get("start_utc", self.start_utc)
+        if start is not None:
+            # A fixed episode start, for scripted demo scenarios. Must be a UTC midnight that
+            # exists in the loaded table, with a full day of data after it.
+            from datetime import datetime
+
+            want = datetime.fromisoformat(str(start))
+            matches = [i for i, t in enumerate(self.times) if t == want]
+            if not matches:
+                raise ValueError(f"start_utc {start} not found in the loaded data")
+            if matches[0] > self.n_t - S.STEPS_PER_EPISODE:
+                raise ValueError(f"start_utc {start} leaves less than one day of data")
+            self.t0 = matches[0]
+        else:
+            self.t0 = int(self.np_random.integers(0, max_start))
 
         if self.fixed_scenario is not None:
             self.incidents = list(self.fixed_scenario)
@@ -553,3 +606,17 @@ def load_scenario(name: str) -> list[S.Incident]:
     path = Path(S.SCENARIO_DIR) / f"{name}.json"
     data = json.loads(path.read_text())
     return [S.Incident.from_dict(d) for d in data["incidents"]]
+
+
+def make_scenario_env(name: str, **kwargs) -> "GridEnv":
+    """A GridEnv set up to replay one scripted scenario exactly.
+
+    Uses the scenario file's incidents, and its episode_start_utc and selected_from data file
+    when present, so the demo starts from the selected real-world conditions every time.
+    """
+    import json
+
+    data = json.loads((Path(S.SCENARIO_DIR) / f"{name}.json").read_text())
+    kwargs.setdefault("data_path", data.get("selected_from", DEFAULT_DATA))
+    kwargs.setdefault("start_utc", data.get("episode_start_utc"))
+    return GridEnv(scenario=load_scenario(name), **kwargs)

@@ -1,0 +1,120 @@
+{
+  "zone_order": [
+    "NSCO",
+    "SSCO",
+    "NORT",
+    "YORK",
+    "WALE",
+    "MIDL",
+    "EAST",
+    "SWES",
+    "LOND",
+    "SOUT"
+  ],
+  "edge_order": [
+    "NSCO-SSCO",
+    "SSCO-NORT",
+    "NORT-YORK",
+    "NORT-WALE",
+    "YORK-MIDL",
+    "YORK-EAST",
+    "WALE-MIDL",
+    "WALE-SWES",
+    "MIDL-EAST",
+    "MIDL-LOND",
+    "MIDL-SWES",
+    "EAST-LOND",
+    "LOND-SOUT",
+    "SWES-SOUT"
+  ],
+  "fuel_order": [
+    "NUCLEAR",
+    "CCGT",
+    "OCGT",
+    "WIND",
+    "SOLAR",
+    "HYDRO",
+    "BIOMASS",
+    "IMPORT"
+  ],
+  "fuels": [
+    {
+      "id": "NUCLEAR",
+      "cost_gbp_per_mwh": 10.0,
+      "carbon_t_per_mwh": 0.0,
+      "dispatchable": false,
+      "curtailable": false
+    },
+    {
+      "id": "CCGT",
+      "cost_gbp_per_mwh": 75.0,
+      "carbon_t_per_mwh": 0.37,
+      "dispatchable": true,
+      "curtailable": false
+    },
+    {
+      "id": "OCGT",
+      "cost_gbp_per_mwh": 180.0,
+      "carbon_t_per_mwh": 0.55,
+      "dispatchable": true,
+      "curtailable": false
+    },
+    {
+      "id": "WIND",
+      "cost_gbp_per_mwh": 0.0,
+      "carbon_t_per_mwh": 0.0,
+      "dispatchable": false,
+      "curtailable": true
+    },
+    {
+      "id": "SOLAR",
+      "cost_gbp_per_mwh": 0.0,
+      "carbon_t_per_mwh": 0.0,
+      "dispatchable": false,
+      "curtailable": true
+    },
+    {
+      "id": "HYDRO",
+      "cost_gbp_per_mwh": 5.0,
+      "carbon_t_per_mwh": 0.0,
+      "dispatchable": true,
+      "curtailable": false
+    },
+    {
+      "id": "BIOMASS",
+      "cost_gbp_per_mwh": 110.0,
+      "carbon_t_per_mwh": 0.12,
+      "dispatchable": true,
+      "curtailable": false
+    },
+    {
+      "id": "IMPORT",
+      "cost_gbp_per_mwh": 90.0,
+      "carbon_t_per_mwh": 0.25,
+      "dispatchable": true,
+      "curtailable": false
+    }
+  ],
+  "incident_types": [
+    "line_trip",
+    "generator_outage",
+    "wind_lull",
+    "demand_spike",
+    "interconnector_loss"
+  ],
+  "strategies": [
+    "none",
+    "optimiser",
+    "agents"
+  ],
+  "quality_flags": {
+    "OK": 0,
+    "MISSING": 1,
+    "INTERPOLATED": 2,
+    "ZERO_RUN": 4,
+    "JUMP": 8,
+    "DST_BOUNDARY": 16
+  },
+  "steps_per_episode": 48,
+  "forecast_horizon": 48
+}

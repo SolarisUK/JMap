@@ -108,7 +108,7 @@ body.energy-page { height: 100dvh; overflow: hidden; font-size: 12px; }
 #balance-dialog .balance-heading { padding: 18px; }
 #balance-dialog .balance-heading h2 { font-size: 24px; }
 #info-dialog { width: min(760px,calc(100vw - 30px)); max-height: 88dvh; overflow-y: auto; }
-.map-region:focus-visible, .map-region-label:focus-visible { outline: none; filter: drop-shadow(0 0 2px #14261b); }
+.map-region:focus-visible, .map-region-label:focus-visible { outline: none; filter: none; }
 @media (max-width: 1150px) and (min-width: 851px) { .energy-page .workspace { grid-template-columns: 155px minmax(0,1fr); } .energy-page .explorer-body { grid-template-columns: minmax(0,1fr) 250px; } .dashboard-heading > div:last-child { gap: 12px; } .header-meta { display: none !important; } .energy-page #regional-legend-host .map-legend > div { grid-template-columns: minmax(80px,1fr) 145px; gap: 3px 8px; } }
 @media (max-width: 850px) {
   body.energy-page { height: auto; overflow: auto; }

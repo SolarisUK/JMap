@@ -4,6 +4,9 @@
 
   const NS = 'http://www.w3.org/2000/svg';
   const DEG = Math.PI / 180;
+  // Keep SVG geometry near viewport-sized units. Tiny radian paths under huge
+  // transforms make native focus/stroke rasterisation fragile in Chrome.
+  const GEOMETRY_SCALE = 8192;
   const regionLabelPositions = {
     england: [-1.0, 53.0], scotland: [-4.2, 57.2], wales: [-5.3, 51.6], 'northern-ireland': [-6.75, 54.7]
   };
@@ -141,7 +144,7 @@
         for (const ring of feature.polygons || []) {
           if (ring.length < 3) continue;
           segments.push(ring.map(([lon, lat], index) => {
-            const p = project(lon, lat);
+            const p = this.geometryPoint(project(lon, lat));
             return `${index ? 'L' : 'M'}${p.x.toFixed(6)},${p.y.toFixed(6)}`;
           }).join('') + 'Z');
         }
@@ -149,6 +152,10 @@
         path.append(svg('title', {}, feature.name || 'Land'));
         this.land.append(path);
       }
+    }
+
+    geometryPoint(world) {
+      return { x: (world.x - this.initialCentre.x) * GEOMETRY_SCALE, y: (world.y - this.initialCentre.y) * GEOMETRY_SCALE };
     }
 
     regionalGeometry(geography) {
@@ -159,7 +166,7 @@
         const segments = (feature.polygons || []).filter(ring => ring.length >= 3).map(ring => ring.map(([lon, lat], index) => {
           west = Math.min(west, lon); east = Math.max(east, lon);
           south = Math.min(south, lat); north = Math.max(north, lat);
-          const p = project(lon, lat);
+          const p = this.geometryPoint(project(lon, lat));
           return `${index ? 'L' : 'M'}${p.x.toFixed(6)},${p.y.toFixed(6)}`;
         }).join('') + 'Z');
         const bounds = Number.isFinite(west) ? [[west, south], [east, north]] : null;
@@ -172,6 +179,10 @@
 
     bindRegionalNode(node, key) {
       node.style.cursor = 'pointer';
+      // This also protects the geometry when an older stylesheet is cached.
+      // Keyboard focus is indicated by the boundary/label stroke, never a filter.
+      node.style.filter = 'none';
+      node.style.outline = 'none';
       node.addEventListener('keydown', event => {
         if (event.key !== 'Enter' && event.key !== ' ') return;
         event.preventDefault(); event.stopPropagation(); this.chooseRegion(key);
@@ -489,7 +500,8 @@
     updateView() {
       if (!this.baseScale) return;
       const scale = this.baseScale * this.zoom;
-      this.land.setAttribute('transform', `matrix(${scale} 0 0 ${scale} ${this.width / 2 + this.pan.x - this.centre.x * scale} ${this.cameraHeight / 2 + this.pan.y - this.centre.y * scale})`);
+      const geometryScale = scale / GEOMETRY_SCALE;
+      this.land.setAttribute('transform', `matrix(${geometryScale} 0 0 ${geometryScale} ${this.width / 2 + this.pan.x + (this.initialCentre.x - this.centre.x) * scale} ${this.cameraHeight / 2 + this.pan.y + (this.initialCentre.y - this.centre.y) * scale})`);
       this.regionalLayer.setAttribute('transform', this.land.getAttribute('transform'));
       const legendBounds = this.showRegions ? this.element.parentElement?.querySelector('.map-legend')?.getBoundingClientRect() : null;
       const mapBounds = legendBounds ? this.element.getBoundingClientRect() : null;

@@ -1,0 +1,83 @@
+{
+  "b6_trip_windy_peak": {
+    "scenario": "b6_trip_windy_peak",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 53418.4,
+        "cost_gbp": 370955967.1,
+        "penalty_gbp": 286264372.1,
+        "carbon_t": 180108.5,
+        "curtailed_mwh": 53418.5
+      },
+      "optimiser": {
+        "unserved_mwh": 180.0,
+        "cost_gbp": 63929908.2,
+        "penalty_gbp": 82551468.2,
+        "carbon_t": 198276.9,
+        "curtailed_mwh": 47548.8
+      },
+      "agents": {
+        "unserved_mwh": 180.0,
+        "cost_gbp": 63929908.2,
+        "penalty_gbp": 82551468.2,
+        "carbon_t": 198276.9,
+        "curtailed_mwh": 47548.8
+      }
+    },
+    "agents_is_placeholder": true
+  },
+  "cold_snap": {
+    "scenario": "cold_snap",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 29014617.3,
+        "penalty_gbp": 59180290.3,
+        "carbon_t": 101217.1,
+        "curtailed_mwh": 0.0
+      },
+      "optimiser": {
+        "unserved_mwh": 84.5,
+        "cost_gbp": 31768330.6,
+        "penalty_gbp": 10734909.5,
+        "carbon_t": 103969.7,
+        "curtailed_mwh": 4664.4
+      },
+      "agents": {
+        "unserved_mwh": 84.5,
+        "cost_gbp": 31768330.6,
+        "penalty_gbp": 10734909.5,
+        "carbon_t": 103969.7,
+        "curtailed_mwh": 4664.4
+      }
+    },
+    "agents_is_placeholder": true
+  },
+  "nuclear_outage_low_wind": {
+    "scenario": "nuclear_outage_low_wind",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 26736713.0,
+        "penalty_gbp": 49907159.8,
+        "carbon_t": 92771.2,
+        "curtailed_mwh": 0.0
+      },
+      "optimiser": {
+        "unserved_mwh": 100.0,
+        "cost_gbp": 29381793.2,
+        "penalty_gbp": 11117289.4,
+        "carbon_t": 96576.3,
+        "curtailed_mwh": 4481.7
+      },
+      "agents": {
+        "unserved_mwh": 100.0,
+        "cost_gbp": 29381793.2,
+        "penalty_gbp": 11117289.4,
+        "carbon_t": 96576.3,
+        "curtailed_mwh": 4481.7
+      }
+    },
+    "agents_is_placeholder": true
+  }
+}

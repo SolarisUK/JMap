@@ -64,8 +64,9 @@ def main():
             assert page.locator('#corridor-count').inner_text().startswith('0 overloaded'), step
             baseline_red += page.locator('#baseline-map .simulation-edge[data-band="overload"]').count()
             if frames[step]['incidents']:
-                assert frames[step]['zones']['NORT']['unserved_mw'] > .05
-                assert page.locator('#baseline-map .simulation-zone-label[data-zone-id="NORT"] .simulation-zone-node').get_attribute('fill') != '#d4eae1'
+                for zone in ('NORT','YORK','WALE','MIDL','EAST','SWES','LOND','SOUT'):
+                    assert frames[step]['zones'][zone]['unserved_mw'] > .05
+                    assert page.locator(f'#baseline-map .simulation-zone-label[data-zone-id="{zone}"] .simulation-zone-node').get_attribute('fill') != '#d4eae1'
                 for zone in ('NSCO','SSCO'):
                     assert frames[step]['zones'][zone]['unserved_mw'] < .05
                     assert page.locator(f'#baseline-map .simulation-zone-label[data-zone-id="{zone}"] .simulation-zone-node').get_attribute('fill') == '#d4eae1'
@@ -79,11 +80,16 @@ def main():
         page.locator('[data-tab="results"]').click()
         metrics = page.locator('#result-other-metrics').evaluate('e=>Object.fromEntries([...e.children].map(r=>[r.querySelector("dt").textContent,r.querySelector("dd").textContent]))')
         assert metrics['Penalty reduction'] == '100%'
+        assert page.locator('[data-metric="penalty_gbp"] [data-strategy="optimiser"] span').inner_text() == '\u00a30.0M'
+        assert page.locator('[data-metric="cost_gbp"] [data-strategy="none"] span').inner_text() == '\u00a3388.5M'
+        assert page.locator('[data-metric="cost_gbp"] [data-strategy="optimiser"] span').inner_text() == '\u00a317.4M'
+        assert 'Scotland is islanded with surplus wind and stays supplied' in page.locator('#scenario-description').text_content()
+        assert 'all eight England and Wales zones' in page.locator('#scenario-description').text_content()
         assert page.locator('#results-table th').all_text_contents() == ['No response (network-blind dispatch)','Optimiser']
         print('PASS real-data B6 scoreboard: 63,917 MWh / GBP388.5M vs 0 MWh / GBP17.4M, from /compare.')
         print('B6 raw optimiser penalty (preserved):',optimiser['penalty_gbp'])
         print('PASS all 48 optimiser frames: zero red overloads; real baseline overloads remain visible.')
-        print('DATA CHECK: baseline North loses supply after 17:00; Scotland remains supplied in the returned frames.')
+        print('PASS after 17:00: Scotland stays supplied; all eight England and Wales zones develop shortfalls.')
         for width in (1440, 390, 320):
             page.set_viewport_size({'width': width, 'height': 900})
             assert page.locator('#result-headline').is_visible()

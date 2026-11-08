@@ -23,7 +23,7 @@ def get(path, **params):
 
 
 def money(value):
-    return '\u00a3' + f'{value/1e6:,.2f}'.rstrip('0').rstrip('.') + 'm' if abs(value) >= 1e6 else f'\u00a3{value:,.0f}'
+    return f'\u00a3{value/1e6:,.1f}M'
 
 
 def ready(page):

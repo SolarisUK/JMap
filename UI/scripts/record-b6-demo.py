@@ -5,6 +5,7 @@ required. Pass --ffmpeg with an H.264/libass-capable executable to also make MP4
 All incident positions, captions and result figures are read at recording time.
 """
 import argparse
+from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
@@ -54,14 +55,23 @@ def main():
     scenario = next(item for item in get('/scenarios')['scenarios'] if item['name'] == args.scenario)
     boundary = next(item['target'] for item in scenario['incidents'] if item['type'] == 'line_trip')
     first_trip = next(i for i, frame in enumerate(runs['none'])
-                      if any(edge['id'] == boundary and edge['tripped'] for edge in frame['edges']))
+                      if any(incident['type'] == 'line_trip' and incident['target'] == boundary for incident in frame['incidents']))
+    last_intact = max(i for i, frame in enumerate(runs['none'][:first_trip])
+                      if any(edge['id'] == boundary and not edge['tripped'] for edge in frame['edges']))
     first_shortage = next(i for i, frame in enumerate(runs['none'])
                           if any(zone['unserved_mw'] >= .05 for zone in frame['zones']))
     active = [i for i, frame in enumerate(runs['none'])
-              if any(edge['id'] == boundary and edge['tripped'] for edge in frame['edges'])
+              if any(incident['type'] == 'line_trip' and incident['target'] == boundary for incident in frame['incidents'])
               and any(zone['unserved_mw'] >= .05 for zone in frame['zones'])]
     middle = active[len(active) // 2]
-    north = boundary.split('-')[-1]
+    england_wales = [zone for zone in get('/reference')['zone_order'] if zone not in ('NSCO', 'SSCO')]
+    assert len(england_wales) == 8
+    trip_frame = runs['none'][first_trip]
+    assert all(zone['unserved_mw'] >= .05 for zone in trip_frame['zones'] if zone['id'] in england_wales)
+    scottish_curtailed = sum(zone['curtailed_mw'] for zone in trip_frame['zones'] if zone['id'] in ('NSCO', 'SSCO'))
+    assert scottish_curtailed > 0, 'Review the captions: no spare Scottish generation is recorded.'
+    trip_date = datetime.fromisoformat(trip_frame['timestamp_utc'])
+    trip_label = trip_date.strftime('%H:%M UTC on %d %b %Y')
     scotland_unserved = max(zone['unserved_mw'] for frame in runs['none']
                            for zone in frame['zones'] if zone['id'] in ('NSCO', 'SSCO'))
     assert scotland_unserved < .05, 'Review the captions: the Scottish supply story changed.'
@@ -116,10 +126,10 @@ def main():
         # Use the real playback control, then stop just before the first tripped frame.
         page.locator('#play').click()
         page.mouse.move(1590, 830)
-        page.wait_for_function('(n)=>Number(document.querySelector("#time-step").value)>=n', arg=first_trip - 1, timeout=60000)
+        page.wait_for_function('(n)=>Number(document.querySelector("#time-step").value)>=n', arg=last_intact, timeout=60000)
         if page.locator('#play').get_attribute('aria-pressed') == 'true':
             page.locator('#play').click()
-        seek(first_trip - 1)
+        seek(last_intact)
         mark('Playback paused before the B6 trip')
         at(52)
         route = page.locator(f'#response-map .simulation-edge[data-edge-id="{boundary}"]')
@@ -129,21 +139,24 @@ def main():
         mark('Inspect the B6 boundary')
         at(64)
         seek(first_trip)
-        mark('Boundary unavailable in both runs')
+        mark('B6 trips at the recorded incident time in both runs')
         at(72)
         seek(first_shortage)
         page.locator('#clear-map-selection').click()
-        page.mouse.move(1590, 830)
-        mark('No-response shortages; optimiser serves demand')
-        page.screenshot(path=str(args.out / 'b6-split-screen.png'))
-        at(94)
-        zone = page.locator(f'#response-map .simulation-zone-label[data-zone-id="{north}"]')
+        zone = page.locator('#response-map .simulation-zone-label[data-zone-id="NSCO"]')
         zone.focus()
         zone.press('Enter')
+        page.locator('[data-tab="inspect"]').click()
         page.mouse.move(1590, 830)
-        mark('Inspect northern demand under the optimiser')
-        at(108)
+        mark('Scotland islanded with surplus wind, still supplied')
+        at(86)
         page.locator('#clear-map-selection').click()
+        page.locator('[data-tab="transfers"]').click()
+        page.mouse.move(1590, 830)
+        page.wait_for_timeout(200)
+        mark('All eight England and Wales zones go short on the no-response side')
+        page.screenshot(path=str(args.out / 'b6-split-screen.png'))
+        at(108)
         seek(middle)
         page.mouse.move(1590, 830)
         mark('Hold the active incident')
@@ -164,21 +177,21 @@ def main():
     totals = comparison['strategies']
     baseline, optimiser = totals['none'], totals['optimiser']
     number = lambda value: f'{value:,.0f}'
-    money = lambda value: '\u00a3' + number(value / 1e6) + 'M'
+    money = lambda value: f'\u00a3{value / 1e6:,.1f}M'
     captions = [
         (0, 12, 'Same B6 contingency. Left: no response. Right: linear-programming optimiser.'),
-        (12, 20, 'Before the outage: demand is served in both runs. The left run already has line overloads.'),
+        (12, 20, 'Before the outage: demand is served in both runs. Line colours show corridor loading.'),
         (20, 40, 'Half-hour snapshots advance together. Arrowheads show the direction of electricity flow.'),
-        (40, 52, 'The B6 boundary carries electricity from Scotland towards northern England.'),
+        (40, 52, 'Surplus Scottish wind is exported over B6 towards England.'),
         (52, 64, f'Inspecting {boundary}: flow and capacity come from the API.'),
-        (64, 72, 'B6 trips. The same boundary is unavailable in both runs.'),
-        (72, 85, 'No response: northern England and downstream zones develop unmet demand.'),
-        (85, 94, 'Scotland is islanded but still supplied. Red nodes indicate shortages elsewhere.'),
-        (94, 108, 'The optimiser keeps demand served, with no red overloaded lines throughout the episode.'),
+        (64, 72, f'B6 trips at {trip_label}. Scotland is cut off from England.'),
+        (72, 86, 'Scotland is islanded WITH SURPLUS wind and stays supplied. Curtailment shows spare generation.'),
+        (86, 104, 'No response: all eight England and Wales zones, NORT through SOUT, develop shortfalls.'),
+        (104, 108, 'The optimiser keeps demand served, with no red overloaded lines throughout the episode.'),
         (108, 120, f'{headline} at dashboard precision across the full episode.'),
         (120, 132, f"Full episode: {number(baseline['unserved_mwh'])} vs {number(optimiser['unserved_mwh'])} MWh unserved. Costs: {money(baseline['cost_gbp'])} vs {money(optimiser['cost_gbp'])}."),
-        (132, 140, f"Model penalties are separate from cost: about \u00a3{number(optimiser['penalty_gbp'])} for the optimiser."),
-        (140, DURATION, 'RL agents were also trained; they did not beat the optimiser.'),
+        (132, 140, f"Optimiser model penalty: {money(optimiser['penalty_gbp'])}. Model penalties remain separate from cost."),
+        (140, DURATION, 'RL policies were also trained; they did not beat the optimiser.'),
     ]
     srt = '\n\n'.join(f'{i}\n{timestamp(begin)} --> {timestamp(end)}\n{text}'
                       for i, (begin, end, text) in enumerate(captions, 1)) + '\n'
@@ -202,6 +215,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 'scene_timeline': scenes, 'scoreboard_text': scoreboard, 'headline': headline,
                 'first_trip_timestamp_utc': runs['none'][first_trip]['timestamp_utc'],
                 'first_shortage_timestamp_utc': runs['none'][first_shortage]['timestamp_utc'],
+                'england_wales_shortage_zones': england_wales,
+                'scottish_curtailed_mw_at_trip': scottish_curtailed,
                 'api_py_sha256': hashlib.sha256((UI.parent / 'api.py').read_bytes()).hexdigest(),
                 'captions': [{'start': a, 'end': b, 'text': c} for a, b, c in captions]}
     (args.out / 'b6-demo.json').write_text(json.dumps(manifest, indent=2, ensure_ascii=True) + '\n', encoding='utf-8')
@@ -217,9 +232,10 @@ Start the API with `uvicorn api:app --port 8000`. The recording disables browser
 
 ## Data notes
 
-- Scotland is isolated but remains supplied in these API frames. Northern England and downstream regions develop shortages in the no-response run. Do not describe a Scottish blackout.
+- Scotland is islanded WITH SURPLUS wind and stays supplied. All eight England and Wales zones (NORT, YORK, WALE, MIDL, EAST, SWES, LOND, SOUT) develop shortfalls in the no-response run. The optimiser has zero displayed unserved MWh and no overloaded lines throughout the episode.
 - The optimiser's raw full-episode residual is {optimiser['unserved_mwh']!r} MWh; the dashboard correctly rounds it to zero at its display precision. Its raw penalty is GBP {optimiser['penalty_gbp']!r}, shown separately from cost.
-- The API first marks the boundary tripped at {runs['none'][first_trip]['timestamp_utc']} and first shows shortages at {runs['none'][first_shortage]['timestamp_utc']}. The recording follows those timestamps without shifting them to match the scenario's prose description.
+- The recorded B6 incident starts at {runs['none'][first_trip]['timestamp_utc']}; shortfalls begin at {runs['none'][first_shortage]['timestamp_utc']}. The recording uses the active incident's timestamp, rather than next-decision availability, to label the trip.
+- Every cost and penalty is shown in GBP millions with one decimal. The supplied raw penalty remains unchanged; its displayed value is {money(optimiser['penalty_gbp'])}.
 - `b6-demo.json` captures the runtime comparison and scene timings. The source WebM has the untrimmed initial page load; the MP4 removes only that setup and preserves the full 150-second walkthrough.
 
 ## Refresh for new data
@@ -230,7 +246,7 @@ Rehearse twice on the presentation laptop with a timer. On each run check the bo
 '''
     (args.out / 'README.md').write_text(guide, encoding='utf-8')
     if args.ffmpeg:
-        subprocess.run([str(args.ffmpeg.resolve()), '-hide_banner', '-y', '-ss', str(pre_roll),
+        subprocess.run([str(args.ffmpeg.resolve()), '-hide_banner', '-loglevel', 'warning', '-y', '-ss', str(pre_roll),
                         '-i', 'b6-demo-source.webm', '-t', str(DURATION),
                         '-vf', 'pad=1600:900:0:0:color=black,ass=b6-demo.ass,scale=1920:1080',
                         '-c:v', 'libx264', '-preset', 'fast', '-crf', '19', '-pix_fmt', 'yuv420p',

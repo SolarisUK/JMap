@@ -4,7 +4,7 @@ Same B6 contingency. Left: no response. Right: linear-programming optimiser.
 
 2
 00:00:12,000 --> 00:00:20,000
-Before the outage: demand is served in both runs. The left run already has line overloads.
+Before the outage: demand is served in both runs. Line colours show corridor loading.
 
 3
 00:00:20,000 --> 00:00:40,000
@@ -12,7 +12,7 @@ Half-hour snapshots advance together. Arrowheads show the direction of electrici
 
 4
 00:00:40,000 --> 00:00:52,000
-The B6 boundary carries electricity from Scotland towards northern England.
+Surplus Scottish wind is exported over B6 towards England.
 
 5
 00:00:52,000 --> 00:01:04,000
@@ -20,18 +20,18 @@ Inspecting SSCO-NORT: flow and capacity come from the API.
 
 6
 00:01:04,000 --> 00:01:12,000
-B6 trips. The same boundary is unavailable in both runs.
+B6 trips at 17:00 UTC on 14 Dec 2025. Scotland is cut off from England.
 
 7
-00:01:12,000 --> 00:01:25,000
-No response: northern England and downstream zones develop unmet demand.
+00:01:12,000 --> 00:01:26,000
+Scotland is islanded WITH SURPLUS wind and stays supplied. Curtailment shows spare generation.
 
 8
-00:01:25,000 --> 00:01:34,000
-Scotland is islanded but still supplied. Red nodes indicate shortages elsewhere.
+00:01:26,000 --> 00:01:44,000
+No response: all eight England and Wales zones, NORT through SOUT, develop shortfalls.
 
 9
-00:01:34,000 --> 00:01:48,000
+00:01:44,000 --> 00:01:48,000
 The optimiser keeps demand served, with no red overloaded lines throughout the episode.
 
 10
@@ -40,12 +40,12 @@ The optimiser keeps demand served, with no red overloaded lines throughout the e
 
 11
 00:02:00,000 --> 00:02:12,000
-Full episode: 53,418 vs 0 MWh unserved. Costs: £371M vs £72M.
+Full episode: 63,917 vs 0 MWh unserved. Costs: £388.5M vs £17.4M.
 
 12
 00:02:12,000 --> 00:02:20,000
-Model penalties are separate from cost: about £5 for the optimiser.
+Optimiser model penalty: £0.0M. Model penalties remain separate from cost.
 
 13
 00:02:20,000 --> 00:02:30,000
-RL agents were also trained; they did not beat the optimiser.
+RL policies were also trained; they did not beat the optimiser.

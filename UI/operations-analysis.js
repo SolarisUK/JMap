@@ -73,6 +73,7 @@
     });
     const shortage = frames.find(frame => Object.values(frame.zones || {}).some(zone => typeof zone.unserved_mw === 'number' && Number.isFinite(zone.unserved_mw) && zone.unserved_mw >= .05));
     if (shortage) summaries.push(`No-response shortages first recorded at ${formatTime(shortage.timestamp_utc, { includeDate: true })}.`);
+    if (scenario?.name === 'b6_trip_windy_peak') summaries.push('Scotland is islanded with surplus wind and stays supplied. Shortfalls affect all eight England and Wales zones, from NORT to SOUT, in the no-response run.');
     summaries.push('Times follow the API snapshots.');
     return summaries.join(' ');
   }

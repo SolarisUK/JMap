@@ -15,7 +15,7 @@ These are verification observations from `/compare`, not dashboard constants:
 
 The headline displays **0 MWh unserved** at the dashboard's precision. The small numerical residual is preserved in the API and exports. Unserved-energy and penalty reductions round to 100%. Zero baselines produce no invented percentage; signed zero displays as zero. Cost never includes model penalties.
 
-The supplied B6 penalty is GBP 3.53, displayed as GBP 4, rather than exactly zero. The UI preserves it instead of substituting the requested result.
+All displayed costs and penalties use GBP millions with one decimal. The supplied B6 penalty is GBP 3.53 and displays as **£0.0M**; full precision is retained in the API and CSV exports. Signed values that round to zero have no minus sign.
 
 ## Other release results and dates
 
@@ -29,7 +29,7 @@ All 48 optimiser frames render without red overloaded corridors, including in In
 
 ## Actual incident story
 
-Scotland becomes isolated but remains supplied. Northern England and downstream zones lose supply in the no-response run. A Scottish blackout would misrepresent these data.
+After the B6 trip at 17:00, Scotland is islanded WITH SURPLUS wind and stays supplied. Shortfalls affect all eight England and Wales zones (NORT, YORK, WALE, MIDL, EAST, SWES, LOND, SOUT) in the no-response run. The optimiser has zero displayed unserved MWh and no overloaded lines throughout the episode.
 
 The API first marks the B6 corridor unavailable at 16:30 UTC, while incident records and downstream shortages start at 17:00 UTC. The backend reports next-decision availability alongside the just-simulated zone measurements. The dashboard derives the trip label from the recorded incident's `timestamp_utc`, preserving all original API data and slider timestamps. It falls back to first-recorded availability only when no incident record exists.
 
@@ -53,4 +53,4 @@ python -B UI/tests/lp-demo-browser.py
 
 The API tests check all 288 scenario/strategy snapshots, timestamps, final totals and forecasts. Browser checks cover distinct split-screen runs, API-only changed data, scoreboard and CSV values, penalties, every B6 frame, zero denominators and compact layouts.
 
-The existing `recordings/` backup predates this real-data release and contains the previous scores and dates. Regenerate it before presenting the frozen real-data results; this verification did not record a replacement video.
+The final 2:30 captioned backup in `recordings/b6-demo.mp4` uses this real-data release, the 17:00 incident time, the Scotland-surplus/England-and-Wales-shortfall narrative, and the API-driven 63,917 to zero MWh and £388.5M to £17.4M comparison. `recordings/README.md` contains the timed narration and replay data notes.

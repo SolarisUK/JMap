@@ -50,6 +50,8 @@ Refresh the root API stubs and archived regression fixture from the supplied sim
 
 Episode cost uses `cost_gbp` alone. Model penalty uses `penalty_gbp` in its own KPI, result detail and CSV column; it never increases displayed cost or changes the cost tie-break. `decision_time_utc` does not change the map or slider labels. API-mode results always come from `GET /compare`; the archived fixture is reserved for automated regressions.
 
+All displayed costs and penalties use £M with exactly one decimal, including £0.0M for amounts below the display precision. API payloads and CSV exports retain the original GBP amounts. For B6, Scotland is islanded with surplus wind and stays supplied after 17:00; all eight England and Wales zones develop shortfalls on the no-response side. The optimiser holds at zero displayed unserved MWh without overloaded lines.
+
 All code, source configuration and tests for these views are inside `UI/`. The backend, simulator inputs and dependency management are maintained separately.
 
 Run the UI data checks from the repository root:

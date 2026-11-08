@@ -7,24 +7,25 @@ Start the API with `uvicorn api:app --port 8000`. The recording disables browser
 ## Run of show
 
 - 00:00:00: Same B6 contingency. Left: no response. Right: linear-programming optimiser.
-- 00:00:12: Before the outage: demand is served in both runs. The left run already has line overloads.
+- 00:00:12: Before the outage: demand is served in both runs. Line colours show corridor loading.
 - 00:00:20: Half-hour snapshots advance together. Arrowheads show the direction of electricity flow.
-- 00:00:40: The B6 boundary carries electricity from Scotland towards northern England.
+- 00:00:40: Surplus Scottish wind is exported over B6 towards England.
 - 00:00:52: Inspecting SSCO-NORT: flow and capacity come from the API.
-- 00:01:04: B6 trips. The same boundary is unavailable in both runs.
-- 00:01:12: No response: northern England and downstream zones develop unmet demand.
-- 00:01:25: Scotland is islanded but still supplied. Red nodes indicate shortages elsewhere.
-- 00:01:34: The optimiser keeps demand served, with no red overloaded lines throughout the episode.
+- 00:01:04: B6 trips at 17:00 UTC on 14 Dec 2025. Scotland is cut off from England.
+- 00:01:12: Scotland is islanded WITH SURPLUS wind and stays supplied. Curtailment shows spare generation.
+- 00:01:26: No response: all eight England and Wales zones, NORT through SOUT, develop shortfalls.
+- 00:01:44: The optimiser keeps demand served, with no red overloaded lines throughout the episode.
 - 00:01:48: 0 MWh unserved at dashboard precision across the full episode.
-- 00:02:00: Full episode: 53,418 vs 0 MWh unserved. Costs: £371M vs £72M.
-- 00:02:12: Model penalties are separate from cost: about £5 for the optimiser.
-- 00:02:20: RL agents were also trained; they did not beat the optimiser.
+- 00:02:00: Full episode: 63,917 vs 0 MWh unserved. Costs: £388.5M vs £17.4M.
+- 00:02:12: Optimiser model penalty: £0.0M. Model penalties remain separate from cost.
+- 00:02:20: RL policies were also trained; they did not beat the optimiser.
 
 ## Data notes
 
-- Scotland is isolated but remains supplied in these API frames. Northern England and downstream regions develop shortages in the no-response run. Do not describe a Scottish blackout.
-- The optimiser's raw full-episode residual is 0.01116506601238143 MWh; the dashboard correctly rounds it to zero at its display precision. Its raw penalty is GBP 4.975137700967025, shown separately from cost.
-- The API first marks the boundary tripped at 2025-12-16T16:00:00+00:00 and first shows shortages at 2025-12-16T16:30:00+00:00. The recording follows those timestamps without shifting them to match the scenario's prose description.
+- Scotland is islanded WITH SURPLUS wind and stays supplied. All eight England and Wales zones (NORT, YORK, WALE, MIDL, EAST, SWES, LOND, SOUT) develop shortfalls in the no-response run. The optimiser has zero displayed unserved MWh and no overloaded lines throughout the episode.
+- The optimiser's raw full-episode residual is 0.0020040470450339853 MWh; the dashboard correctly rounds it to zero at its display precision. Its raw penalty is GBP 3.530229645889449, shown separately from cost.
+- The recorded B6 incident starts at 2025-12-14T17:00:00+00:00; shortfalls begin at 2025-12-14T17:00:00+00:00. The recording uses the active incident's timestamp, rather than next-decision availability, to label the trip.
+- Every cost and penalty is shown in GBP millions with one decimal. The supplied raw penalty remains unchanged; its displayed value is £0.0M.
 - `b6-demo.json` captures the runtime comparison and scene timings. The source WebM has the untrimmed initial page load; the MP4 removes only that setup and preserves the full 150-second walkthrough.
 
 ## Refresh for new data

@@ -11,7 +11,7 @@
   const number = (value, digits = 1) => finite(value) ? value.toLocaleString('en-GB', { maximumFractionDigits: digits, signDisplay: 'negative' }) : '—';
   const energy = value => finite(value) ? `${number(value)} MWh` : '—';
   const power = value => finite(value) ? `${number(value)} MW` : '—';
-  const money = value => !finite(value) ? '—' : Math.abs(value) >= 1e6 ? `£${number(value / 1e6, 2)}m` : `£${number(value, 0)}`;
+  const money = value => !finite(value) ? '—' : `£${(value / 1e6).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: 'negative' })}M`;
   const percent = value => finite(value) ? `${number(value * 100)}%` : '—';
   const node = (tag, className, text) => { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; };
   const announce = text => { $('#announcement').textContent = text; };
@@ -297,7 +297,7 @@
     });
     const penaltyReduction = A.reductionPercent(comparison.rows[0].totals.penalty_gbp,optimiser?.totals.penalty_gbp);
     const costChange = optimiser?.costChangeGbp;
-    const costLabel = finite(costChange) ? `${Math.round(Math.abs(costChange)) === 0 ? '' : costChange < 0 ? '−' : '+'}${money(Math.abs(costChange))}` : '—';
+    const costLabel = finite(costChange) ? `${Math.round(Math.abs(costChange) / 1e5) === 0 ? '' : costChange < 0 ? '−' : '+'}${money(Math.abs(costChange))}` : '—';
     facts($('#result-other-metrics'),optimiser ? [['Unserved energy avoided',energy(optimiser.unservedAvoidedMWh)],['Cost change vs baseline',costLabel],['Penalty reduction',finite(penaltyReduction) ? `${number(penaltyReduction)}%` : '—']] : []);
   }
   async function loadForecast() {

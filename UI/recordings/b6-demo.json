@@ -1,24 +1,24 @@
 {
   "duration_seconds": 150,
-  "source_pre_roll_seconds": 0.4866467001847923,
+  "source_pre_roll_seconds": 0.6744384001940489,
   "api": "http://127.0.0.1:8000",
   "scenario": "b6_trip_windy_peak",
   "comparison": {
     "scenario": "b6_trip_windy_peak",
     "strategies": {
       "none": {
-        "unserved_mwh": 53418.446120237466,
-        "cost_gbp": 370955967.14497876,
-        "penalty_gbp": 286264372.0852826,
-        "carbon_t": 180108.4794355887,
-        "curtailed_mwh": 53418.45525257864
+        "unserved_mwh": 63917.24487606294,
+        "cost_gbp": 388514893.7588404,
+        "penalty_gbp": 205171133.47719514,
+        "carbon_t": 12801.12955544144,
+        "curtailed_mwh": 99285.47537394603
       },
       "optimiser": {
-        "unserved_mwh": 0.01116506601238143,
-        "cost_gbp": 72128732.10465921,
-        "penalty_gbp": 4.975137700967025,
-        "carbon_t": 189754.71687172423,
-        "curtailed_mwh": 48662.79258237424
+        "unserved_mwh": 0.0020040470450339853,
+        "cost_gbp": 17380851.943756446,
+        "penalty_gbp": 3.530229645889449,
+        "carbon_t": 36265.92583555728,
+        "curtailed_mwh": 87183.04495783437
       }
     }
   },
@@ -27,55 +27,66 @@
       "second": 0.0,
       "scene": "Demand served before the outage",
       "frame": 0,
-      "timestamp": "16 Dec, 00:00 GMT+0"
+      "timestamp": "14 Dec 2025, 00:00 GMT+0"
     },
     {
-      "second": 51.5,
+      "second": 52.4,
       "scene": "Playback paused before the B6 trip",
-      "frame": 31,
-      "timestamp": "16 Dec, 15:30 GMT+0"
-    },
-    {
-      "second": 52.27,
-      "scene": "Inspect the B6 boundary",
-      "frame": 31,
-      "timestamp": "16 Dec, 15:30 GMT+0"
-    },
-    {
-      "second": 64.13,
-      "scene": "Boundary unavailable in both runs",
       "frame": 32,
-      "timestamp": "16 Dec, 16:00 GMT+0"
+      "timestamp": "14 Dec 2025, 16:00 GMT+0"
     },
     {
-      "second": 72.19,
-      "scene": "No-response shortages; optimiser serves demand",
-      "frame": 33,
-      "timestamp": "16 Dec, 16:30 GMT+0"
+      "second": 52.63,
+      "scene": "Inspect the B6 boundary",
+      "frame": 32,
+      "timestamp": "14 Dec 2025, 16:00 GMT+0"
     },
     {
-      "second": 94.1,
-      "scene": "Inspect northern demand under the optimiser",
-      "frame": 33,
-      "timestamp": "16 Dec, 16:30 GMT+0"
+      "second": 64.21,
+      "scene": "B6 trips at the recorded incident time in both runs",
+      "frame": 34,
+      "timestamp": "14 Dec 2025, 17:00 GMT+0"
     },
     {
-      "second": 108.27,
+      "second": 72.55,
+      "scene": "Scotland islanded with surplus wind, still supplied",
+      "frame": 34,
+      "timestamp": "14 Dec 2025, 17:00 GMT+0"
+    },
+    {
+      "second": 86.43,
+      "scene": "All eight England and Wales zones go short on the no-response side",
+      "frame": 34,
+      "timestamp": "14 Dec 2025, 17:00 GMT+0"
+    },
+    {
+      "second": 108.2,
       "scene": "Hold the active incident",
-      "frame": 39,
-      "timestamp": "16 Dec, 19:30 GMT+0"
+      "frame": 41,
+      "timestamp": "14 Dec 2025, 20:30 GMT+0"
     },
     {
-      "second": 120.1,
+      "second": 120.14,
       "scene": "Full-episode scoreboard",
-      "frame": 39,
-      "timestamp": "16 Dec, 19:30 GMT+0"
+      "frame": 41,
+      "timestamp": "14 Dec 2025, 20:30 GMT+0"
     }
   ],
-  "scoreboard_text": "Full-episode results by strategy\nNo response\tOptimiser\nUnserved energy\n53,418.4 MWh\tUnserved energy\n0 MWh\nEpisode cost\n\u00a3370.96m\tEpisode cost\n\u00a372.13m\nModel penalty\n\u00a3286.26m\tModel penalty\n\u00a35\nCarbon\n180,108.5 tCO\u2082\tCarbon\n189,754.7 tCO\u2082\nCurtailed energy\n53,418.5 MWh\tCurtailed energy\n48,662.8 MWh",
+  "scoreboard_text": "Full-episode results by strategy\nNo response (network-blind dispatch)\tOptimiser\nUnserved energy\n63,917.2 MWh\tUnserved energy\n0 MWh\nEpisode cost\n\u00a3388.5M\tEpisode cost\n\u00a317.4M\nModel penalty\n\u00a3205.2M\tModel penalty\n\u00a30.0M\nCarbon\n12,801.1 tCO\u2082\tCarbon\n36,265.9 tCO\u2082\nCurtailed energy\n99,285.5 MWh\tCurtailed energy\n87,183 MWh",
   "headline": "0 MWh unserved",
-  "first_trip_timestamp_utc": "2025-12-16T16:00:00+00:00",
-  "first_shortage_timestamp_utc": "2025-12-16T16:30:00+00:00",
+  "first_trip_timestamp_utc": "2025-12-14T17:00:00+00:00",
+  "first_shortage_timestamp_utc": "2025-12-14T17:00:00+00:00",
+  "england_wales_shortage_zones": [
+    "NORT",
+    "YORK",
+    "WALE",
+    "MIDL",
+    "EAST",
+    "SWES",
+    "LOND",
+    "SOUT"
+  ],
+  "scottish_curtailed_mw_at_trip": 11365.520629882812,
   "api_py_sha256": "3c19ef6aaf2117827be002d4b3664df73d660aa9005088959a132e7d23ca8b27",
   "captions": [
     {
@@ -86,7 +97,7 @@
     {
       "start": 12,
       "end": 20,
-      "text": "Before the outage: demand is served in both runs. The left run already has line overloads."
+      "text": "Before the outage: demand is served in both runs. Line colours show corridor loading."
     },
     {
       "start": 20,
@@ -96,7 +107,7 @@
     {
       "start": 40,
       "end": 52,
-      "text": "The B6 boundary carries electricity from Scotland towards northern England."
+      "text": "Surplus Scottish wind is exported over B6 towards England."
     },
     {
       "start": 52,
@@ -106,20 +117,20 @@
     {
       "start": 64,
       "end": 72,
-      "text": "B6 trips. The same boundary is unavailable in both runs."
+      "text": "B6 trips at 17:00 UTC on 14 Dec 2025. Scotland is cut off from England."
     },
     {
       "start": 72,
-      "end": 85,
-      "text": "No response: northern England and downstream zones develop unmet demand."
+      "end": 86,
+      "text": "Scotland is islanded WITH SURPLUS wind and stays supplied. Curtailment shows spare generation."
     },
     {
-      "start": 85,
-      "end": 94,
-      "text": "Scotland is islanded but still supplied. Red nodes indicate shortages elsewhere."
+      "start": 86,
+      "end": 104,
+      "text": "No response: all eight England and Wales zones, NORT through SOUT, develop shortfalls."
     },
     {
-      "start": 94,
+      "start": 104,
       "end": 108,
       "text": "The optimiser keeps demand served, with no red overloaded lines throughout the episode."
     },
@@ -131,17 +142,17 @@
     {
       "start": 120,
       "end": 132,
-      "text": "Full episode: 53,418 vs 0 MWh unserved. Costs: \u00a3371M vs \u00a372M."
+      "text": "Full episode: 63,917 vs 0 MWh unserved. Costs: \u00a3388.5M vs \u00a317.4M."
     },
     {
       "start": 132,
       "end": 140,
-      "text": "Model penalties are separate from cost: about \u00a35 for the optimiser."
+      "text": "Optimiser model penalty: \u00a30.0M. Model penalties remain separate from cost."
     },
     {
       "start": 140,
       "end": 150,
-      "text": "RL agents were also trained; they did not beat the optimiser."
+      "text": "RL policies were also trained; they did not beat the optimiser."
     }
   ]
 }

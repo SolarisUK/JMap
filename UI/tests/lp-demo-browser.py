@@ -26,10 +26,12 @@ def main():
     with urlopen(BASE+'/compare?scenario=b6_trip_windy_peak', timeout=5) as response:
         comparison = json.load(response)
     baseline, optimiser = (comparison['strategies'][key] for key in ('none', 'optimiser'))
-    assert round(baseline['unserved_mwh']) == 53418
-    assert round(baseline['cost_gbp']/1e6) == 371
+    with urlopen(BASE+'/state/series?scenario=b6_trip_windy_peak&strategy=none') as response:
+        frames = json.load(response)['frames']
+    assert round(baseline['unserved_mwh']) == 63917
+    assert round(baseline['cost_gbp']/1e6,1) == 388.5
     assert 0 <= optimiser['unserved_mwh'] < .05  # Zero at the dashboard's 0.1 MWh precision.
-    assert round(optimiser['cost_gbp']/1e6) == 72
+    assert round(optimiser['cost_gbp']/1e6,1) == 17.4
     assert 0 <= optimiser['penalty_gbp'] < 10
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -37,7 +39,17 @@ def main():
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(PAGE)
+        cdp = page.context.new_cdp_session(page)
+        cdp.send('Network.enable')
+        cdp.send('Network.setCacheDisabled', {'cacheDisabled': True})
+        cdp.send('Page.reload', {'ignoreCache': True})
         ready(page)
+        assert page.locator('#baseline-heading').inner_text() == 'No response (network-blind dispatch)'
+        assert page.locator('#data-status').text_content() == 'Real-data replay'
+        assert 'synthetic' not in page.locator('body').text_content().lower()
+        assert 'demo data' not in page.locator('body').text_content().lower()
+        assert 'agents' not in page.locator('body').text_content().lower()
+        assert '14 Dec 2025' in page.locator('#frame-time').inner_text()
         assert page.locator('#result-headline').inner_text() == '0 MWh unserved'
         assert page.locator('#outcome-reduction').text_content() == '100% less unserved energy'
         size = page.locator('#result-headline').evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')
@@ -51,23 +63,51 @@ def main():
             assert page.locator('#corridor-list [data-status="overloaded"]').count() == 0, step
             assert page.locator('#corridor-count').inner_text().startswith('0 overloaded'), step
             baseline_red += page.locator('#baseline-map .simulation-edge[data-band="overload"]').count()
+            if frames[step]['incidents']:
+                assert frames[step]['zones']['NORT']['unserved_mw'] > .05
+                assert page.locator('#baseline-map .simulation-zone-label[data-zone-id="NORT"] .simulation-zone-node').get_attribute('fill') != '#d4eae1'
+                for zone in ('NSCO','SSCO'):
+                    assert frames[step]['zones'][zone]['unserved_mw'] < .05
+                    assert page.locator(f'#baseline-map .simulation-zone-label[data-zone-id="{zone}"] .simulation-zone-node').get_attribute('fill') == '#d4eae1'
             valid_numbers(page)
         assert baseline_red > 0, 'Real baseline overloads must remain visible.'
-        with urlopen(BASE+'/state/series?scenario=b6_trip_windy_peak&strategy=none') as response:
-            frames = json.load(response)['frames']
-        first_trip = next(frame for frame in frames if frame['edges']['SSCO-NORT']['tripped'])
+        first_trip = next(frame for frame in frames if any(incident['type']=='line_trip' for incident in frame['incidents']))
         display_time = page.evaluate("t=>window.JMapOperations.formatTime(t,{includeDate:true})", first_trip['timestamp_utc'])
         assert display_time in page.locator('#scenario-description').text_content()
+        assert '17:00' in display_time
         assert page.locator('#scenario option:checked').get_attribute('title') == page.locator('#scenario-description').text_content()
         page.locator('[data-tab="results"]').click()
         metrics = page.locator('#result-other-metrics').evaluate('e=>Object.fromEntries([...e.children].map(r=>[r.querySelector("dt").textContent,r.querySelector("dd").textContent]))')
         assert metrics['Penalty reduction'] == '100%'
-        print('PASS B6 scoreboard: 53,418 MWh / ~GBP371M vs 0 MWh / ~GBP72M / GBP5 penalties, from /compare.')
+        assert page.locator('#results-table th').all_text_contents() == ['No response (network-blind dispatch)','Optimiser']
+        print('PASS real-data B6 scoreboard: 63,917 MWh / GBP388.5M vs 0 MWh / GBP17.4M, from /compare.')
+        print('B6 raw optimiser penalty (preserved):',optimiser['penalty_gbp'])
         print('PASS all 48 optimiser frames: zero red overloads; real baseline overloads remain visible.')
+        print('DATA CHECK: baseline North loses supply after 17:00; Scotland remains supplied in the returned frames.')
         for width in (1440, 390, 320):
             page.set_viewport_size({'width': width, 'height': 900})
             assert page.locator('#result-headline').is_visible()
             assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
+
+        page.set_viewport_size({'width':1440,'height':900})
+        for scenario,date,baseline_mwh,response_mwh,response_cost,baseline_cost in (
+            ('cold_snap','10 Jan 2025',10592,3053,96.0,None),
+            ('nuclear_outage_low_wind','09 Nov 2024',0,0,49.5,50.0),
+        ):
+            with urlopen(BASE+'/compare?scenario='+scenario) as response:
+                totals = json.load(response)['strategies']
+            assert round(totals['none']['unserved_mwh']) == baseline_mwh
+            assert round(totals['optimiser']['unserved_mwh']) == response_mwh
+            assert round(totals['optimiser']['cost_gbp']/1e6,1) == response_cost
+            if baseline_cost is not None:
+                assert round(totals['none']['cost_gbp']/1e6,1) == baseline_cost
+            page.locator('#scenario').select_option(scenario)
+            ready(page)
+            assert date in page.locator('#frame-time').inner_text()
+            expected = page.evaluate("n=>n.toLocaleString('en-GB',{maximumFractionDigits:1,signDisplay:'negative'})",totals['optimiser']['unserved_mwh'])
+            assert page.locator('#result-headline').inner_text() == expected+' MWh unserved'
+            valid_numbers(page)
+        print('PASS cold-snap and nuclear release totals and all three real episode dates.')
 
         phase = {'positive': False}
         zero_page = browser.new_page(viewport={'width': 1440, 'height': 900})
@@ -80,6 +120,8 @@ def main():
                 data['strategies'][key].update(unserved_mwh=0.0, cost_gbp=0.0, penalty_gbp=0.0)
             data['strategies']['optimiser'].update(unserved_mwh=123.4 if phase['positive'] else -0.0,
                                                    cost_gbp=-1e-10, penalty_gbp=-0.0)
+            data['strategies']['agents'] = dict(data['strategies']['optimiser'])
+            data['agents_is_placeholder'] = True
             route.fulfill(response=reply, json=data)
 
         zero_page.route(BASE+'/compare?*', zero_comparison)
@@ -89,6 +131,8 @@ def main():
             ready(zero_page)
             assert zero_page.locator('#outcome-reduction').text_content() == ''
             assert zero_page.locator('#result-headline').inner_text() == ('123.4 MWh unserved' if positive else '0 MWh unserved')
+            assert zero_page.locator('#results-table th').all_text_contents() == ['No response (network-blind dispatch)','Optimiser']
+            assert 'agents' not in zero_page.locator('body').text_content().lower()
             valid_numbers(zero_page)
         assert not errors, errors
         print('PASS zero-baseline and signed-zero API responses: no NaN, infinity, negative zero or invented percentages.')

@@ -108,7 +108,7 @@ def check_api_only(browser):
     assert '75%' in page.locator('#outcome-reduction').inner_text()
     assert page.locator('[data-metric="cost_gbp"] [data-strategy="optimiser"] span').inner_text() == money(40000000)
     assert page.locator('[data-metric="penalty_gbp"] [data-strategy="optimiser"] span').inner_text() == money(7000000)
-    assert page.locator('#results-table th').all_text_contents() == ['No response','Optimiser']
+    assert page.locator('#results-table th').all_text_contents() == ['No response (network-blind dispatch)','Optimiser']
     assert page.locator('#results-body tr').count() == 5
 
     phase['version'] = 2
@@ -181,8 +181,8 @@ def run():
                     assert page.locator(f'[data-metric="cost_gbp"] [data-strategy="{key}"] span').inner_text() == money(totals['cost_gbp'])
                     assert page.locator(f'[data-metric="penalty_gbp"] [data-strategy="{key}"] span').inner_text() == money(totals['penalty_gbp'])
                 assert page.locator('#response-heading').inner_text() == 'Optimiser'
-                assert page.locator('#baseline-heading').inner_text() == 'No response'
-                assert page.locator('#result-honesty').inner_text() == 'RL agents were also trained; they did not beat the optimiser.'
+                assert page.locator('#baseline-heading').inner_text() == 'No response (network-blind dispatch)'
+                assert page.locator('#result-honesty').inner_text() == 'RL policies were also trained; they did not beat the optimiser.'
                 with page.expect_download() as event:
                     page.locator('#export-results').click()
                 rows = list(csv.reader(io.StringIO(Path(event.value.path()).read_text(encoding='utf-8-sig'))))
@@ -192,7 +192,7 @@ def run():
                     assert float(values[key]['Cost GBP']) == comparison['strategies'][key]['cost_gbp']
                     assert float(values[key]['Penalty GBP (model)']) == comparison['strategies'][key]['penalty_gbp']
                 assert set(values) == {'none','optimiser'}
-                assert page.locator('#results-table th').all_text_contents() == ['No response','Optimiser']
+                assert page.locator('#results-table th').all_text_contents() == ['No response (network-blind dispatch)','Optimiser']
                 page.locator('[data-tab="forecast"]').click()
                 page.wait_for_function("document.querySelector('#forecast-status').textContent.includes('Illustrative')")
                 assert page.locator('#forecast-chart path').count() > 0

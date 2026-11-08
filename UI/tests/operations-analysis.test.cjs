@@ -63,6 +63,9 @@ test('incident descriptions follow recorded API events instead of conflicting so
   assert.ok(summary.includes(`shortages first recorded at ${operations.formatTime(series.frames[2].timestamp_utc,{includeDate:true})}`));
   assert.ok(!summary.includes('17:00'));
   assert.ok(!summary.includes('10:00'));
+  series.frames[2].incidents=[{type:'line_trip',target:'A-B'}];
+  assert.ok(operations.scenarioSummary(scenario,series).includes(`trip first recorded at ${operations.formatTime(series.frames[2].timestamp_utc,{includeDate:true})}`));
+  delete series.frames[2].incidents;
   series.frames[1].timestamp_utc='2026-11-08T10:45:00Z';
   assert.ok(operations.scenarioSummary(scenario,series).includes('10:45'));
   assert.match(operations.scenarioSummary(scenario,{frames:[]}),/no trip recorded/);
@@ -118,7 +121,7 @@ test('Europe/London display disambiguates repeated autumn hours and observes sum
   assert.equal(operations.formatTime('2026-10-25T01:30:00Z'), '01:30 GMT');
   assert.equal(operations.formatTime('2026-07-01T12:00:00Z'), '13:00 BST');
   assert.equal(operations.formatTime('2026-01-01T12:00:00Z'), '12:00 GMT');
-  assert.match(operations.formatTime('2026-07-01T12:00:00Z', { includeDate: true }), /01 Jul/);
+  assert.match(operations.formatTime('2026-07-01T12:00:00Z', { includeDate: true }), /01 Jul 2026/);
   assert.throws(() => operations.formatTime('2026-10-25T01:30:00'), /UTC/);
   assert.throws(() => operations.formatTime('2026-02-30T00:00:00Z'), /valid UTC/);
 });
@@ -143,6 +146,8 @@ test('the optimiser headline uses actual API arithmetic', () => {
 test('only the two configured strategies are shown even if the API returns extra runs', () => {
   const payload = comparison({unserved_mwh:100,cost_gbp:1000}, {unserved_mwh:20,cost_gbp:900});
   payload.strategies.retired = {unserved_mwh:0,cost_gbp:0};
+  payload.strategies.agents = {...payload.strategies.optimiser};
+  payload.agents_is_placeholder = true;
   const result = operations.compareResults(payload,{strategies:['retired','optimiser','none']});
   assert.deepEqual(result.rows.map(row=>row.key),['none','optimiser']);
   assert.equal(result.bestStrategy,'optimiser');
@@ -155,7 +160,7 @@ test('strategies worse than no response retain negative changes instead of a win
     { unserved_mwh: 20, cost_gbp: 80 }
   ));
   assert.equal(result.bestStrategy, 'none');
-  assert.match(result.headline, /^No response has the lowest/);
+  assert.match(result.headline, /^No response \(network-blind dispatch\) has the lowest/);
   assert.equal(result.rows.find(row => row.key === 'optimiser').reductionPercent, -50);
 });
 
@@ -204,7 +209,7 @@ test('lower numerical residual cannot make a more expensive optimiser the winner
   ));
   assert.equal(result.bestStrategy, 'none');
   assert.equal(result.materialUnserved, false);
-  assert.match(result.headline, /^No response has the lowest reported cost/);
+  assert.match(result.headline, /^No response \(network-blind dispatch\) has the lowest reported cost/);
   assert.equal(result.rows.find(row => row.key === 'optimiser').costChangeGbp, 100);
 });
 

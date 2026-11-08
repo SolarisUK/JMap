@@ -38,7 +38,7 @@
     const milliseconds = utcMilliseconds(timestamp);
     return new Intl.DateTimeFormat('en-GB', {
       timeZone: DISPLAY_TZ,
-      ...(includeDate ? { day: '2-digit', month: 'short' } : {}),
+      ...(includeDate ? { day: '2-digit', month: 'short', year: 'numeric' } : {}),
       hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
       ...(includeZone ? { timeZoneName: 'short' } : {})
     }).format(new Date(milliseconds));
@@ -62,6 +62,10 @@
     if (!trips.length) return scenario?.description || scenario?.name || 'Scenario description unavailable';
     const frames = series?.frames || [];
     const summaries = trips.map(target => {
+      // Incident records describe this interval. Edge availability can already
+      // describe the next decision, so it must not move the trip label earlier.
+      const active = frames.find(frame => frame.incidents?.some(incident => incident.type === 'line_trip' && incident.target === target));
+      if (active) return `${target}: trip first recorded at ${formatTime(active.timestamp_utc, { includeDate: true })}.`;
       const frame = frames.find(frame => frame.edges?.[target]?.tripped === true || frame.edges?.[target]?.limit_mw === 0);
       if (!frame) return `${target}: no trip recorded in the returned frames.`;
       const status = frame.edges[target].limit_mw === 0 ? 'unavailable' : 'derated';
@@ -131,7 +135,7 @@
       if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw new RangeError('Comparison thresholds must be finite nonnegative MWh values.');
     });
     const keys = ['none', 'optimiser'];
-    const labels = { none: 'No response', optimiser: 'Optimiser' };
+    const labels = { none: 'No response (network-blind dispatch)', optimiser: 'Optimiser' };
     const baseline = totalKpis({ totals: payload.strategies.none });
     const materialUnserved = baseline.unserved_mwh === null ? null : baseline.unserved_mwh > 0 && baseline.unserved_mwh >= minBaselineMWh;
     const rows = keys.map(key => {
@@ -162,8 +166,8 @@
         headline = `${costComparable ? `${best.label} has the lowest reported cost among strategies within ${energyToleranceMWh} MWh of the least unserved energy. ` : ''}Baseline unserved energy is below ${minBaselineMWh} MWh; no substantive percentage reduction is reported.`;
       }
       else if (best.key === 'none') headline = costComparable
-        ? `No response has the lowest reported cost among strategies within ${energyToleranceMWh} MWh of the least unserved energy.`
-        : 'No response has the lowest reported unserved energy in this comparison.';
+        ? `${labels.none} has the lowest reported cost among strategies within ${energyToleranceMWh} MWh of the least unserved energy.`
+        : `${labels.none} has the lowest reported unserved energy in this comparison.`;
       else if (best.reductionPercent > 0) headline = `${best.label} reduced unserved energy by ${best.reductionPercent.toFixed(1)}% versus no response.`;
       else if (best.reductionPercent === 0) headline = `${best.label} matched baseline unserved energy with the lowest reported cost.`;
       else if (best.reductionPercent < 0) headline = `${best.label} has the lowest reported cost among strategies within ${energyToleranceMWh} MWh of the least unserved energy; its unserved energy is higher than baseline.`;

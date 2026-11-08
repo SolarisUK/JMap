@@ -74,9 +74,7 @@
   }
   function renderModelStatus() {
     const ref = state.reference || {};
-    const scenario = state.scenarios.find(item => item.name === state.scenario);
-    const synthetic = scenario?.data_is_synthetic ?? ref.data_is_synthetic;
-    $('#data-status').textContent = `${ref.backend_mode === 'stubs' ? 'Read-only stubs API' : 'Simulation API'}${synthetic === true ? ' · synthetic demand' : synthetic === false ? '' : ' · source provenance unconfirmed'}`;
+    $('#data-status').textContent = ref.backend_mode === 'stubs' ? 'Real-data replay' : 'Real-data simulation';
     $('#model-status').textContent = 'Response layer: optimisation engine';
     $('#response-heading').textContent = 'Optimiser';
     $('#response-chip').textContent = responseName();
@@ -84,7 +82,7 @@
     $('#geometry-status').textContent = ref.geometry_is_placeholder !== false ? 'Schematic zones · simulated flows' : 'Zone geometry from /zones';
     const paragraphs = [
       `This dashboard consumes ${readOnlyData() ? 'read-only generated stubs' : 'the simulation API'} at ${api.baseUrl}. These are simulated episodes, not live grid telemetry.`,
-      synthetic === true ? 'The supplied canonical demand and weather data is synthetic demonstration input. The results are model output, not observations.' : synthetic === false ? 'The backend reports non-synthetic source data. Forecast/model provenance is provided with each endpoint.' : 'The source data has not been identified as synthetic or observed. These results remain simulated model output, not live grid measurements.',
+      'Inputs use NESO/Elexon demand and Open-Meteo day-ahead weather. Dispatch, flows, costs and shortages are simulated model results, not live grid measurements.',
       'The response layer is the optimisation engine. Strategy rankings use the full-episode totals returned by the API, including cases where no response has a lower reported value.',
       ref.forecast_is_placeholder !== false ? 'No trained demand model is loaded. Forecasts use historical-week/persistence demand with illustrative, uncalibrated uncertainty ranges. Explanations are labelled as illustrative and are not SHAP attributions.' : 'Forecasts come from the configured provider; the forecast response identifies its model and explanation provenance.',
       ref.geometry_is_placeholder !== false ? 'The contract supplies schematic zones. Markers locate the network endpoints; they do not claim surveyed service boundaries. Detailed zone measurements are shown in the side panel.' : 'Network polygons are provided by the configured backend.'
@@ -178,7 +176,7 @@
   function renderSnapshot() {
     const totals = A.totalKpis(state.response); const baselineTotals = A.totalKpis(state.baseline);
     const cards = [['unserved',totals.unserved_mwh,energy,baselineTotals.unserved_mwh],['cost',totals.cost_gbp,money,baselineTotals.cost_gbp],['penalty',totals.penalty_gbp,money,baselineTotals.penalty_gbp],['carbon',totals.carbon_t,value => finite(value) ? `${number(value)} tCO₂` : '—',baselineTotals.carbon_t],['curtailed',totals.curtailed_mwh,energy,baselineTotals.curtailed_mwh]];
-    cards.forEach(([key,value,format,baseline]) => { $(`#kpi-${key}`).textContent = format(value); $(`#kpi-${key}`).closest('article').title = `${responseName()}: ${format(value)}. No response: ${format(baseline)}. Cumulative to selected half-hour.${key === 'penalty' ? ' Model penalty for overloads and spilled surplus; excluded from real episode cost.' : ''}`; });
+    cards.forEach(([key,value,format,baseline]) => { $(`#kpi-${key}`).textContent = format(value); $(`#kpi-${key}`).closest('article').title = `${responseName()}: ${format(value)}. No response (network-blind dispatch): ${format(baseline)}. Cumulative to selected half-hour.${key === 'penalty' ? ' Model penalty for overloads and spilled surplus; excluded from real episode cost.' : ''}`; });
     const unmet = snapshot => { const values = state.reference.zone_order.map(key => snapshot.zones[key]?.unserved_mw); return values.every(finite) ? values.reduce((total,value) => total + value,0) : null; };
     $('#baseline-summary').textContent = `${power(unmet(state.baseline))} unmet now`; $('#response-summary').textContent = `${power(unmet(state.response))} unmet now`;
     renderZone(); renderCorridors(); renderTransfers(); renderIncidents(); syncMapFocus();

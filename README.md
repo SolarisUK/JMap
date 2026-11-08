@@ -13,7 +13,7 @@ JMap replays GB demand and weather, injects counterfactual incidents (line trips
 | Operating cost | £388.5M | **£17.4M** |
 | Penalties | £205.2M | **£0** |
 
-"No response" is network-blind merit-order dispatch: it schedules plant economically and ignores line limits. Data: NESO + Elexon demand and generation with Open-Meteo day-ahead weather forecasts, 7 Mar 2024 – 31 Dec 2025. Zonal demand is estimated from national data.
+"No response" is network-blind merit-order dispatch: it schedules plant economically and ignores line limits. Data: NESO + Elexon demand and generation with Open-Meteo day-ahead weather forecasts, 7 Mar 2024 – 31 Dec 2025, built by [`data_pipeline/`](data_pipeline/). Zonal demand is estimated from national data (temperature-adjusted allocation of national demand).
 
 | Scenario (real data) | No response: unserved / cost + penalty | Optimiser: unserved / cost + penalty |
 |---|---:|---:|
@@ -72,7 +72,7 @@ Walk-forward check (retrain at each origin, score the next two months):
 
 ## Components
 
-**Forecaster.** Each horizon has its own model, chosen by validation MAE: persistence at h1–2, LightGBM quantile boosters beyond. There are two learned candidate families (a residual from last-known demand, and a log correction to persistence), each with three quantile boosters. Features are daily and weekly lags, recent demand, rolling statistics, calendar variables and weather forecast vintages. At issue time `T`, demand is known only through `T − 30 min`. Weather must be a forecast issued no later than `T`. The P10–P90 intervals are recalibrated on a rolling basis using only outcomes that had already happened. The train/validation/test split is chronological, and the test set is scored once.
+**Forecaster ([`forecaster/`](forecaster/), see its README).** Each horizon has its own model, chosen by validation MAE: persistence at h1–2, LightGBM quantile boosters beyond. There are two learned candidate families (a residual from last-known demand, and a log correction to persistence), each with three quantile boosters. Features are daily and weekly lags, recent demand, rolling statistics, calendar variables and weather forecast vintages. At issue time `T`, demand is known only through `T − 30 min`. Weather must be a forecast issued no later than `T`. The P10–P90 intervals are recalibrated on a rolling basis using only outcomes that had already happened. The train/validation/test split is chronological, and the test set is scored once.
 
 **Simulator (`grid_env.py`, Gymnasium).** Flow on each corridor is `f = b (θ_i − θ_j)`. Susceptance scales with the fraction of circuits that survive. After a split, each electrical island is solved independently with its own reference angle. The simulator also models storage, curtailment, demand response and spill. Flow factors are cached per topology, and it runs at about 3,900 steps/s. `make_scenario_env(name)` loads `scenarios/*.json`; `date_range=` restricts which episodes it samples.
 
@@ -109,6 +109,8 @@ Tests: `node --test UI/tests/*.test.cjs`, and `python -B UI/tests/api-replay.tes
 
 ```
 dhruv_latest/          backend: schemas.py, grid_env.py, agents_baseline.py, scenarios/, scripts/, data/
+forecaster/            probabilistic demand forecaster: features, hybrid routing, calibration, training, real-data evaluation
+data_pipeline/         real-data pipeline: NESO, Elexon and Open-Meteo pulls, zonal allocation, canonical build, quality report
 UI/                    dashboard, exporter scripts, tests
 api.py                 FastAPI server for the dashboard replays
 stubs/                 generated replays served to the dashboard

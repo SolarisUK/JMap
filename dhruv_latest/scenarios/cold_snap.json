@@ -71,5 +71,10 @@
       "duration_steps": 12,
       "magnitude": 1.18
     }
-  ]
+  ],
+  "selected_from": "data/canonical/real.parquet",
+  "episode_start_utc": "2025-01-10T00:00:00+00:00",
+  "conditions": {
+    "picked": "coldest day in the real table (mean temp -2.0 C)"
+  }
 }

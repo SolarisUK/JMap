@@ -22,5 +22,10 @@
       "duration_steps": 16,
       "magnitude": 0.25
     }
-  ]
+  ],
+  "selected_from": "data/canonical/real.parquet",
+  "episode_start_utc": "2024-11-09T00:00:00+00:00",
+  "conditions": {
+    "picked": "calmest day in the real table (mean wind 2.1 m/s)"
+  }
 }

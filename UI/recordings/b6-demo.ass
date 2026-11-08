@@ -1,0 +1,23 @@
+﻿[Script Info]
+ScriptType: v4.00+
+PlayResX: 1600
+PlayResY: 900
+WrapStyle: 2
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Segoe UI,22,&H00EEEEEE,&H00EEEEEE,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,2,30,30,17,1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:12.00,Default,,0,0,0,,Same B6 contingency. Left: no response. Right: linear-programming optimiser.
+Dialogue: 0,0:00:12.00,0:00:20.00,Default,,0,0,0,,Before the outage: demand is served in both runs. The left run already has line overloads.
+Dialogue: 0,0:00:20.00,0:00:40.00,Default,,0,0,0,,Half-hour snapshots advance together. Arrowheads show the direction of electricity flow.
+Dialogue: 0,0:00:40.00,0:00:52.00,Default,,0,0,0,,The B6 boundary carries electricity from Scotland towards northern England.
+Dialogue: 0,0:00:52.00,0:01:04.00,Default,,0,0,0,,Inspecting SSCO-NORT: flow and capacity come from the API.
+Dialogue: 0,0:01:04.00,0:01:12.00,Default,,0,0,0,,B6 trips. The same boundary is unavailable in both runs.
+Dialogue: 0,0:01:12.00,0:01:25.00,Default,,0,0,0,,No response: northern England and downstream zones develop unmet demand.
+Dialogue: 0,0:01:25.00,0:01:34.00,Default,,0,0,0,,Scotland is islanded but still supplied. Red nodes indicate shortages elsewhere.
+Dialogue: 0,0:01:34.00,0:01:48.00,Default,,0,0,0,,The optimiser keeps demand served, with no red overloaded lines throughout the episode.
+Dialogue: 0,0:01:48.00,0:02:00.00,Default,,0,0,0,,0 MWh unserved at dashboard precision across the full episode.
+Dialogue: 0,0:02:00.00,0:02:12.00,Default,,0,0,0,,Full episode: 53,418 vs 0 MWh unserved. Costs: £371M vs £72M.
+Dialogue: 0,0:02:12.00,0:02:20.00,Default,,0,0,0,,Model penalties are separate from cost: about £5 for the optimiser.
+Dialogue: 0,0:02:20.00,0:02:30.00,Default,,0,0,0,,RL agents were also trained; they did not beat the optimiser.

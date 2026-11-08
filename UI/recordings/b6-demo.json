@@ -1,0 +1,147 @@
+{
+  "duration_seconds": 150,
+  "source_pre_roll_seconds": 0.4866467001847923,
+  "api": "http://127.0.0.1:8000",
+  "scenario": "b6_trip_windy_peak",
+  "comparison": {
+    "scenario": "b6_trip_windy_peak",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 53418.446120237466,
+        "cost_gbp": 370955967.14497876,
+        "penalty_gbp": 286264372.0852826,
+        "carbon_t": 180108.4794355887,
+        "curtailed_mwh": 53418.45525257864
+      },
+      "optimiser": {
+        "unserved_mwh": 0.01116506601238143,
+        "cost_gbp": 72128732.10465921,
+        "penalty_gbp": 4.975137700967025,
+        "carbon_t": 189754.71687172423,
+        "curtailed_mwh": 48662.79258237424
+      }
+    }
+  },
+  "scene_timeline": [
+    {
+      "second": 0.0,
+      "scene": "Demand served before the outage",
+      "frame": 0,
+      "timestamp": "16 Dec, 00:00 GMT+0"
+    },
+    {
+      "second": 51.5,
+      "scene": "Playback paused before the B6 trip",
+      "frame": 31,
+      "timestamp": "16 Dec, 15:30 GMT+0"
+    },
+    {
+      "second": 52.27,
+      "scene": "Inspect the B6 boundary",
+      "frame": 31,
+      "timestamp": "16 Dec, 15:30 GMT+0"
+    },
+    {
+      "second": 64.13,
+      "scene": "Boundary unavailable in both runs",
+      "frame": 32,
+      "timestamp": "16 Dec, 16:00 GMT+0"
+    },
+    {
+      "second": 72.19,
+      "scene": "No-response shortages; optimiser serves demand",
+      "frame": 33,
+      "timestamp": "16 Dec, 16:30 GMT+0"
+    },
+    {
+      "second": 94.1,
+      "scene": "Inspect northern demand under the optimiser",
+      "frame": 33,
+      "timestamp": "16 Dec, 16:30 GMT+0"
+    },
+    {
+      "second": 108.27,
+      "scene": "Hold the active incident",
+      "frame": 39,
+      "timestamp": "16 Dec, 19:30 GMT+0"
+    },
+    {
+      "second": 120.1,
+      "scene": "Full-episode scoreboard",
+      "frame": 39,
+      "timestamp": "16 Dec, 19:30 GMT+0"
+    }
+  ],
+  "scoreboard_text": "Full-episode results by strategy\nNo response\tOptimiser\nUnserved energy\n53,418.4 MWh\tUnserved energy\n0 MWh\nEpisode cost\n\u00a3370.96m\tEpisode cost\n\u00a372.13m\nModel penalty\n\u00a3286.26m\tModel penalty\n\u00a35\nCarbon\n180,108.5 tCO\u2082\tCarbon\n189,754.7 tCO\u2082\nCurtailed energy\n53,418.5 MWh\tCurtailed energy\n48,662.8 MWh",
+  "headline": "0 MWh unserved",
+  "first_trip_timestamp_utc": "2025-12-16T16:00:00+00:00",
+  "first_shortage_timestamp_utc": "2025-12-16T16:30:00+00:00",
+  "api_py_sha256": "3c19ef6aaf2117827be002d4b3664df73d660aa9005088959a132e7d23ca8b27",
+  "captions": [
+    {
+      "start": 0,
+      "end": 12,
+      "text": "Same B6 contingency. Left: no response. Right: linear-programming optimiser."
+    },
+    {
+      "start": 12,
+      "end": 20,
+      "text": "Before the outage: demand is served in both runs. The left run already has line overloads."
+    },
+    {
+      "start": 20,
+      "end": 40,
+      "text": "Half-hour snapshots advance together. Arrowheads show the direction of electricity flow."
+    },
+    {
+      "start": 40,
+      "end": 52,
+      "text": "The B6 boundary carries electricity from Scotland towards northern England."
+    },
+    {
+      "start": 52,
+      "end": 64,
+      "text": "Inspecting SSCO-NORT: flow and capacity come from the API."
+    },
+    {
+      "start": 64,
+      "end": 72,
+      "text": "B6 trips. The same boundary is unavailable in both runs."
+    },
+    {
+      "start": 72,
+      "end": 85,
+      "text": "No response: northern England and downstream zones develop unmet demand."
+    },
+    {
+      "start": 85,
+      "end": 94,
+      "text": "Scotland is islanded but still supplied. Red nodes indicate shortages elsewhere."
+    },
+    {
+      "start": 94,
+      "end": 108,
+      "text": "The optimiser keeps demand served, with no red overloaded lines throughout the episode."
+    },
+    {
+      "start": 108,
+      "end": 120,
+      "text": "0 MWh unserved at dashboard precision across the full episode."
+    },
+    {
+      "start": 120,
+      "end": 132,
+      "text": "Full episode: 53,418 vs 0 MWh unserved. Costs: \u00a3371M vs \u00a372M."
+    },
+    {
+      "start": 132,
+      "end": 140,
+      "text": "Model penalties are separate from cost: about \u00a35 for the optimiser."
+    },
+    {
+      "start": 140,
+      "end": 150,
+      "text": "RL agents were also trained; they did not beat the optimiser."
+    }
+  ]
+}

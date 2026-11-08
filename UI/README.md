@@ -6,6 +6,10 @@ All dashboard pages use the shared minimalist black and charcoal palette in `the
 
 Navigation, header sizing and map controls are shared through `site-shell.css`. `map-interactions.js` prevents accidental text selection during map gestures while keeping ordinary text copying and field editing available. Map buttons use the same zoom step and reset behavior; Ctrl/Meta + wheel retains browser zoom. Live-transfer labels, endpoints and direction arrows remain screen-sized when zooming. Cancelled gestures release their drag state; Escape or a blank-map click clears an inspected site or zone.
 
+`map-motion.js` eases zoom, reset and keyboard pan across the four maps; direct dragging and pinching stay under the pointer. Small chevrons travel along observed live transfers and enabled simulation flows, following the signed direction. Their shared screen speed is decorative and does not encode MW or travel time. Zero, unknown and unavailable simulation corridors never animate. Sources contains the motion toggle (simulation also retains `motion=0` in its URL). Animation stops in hidden/off-screen views and follows reduced-motion changes immediately; static direction arrows remain available.
+
+Short fades soften diagram focus changes, selected labels and newly opened details, and pause during map dragging. Measured values update immediately. Reduced-motion preferences disable these effects and hide moving simulation markers, including when the preference changes during a session.
+
 The generation map uses `assets/generation-sites.js`, imported from the official DESNZ REPD July 2026 and DUKES May 2026 operating-asset registers. It includes renewable/storage projects and conventional gas/nuclear stations, with published capacities, coordinates, operators and source links. The original CSV/XLSX publications and their hashes are retained in `data/raw/`; `scripts/build-generation-sites.py` reproduces the import. Source coverage and excluded records are documented in the bundle and the Data & method dialog. Extensions and co-located units can be separate register records.
 
 The generation map opens with 13 source-region summaries using small, subdued capacity markers. One region name and capacity appears on hover or keyboard focus; the side panel keeps the full named comparison. Hovering or focusing a panel row identifies its map marker. Every circle represents total installed capacity on one fixed scale; offshore projects form an explicitly UK-wide summary. Selecting a region opens its actual sites and scopes the totals, list and export. Overview and Reset map return to the regional comparison while preserving search, country and technology filters. Reset filters restores the full catalogue.
@@ -58,6 +62,7 @@ python -B UI/tests/generation-browser.py
 python -B UI/tests/site-workflow-browser.py
 python -B UI/tests/simulation-refresh-browser.py
 python -B UI/tests/area-render-browser.py
+python -B UI/tests/motion-browser.py
 ```
 
 The live browser suite can additionally check Elexon itself when `JMAP_LIVE_NETWORK_TEST=1` and outbound network access is available.

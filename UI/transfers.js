@@ -11,6 +11,12 @@
   const state = { snapshot: null, selected: 'INTNSL', fetching: false, error: null, controller: null, lastChecked: null };
   const view = { scale: 1, x: 0, y: 0, width: 1000, height: 720 };
   const map = $('#transfer-map');
+  const camera = new window.JMapMotion.Camera({
+    element: map, inverseZoom: false,
+    read: () => ({ scale: view.scale, x: view.x, y: view.y }),
+    write: value => { Object.assign(view, value); transformScene(); }
+  });
+  const flowMotion = new window.JMapMotion.Flow(map);
   const routeNodes = new Map();
   const rows = new Map();
   let scene;
@@ -82,6 +88,7 @@
   function drawMap() {
     const rect = map.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) return;
+    camera.cancel();
     view.width = rect.width;
     view.height = rect.height;
     map.setAttribute('viewBox', `0 0 ${view.width} ${view.height}`);
@@ -188,6 +195,7 @@
       const box = label.getBoundingClientRect();
       return { left: box.left - mapRect.left - 10, right: box.right - mapRect.left + 10, top: box.top - mapRect.top - 10, bottom: box.bottom - mapRect.top + 10 };
     });
+    const animatedRoutes = [];
     routeNodes.forEach(({ line, arrows, direction: flow }) => {
       arrows.replaceChildren();
       if (flow !== 'import' && flow !== 'export') return;
@@ -200,19 +208,28 @@
       const clear = points.filter(({ x, y }) => !labelBounds.some(box => x >= box.left && x <= box.right && y >= box.top && y <= box.bottom));
       const available = clear.length ? clear : points;
       const placed = [];
+      const markers = [];
       fractions.forEach(fraction => {
         const target = first + (last - first) * fraction;
         const candidates = available.filter(point => placed.every(other => Math.hypot(point.x - other.x, point.y - other.y) >= 45));
         candidates.sort((a, b) => Math.abs(a.at - target) - Math.abs(b.at - target));
         const chosen = candidates[0];
         if (!chosen) return;
-        const before = line.getPointAtLength(Math.max(0, chosen.at - 1));
-        const after = line.getPointAtLength(Math.min(line.getTotalLength(), chosen.at + 1));
-        const angle = Math.atan2(after.y - before.y, after.x - before.x) * 180 / Math.PI + (flow === 'import' ? 180 : 0);
-        arrows.append(svgNode('path', { d: 'M-5,-3.8L2,0L-5,3.8L-2,0Z', class: 'flow-chevron', transform: `translate(${chosen.point.x} ${chosen.point.y}) rotate(${angle}) scale(${1 / view.scale})` }));
+        const marker = svgNode('path', { d: 'M-5,-3.8L2,0L-5,3.8L-2,0Z', class: 'flow-chevron' });
+        arrows.append(marker);
+        markers.push({ element: marker, at: chosen.at });
         placed.push(chosen);
       });
+      if (markers.length) animatedRoutes.push({
+        path: line, length: line.getTotalLength(), start: first, end: last,
+        scale: view.scale, reverse: flow === 'import', markers,
+        obscured: point => {
+          const [x, y] = screenPoint([point.x, point.y]);
+          return labelBounds.some(box => x >= box.left && x <= box.right && y >= box.top && y <= box.bottom);
+        }
+      });
     });
+    flowMotion.setRoutes(animatedRoutes);
   }
 
   function layoutLabels() {
@@ -339,14 +356,15 @@
   }
 
   function zoom(factor, point) {
-    const next = Math.max(.8, Math.min(7, view.scale * factor));
-    const ratio = next / view.scale;
+    const target = camera.target();
+    const next = Math.max(.8, Math.min(7, target.scale * factor));
+    const ratio = next / target.scale;
     const anchor = point || [view.width / 2, view.height / 2];
-    view.x = (anchor[0] - view.width / 2) - ((anchor[0] - view.width / 2) - view.x) * ratio;
-    view.y = (anchor[1] - view.height / 2) - ((anchor[1] - view.height / 2) - view.y) * ratio;
-    view.scale = next; transformScene();
+    target.x = (anchor[0] - view.width / 2) - ((anchor[0] - view.width / 2) - target.x) * ratio;
+    target.y = (anchor[1] - view.height / 2) - ((anchor[1] - view.height / 2) - target.y) * ratio;
+    target.scale = next; camera.to(target);
   }
-  function resetMap() { view.scale = 1; view.x = 0; view.y = 0; transformScene(); }
+  function resetMap() { camera.to({ scale: 1, x: 0, y: 0 }); }
   $('#zoom-in').addEventListener('click', () => zoom(1.35)); $('#zoom-out').addEventListener('click', () => zoom(1 / 1.35)); $('#reset-map').addEventListener('click', resetMap);
   map.addEventListener('wheel', event => {
     if (event.ctrlKey || event.metaKey) return;
@@ -435,9 +453,15 @@
     const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-', 'Home'];
     if (!keys.includes(event.key)) return;
     event.preventDefault();
-    if (event.key === 'Home') resetMap(); else if (event.key === '+' || event.key === '=') zoom(1.35); else if (event.key === '-') zoom(1 / 1.35); else { view.x += event.key === 'ArrowLeft' ? 35 : event.key === 'ArrowRight' ? -35 : 0; view.y += event.key === 'ArrowUp' ? 35 : event.key === 'ArrowDown' ? -35 : 0; transformScene(); }
+    if (event.key === 'Home') resetMap(); else if (event.key === '+' || event.key === '=') zoom(1.35); else if (event.key === '-') zoom(1 / 1.35); else {
+      const target = camera.target();
+      target.x += event.key === 'ArrowLeft' ? 35 : event.key === 'ArrowRight' ? -35 : 0;
+      target.y += event.key === 'ArrowUp' ? 35 : event.key === 'ArrowDown' ? -35 : 0;
+      camera.to(target);
+    }
   });
   $('#refresh').addEventListener('click', refresh); $('#retry').addEventListener('click', refresh);
+  $('#animate-live-transfers').addEventListener('change', event => flowMotion.setEnabled(event.target.checked));
   $('#open-method').addEventListener('click', () => $('#method-dialog').showModal()); $('#close-method').addEventListener('click', () => $('#method-dialog').close());
   $('#method-dialog').addEventListener('click', event => { if (event.target === $('#method-dialog')) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
   let refreshTimer;

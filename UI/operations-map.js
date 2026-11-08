@@ -101,10 +101,14 @@
       this.networkExtent = null;
       this.transferOptions = { showValues: true, animate: false, showAreas: false };
       this.hoveredEdge = null; this.focusedEdge = null; this.idLabelBoxes = []; this.focusTarget = null;
-      this.reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
       const southWest = project(...BOUNDS[0]), northEast = project(...BOUNDS[1]);
       this.initialCentre = { x: (southWest.x + northEast.x) / 2, y: (southWest.y + northEast.y) / 2 };
       this.centre = { ...this.initialCentre };
+      this.camera = new window.JMapMotion.Camera({ element,
+        read: () => ({ zoom: this.zoom, x: this.centre.x, y: this.centre.y }),
+        write: value => { this.zoom = value.zoom; this.centre = { x: value.x, y: value.y }; this.render(true); }
+      });
+      this.flowMotion = new window.JMapMotion.Flow(element);
       element.setAttribute('role', 'group'); element.setAttribute('tabindex', '0');
       element.setAttribute('aria-label', 'Simulation network. Zone colour shows unserved demand. Tab to inspect zones and corridors. Drag to pan, scroll or plus and minus to zoom, Home to reset.');
       element.style.touchAction = 'none'; element.style.cursor = 'grab';
@@ -222,8 +226,7 @@
         const halo = svg('path', { fill: 'none', stroke: 'var(--map-sea, #1f2d35)', 'stroke-width': prominent ? 7 : 5, 'stroke-opacity': .95, 'pointer-events': 'none' });
         const line = svg('path', { fill: 'none', stroke: COLOURS.unknown, 'stroke-width': prominent ? 4.3 : 2.7, 'stroke-linecap': 'round', 'pointer-events': 'none' });
         const arrow = svg('path', { 'pointer-events': 'none' });
-        const particle = svg('circle', { r: 2.7, fill: '#ffffff', stroke: COLOURS.healthy, 'stroke-width': 1.2, 'pointer-events': 'none', class: 'simulation-flow-particle', display: 'none' });
-        const motion = svg('animateMotion', { dur: '2.6s', repeatCount: 'indefinite', calcMode: 'linear' }); particle.append(motion);
+        const particle = svg('path', { d: 'M-7,-3L2,0L-7,3L-4,0Z', fill: '#eeeeee', stroke: COLOURS.healthy, 'stroke-width': .6, 'pointer-events': 'none', 'aria-hidden': 'true', class: 'simulation-flow-particle', display: 'none' });
         const hit = svg('path', { fill: 'none', stroke: 'transparent', 'stroke-width': 20 });
         const transferLabel = svg('g', { 'data-edge-id': id, class: 'simulation-transfer-label', role: 'presentation', tabindex: -1, 'pointer-events': 'none', 'aria-hidden': 'true' });
         const transferTitle = svg('title');
@@ -238,7 +241,7 @@
         const bend = finite(edge.curvature) ? Math.max(-.3, Math.min(.3, edge.curvature)) : sign * .16;
         const control = { x: (from.x + to.x) / 2 - dy * bend, y: (from.y + to.y) / 2 + dx * bend };
         transferLabel.setAttribute('visibility', 'hidden'); transferLabel.setAttribute('tabindex', -1);
-        this.edgeNodes.set(id, { group, title, halo, line, arrow, hit, badge, badgeMeta, badgeLeader, badgeBox, transferLabel, transferTitle, particle, motion, topology: edge, prominent, from, to, control });
+        this.edgeNodes.set(id, { group, title, halo, line, arrow, hit, badge, badgeMeta, badgeLeader, badgeBox, transferLabel, transferTitle, particle, topology: edge, prominent, from, to, control });
       }
       this.areaExtent = Number.isFinite(extent.left) && extent.right > extent.left && extent.bottom > extent.top ? extent : null;
       this.nodeExtent = Number.isFinite(nodeExtent.left) && nodeExtent.right > nodeExtent.left && nodeExtent.bottom > nodeExtent.top ? nodeExtent : null;
@@ -358,6 +361,7 @@
       if (!this.baseScale) return;
       const scale = this.baseScale * this.zoom;
       const matrix = `matrix(${scale} 0 0 ${scale} ${this.width / 2 - this.centre.x * scale} ${this.height / 2 - this.centre.y * scale})`;
+      const animatedRoutes = [];
       this.land.setAttribute('transform', matrix); this.zones.setAttribute('transform', matrix);
       this.zones.setAttribute('display', this.transferOptions.showAreas ? 'inline' : 'none');
       this.edgeNodes.forEach(entry => {
@@ -377,11 +381,17 @@
           const tip = Math.max(7, (entry.width || 1) * 1.6), side = Math.max(3.5, (entry.width || 1) * .66);
           return `M${x + ux * tip},${y + uy * tip}L${x - ux * 3 - uy * side},${y - uy * 3 + ux * side}L${x - ux * 3 + uy * side},${y - uy * 3 - ux * side}Z`;
         }).join('') : '');
-        const animate = this.transferOptions.animate && !this.reducedMotion && s.arrow;
+        const animate = this.transferOptions.animate && s.arrow;
         entry.particle.setAttribute('display', animate ? 'inline' : 'none');
-        const animationPath = s.reverse ? `M${b.x},${b.y}Q${control.x},${control.y} ${a.x},${a.y}` : d;
-        if (entry.motion.getAttribute('path') !== animationPath) entry.motion.setAttribute('path', animationPath);
+        if (animate) {
+          const pathLength = entry.line.getTotalLength();
+          if (pathLength > 24 && Math.max(a.x,b.x,control.x) >= 0 && Math.min(a.x,b.x,control.x) <= this.width && Math.max(a.y,b.y,control.y) >= 0 && Math.min(a.y,b.y,control.y) <= this.height) {
+            animatedRoutes.push({ path: entry.line, length: pathLength, start: 8, end: pathLength - 8, reverse: s.reverse,
+              markers: [{ element: entry.particle, at: pathLength * .47 }] });
+          } else entry.particle.setAttribute('display', 'none');
+        }
       });
+      this.flowMotion.setRoutes(animatedRoutes);
       const occupied = [];
       const banner = this.element.parentElement?.querySelector('.placeholder-banner');
       const mapBox = banner && !banner.hidden ? this.element.getBoundingClientRect() : null;
@@ -441,15 +451,17 @@
     getView() { return { zoom: this.zoom, centre: { ...this.centre }, pan: { x: 0, y: 0 } }; }
     setView(view, { silent = true } = {}) {
       if (!view || !finite(view.zoom) || !finite(view.centre?.x) || !finite(view.centre?.y)) return this;
+      this.camera.cancel();
       this.zoom = Math.max(.8, Math.min(12, view.zoom)); this.centre = { ...view.centre }; this.render(!silent); return this;
     }
-    reset() { this.zoom = 1; this.centre = { ...this.initialCentre }; this.render(true); return this; }
+    reset() { this.onViewChange(this.getView()); this.camera.to({ zoom: 1, ...this.initialCentre }); return this; }
     zoomBy(factor, anchor = { x: this.width / 2, y: this.height / 2 }) {
       if (!this.baseScale || !finite(factor) || factor <= 0) return this;
-      const old = this.baseScale * this.zoom, next = Math.max(.8, Math.min(12, this.zoom * factor)), scale = this.baseScale * next;
-      this.centre.x += (anchor.x - this.width / 2) * (1 / old - 1 / scale);
-      this.centre.y += (anchor.y - this.height / 2) * (1 / old - 1 / scale);
-      this.zoom = next; this.render(true); return this;
+      const target = this.camera.target();
+      const old = this.baseScale * target.zoom, next = Math.max(.8, Math.min(12, target.zoom * factor)), scale = this.baseScale * next;
+      target.x += (anchor.x - this.width / 2) * (1 / old - 1 / scale);
+      target.y += (anchor.y - this.height / 2) * (1 / old - 1 / scale);
+      target.zoom = next; this.onViewChange(this.getView()); this.camera.to(target, { immediate: this.pointers.size > 1 }); return this;
     }
     point(event) { const box = this.element.getBoundingClientRect(); return { x: (event.clientX - box.left) * this.width / box.width, y: (event.clientY - box.top) * this.height / box.height }; }
     bindEvents() {
@@ -465,6 +477,7 @@
       });
       this.listen(this.element, 'pointerdown', event => {
         if (event.button !== 0) return;
+        this.onViewChange(this.getView());
         const p = this.point(event); this.pointers.set(event.pointerId, p);
         if (this.pointers.size === 1) {
           this.start = p; this.last = p; this.moved = false;
@@ -481,7 +494,7 @@
           if (this.pinch > 0) this.zoomBy(distance / this.pinch, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }); this.pinch = distance; return;
         }
         if (Math.hypot(p.x - this.start.x, p.y - this.start.y) > 4) this.moved = true;
-        if (this.moved) this.panBy(p.x - this.last.x, p.y - this.last.y);
+        if (this.moved) this.panBy(p.x - this.last.x, p.y - this.last.y, true);
         this.last = p;
       });
       const release = (event, cancelled = false) => {
@@ -504,8 +517,8 @@
       this.listen(window,'pagehide',cancelGesture);
       this.listen(document,'visibilitychange',()=>{if(document.hidden)cancelGesture();});
     }
-    panBy(dx, dy) { if (this.baseScale) { const scale = this.baseScale * this.zoom; this.centre.x -= dx / scale; this.centre.y -= dy / scale; this.render(true); } return this; }
-    destroy() { this.resizeObserver.disconnect(); this.listeners.forEach(remove => remove()); this.element.replaceChildren(); }
+    panBy(dx, dy, immediate = false) { if (this.baseScale) { const target = this.camera.target(), scale = this.baseScale * target.zoom; target.x -= dx / scale; target.y -= dy / scale; this.onViewChange(this.getView()); this.camera.to(target, { immediate }); } return this; }
+    destroy() { this.camera.destroy(); this.flowMotion.destroy(); this.resizeObserver.disconnect(); this.listeners.forEach(remove => remove()); this.element.replaceChildren(); }
   }
 
   return Object.freeze({ SimulationMap, corridorState, zoneColour, unservedLabel, flowWidth });

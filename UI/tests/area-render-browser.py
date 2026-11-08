@@ -43,6 +43,7 @@ def run():
             expected = fills(page)
             for area in cases:
                 page.locator('#reset-map').click()
+                page.wait_for_function("!document.querySelector('[data-camera-moving]')")
                 region = page.locator(f'.map-region[data-region-key="{area["key"]}"]')
                 page.locator(f'.regional-ranking-row[data-ranking-nation="{area["key"]}"]').click()
                 assert region.get_attribute('aria-pressed') == 'true'

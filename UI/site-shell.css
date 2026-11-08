@@ -72,3 +72,43 @@ header.app-header,body.energy-page header.app-header.site-header {
 @media(max-width:360px) {
   .app-header .brand-wordmark {width:64px;}
 }
+/* Short focus/reveal cues leave map geometry and measured values immediate. */
+@media(prefers-reduced-motion:no-preference) {
+  .app-header nav a,.map-controls button,.map-navigation button,
+  .map-view-switch button,.panel-tabs button,.analysis-tabs button,.segmented button {
+    transition:background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out;
+  }
+  .overview-row,.site-row,.regional-ranking-row,.transfer-row,.corridor-row,#links-body tr {
+    transition:background-color 120ms ease-out;
+  }
+  .generation-region,.simulation-edge,.simulation-zone-label {
+    transition:opacity 140ms ease-out;
+  }
+  .generation-region-bubble {
+    transition:fill-opacity 140ms ease-out;
+  }
+  .generation-region-readout[display="inline"],
+  .generation-selection-ring[display="inline"],
+  .simulation-selection-reticle[display="inline"],
+  .simulation-zone-selection[display="inline"],
+  .simulation-transfer-label[visibility="visible"],
+  .route-label-group.selected,.map-region-label {
+    animation:jmap-reveal 160ms ease-out;
+  }
+  #site-detail:not([hidden]),#selected-region-detail:not([hidden]),
+  #transfer-edge-detail:not([hidden]),#transfer-zone-detail:not([hidden]),
+  .regional-detail:not([hidden]) {
+    animation:jmap-reveal 180ms ease-out;
+  }
+  body.is-map-panning [data-map-surface] * {
+    transition:none;
+    animation:none;
+  }
+}
+@keyframes jmap-reveal {
+  from {opacity:.25;}
+  to {opacity:1;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .simulation-flow-particle {display:none!important;}
+}

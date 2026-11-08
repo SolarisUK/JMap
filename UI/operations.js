@@ -5,7 +5,7 @@
   const A = window.JMapOperations;
   const T = window.JMapTransfers;
   const params = new URL(location.href).searchParams;
-  const state = { scenario: params.get('scenario') || '', strategy: params.get('strategy') || 'agents', zone: params.get('zone') || '', edge: params.get('edge') || null, focus: params.get('focus') === 'zone' ? 'zone' : params.get('edge') ? 'edge' : null, step: Number(params.get('step') ?? 38), split: params.get('view') !== 'single', tab: ['transfers','inspect','forecast','results'].includes(params.get('tab')) ? params.get('tab') : 'transfers', showValues: params.get('values') !== '0', animate: params.get('motion') === '1', reference: null, zones: null, edges: [], scenarios: [], series: null, comparison: null, baseline: null, response: null, forecast: null, playing: false, busy: false };
+  const state = { scenario: params.get('scenario') || '', strategy: params.get('strategy') || 'agents', zone: params.get('zone') || '', edge: params.get('edge') || null, focus: params.get('focus') === 'zone' ? 'zone' : params.get('edge') ? 'edge' : null, step: Number(params.get('step') ?? 38), split: params.get('view') !== 'single', tab: ['transfers','inspect','forecast','results'].includes(params.get('tab')) ? params.get('tab') : 'transfers', showValues: params.get('values') !== '0', animate: params.get('motion') !== '0', reference: null, zones: null, edges: [], scenarios: [], series: null, comparison: null, baseline: null, response: null, forecast: null, playing: false, busy: false };
   let api, baselineMap, responseMap, timer, episodeVersion = 0, frameVersion = 0, forecastVersion = 0;
   const finite = value => typeof value === 'number' && Number.isFinite(value);
   const number = (value, digits = 1) => finite(value) ? value.toLocaleString('en-GB', { maximumFractionDigits: digits }) : '—';
@@ -25,7 +25,7 @@
     [['scenario',state.scenario],['strategy',state.strategy],['zone',state.zone],['step',state.step],['tab',state.tab]].forEach(([key,value]) => url.searchParams.set(key,value));
     if (state.split) url.searchParams.delete('view'); else url.searchParams.set('view','single');
     if (state.showValues) url.searchParams.delete('values'); else url.searchParams.set('values','0');
-    if (state.animate) url.searchParams.set('motion','1'); else url.searchParams.delete('motion');
+    url.searchParams.set('motion', state.animate ? '1' : '0');
     if (state.focus) url.searchParams.set('focus',state.focus); else url.searchParams.delete('focus');
     if (state.focus === 'edge' && state.edge) url.searchParams.set('edge',state.edge); else url.searchParams.delete('edge');
     if (url.href !== location.href) history.replaceState(null,'',url.href);

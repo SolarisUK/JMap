@@ -65,6 +65,9 @@ class TransfersBrowserTests(unittest.TestCase):
         self.page.goto(PAGE, wait_until="domcontentloaded")
         self.page.wait_for_function("!document.querySelector('#refresh').disabled", timeout=20000)
 
+    def settle_camera(self):
+        self.page.wait_for_function("!document.querySelector('[data-camera-moving]')")
+
     def test_signed_values_and_actual_svg_pointer_selection(self):
         self.open()
         self.assertEqual(self.page.locator("#coverage-value").inner_text(), "10 / 10")
@@ -123,6 +126,7 @@ class TransfersBrowserTests(unittest.TestCase):
         before = self.page.locator('.route-label-group.selected .route-label tspan').first.evaluate('e=>e.getBoundingClientRect().height')
         for _ in range(4):
             self.page.locator('#zoom-in').click()
+        self.settle_camera()
         self.assertAlmostEqual(self.page.locator('.transfer-geometry-layer').evaluate('e=>e.getCTM().a'), 1.35 ** 4, places=5)
         sizes = self.page.locator('.transfer-label-layer text:visible').evaluate_all('items=>items.map(e=>parseFloat(getComputedStyle(e).fontSize)*Math.hypot(e.getScreenCTM().a,e.getScreenCTM().b))')
         self.assertTrue(sizes)
@@ -133,6 +137,7 @@ class TransfersBrowserTests(unittest.TestCase):
         self.assertEqual(self.page.locator('.transfer-label-layer').evaluate('e=>e.getCTM().a'), 1)
         for _ in range(5):
             self.page.locator('#zoom-in').click()
+        self.settle_camera()
         self.assertAlmostEqual(self.page.locator('.transfer-geometry-layer').evaluate('e=>e.getCTM().a'), 7, places=5)
         terminals = self.page.locator('.route .terminal').evaluate_all('items=>items.map(e=>{const r=e.getBoundingClientRect();return [r.width,r.height]})')
         arrows = self.page.locator('.flow-chevron').evaluate_all('items=>items.map(e=>{const r=e.getBoundingClientRect();return Math.max(r.width,r.height)})')
@@ -140,10 +145,13 @@ class TransfersBrowserTests(unittest.TestCase):
         self.assertTrue(all(5 <= size <= 8 for pair in terminals for size in pair))
         self.assertTrue(arrows and all(5 <= size <= 12 for size in arrows))
         self.page.locator('#reset-map').click()
+        self.settle_camera()
         self.page.locator('#transfer-map').focus()
         self.page.keyboard.press('+')
+        self.settle_camera()
         self.assertAlmostEqual(self.page.locator('.transfer-geometry-layer').evaluate('e=>e.getCTM().a'), 1.35, places=5)
         self.page.keyboard.press('Home')
+        self.settle_camera()
         self.assertAlmostEqual(self.page.locator('.transfer-geometry-layer').evaluate('e=>e.getCTM().a'), 1, places=5)
 
     def test_dragging_a_route_pans_without_activating_it_or_selecting_map_text(self):
@@ -166,6 +174,9 @@ class TransfersBrowserTests(unittest.TestCase):
         self.assertEqual(self.page.locator('#detail-code').inner_text(), 'INTVKL')
 
     def test_visible_selected_route_keeps_direction_arrows_after_old_anchors_leave_view(self):
+        # This test checks the resting layout; animated marker paths are
+        # checked separately in motion-browser.py.
+        self.page.emulate_media(reduced_motion='reduce')
         self.open()
         for _ in range(5):
             self.page.locator('#zoom-in').click()

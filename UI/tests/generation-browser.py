@@ -39,6 +39,7 @@ def mw(text):
 
 
 def map_scale(page):
+    page.wait_for_function("!document.querySelector('[data-camera-moving]')")
     return page.locator('.generation-land').evaluate('node=>node.transform.baseVal.consolidate().matrix.a')
 
 

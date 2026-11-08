@@ -96,6 +96,10 @@
       this.tap = null; this.start = null; this.last = null; this.pinch = null; this.moved = false; this.suppressDoubleClickUntil = 0;
       const sw = project(...BOUNDS[0]), ne = project(...BOUNDS[1]);
       this.initialCentre = { x: (sw.x + ne.x) / 2, y: (sw.y + ne.y) / 2 }; this.centre = { ...this.initialCentre };
+      this.camera = new window.JMapMotion.Camera({ element,
+        read: () => ({ zoom: this.zoom, x: this.centre.x, y: this.centre.y }),
+        write: value => { this.zoom = value.zoom; this.centre = { x: value.x, y: value.y }; this.render(true); }
+      });
       element.setAttribute('role', 'group'); element.setAttribute('tabindex', 0);
       element.setAttribute('aria-label', 'UK installed capacity by source region. Select a named region to explore its sites. Drag to pan, plus and minus to zoom, Home for the overview.');
       element.style.touchAction = 'none'; element.style.cursor = 'grab';
@@ -318,9 +322,11 @@
     }
     focusSite(id) {
       const point = this.byId.get(String(id)); if (!point) return this;
+      this.camera.cancel();
       this.selectedId = point.id; this.centre = { ...point.world }; this.zoom = Math.max(this.zoom, 8); this.render(true); return this;
     }
     fitSites(sites = this.sites, expand = false) {
+      this.camera.cancel();
       const points = (Array.isArray(sites) ? sites : []).filter(site => finite(site.lon) && finite(site.lat)).map(site => project(site.lon, site.lat));
       if (!points.length || !this.baseScale) return this;
       const xs = points.map(p => p.x), ys = points.map(p => p.y), left = Math.min(...xs), right = Math.max(...xs), top = Math.min(...ys), bottom = Math.max(...ys);
@@ -332,19 +338,20 @@
       }
       this.render(true); return this;
     }
-    reset() { this.zoom = 1; this.centre = { ...this.initialCentre };this.onReset(); this.render(true); return this; }
+    reset() { this.onReset(); this.camera.to({ zoom: 1, ...this.initialCentre }); return this; }
     zoomBy(factor, anchor = { x: this.width / 2, y: this.height / 2 }) {
       if (!this.baseScale || !finite(factor) || factor <= 0) return this;
-      const previous = this.baseScale * this.zoom, next = clamp(this.zoom * factor, .35, 64), scale = this.baseScale * next;
-      this.centre.x += (anchor.x - this.width / 2) * (1 / previous - 1 / scale); this.centre.y += (anchor.y - this.height / 2) * (1 / previous - 1 / scale);
-      this.zoom = next; this.render(true); return this;
+      const target = this.camera.target();
+      const previous = this.baseScale * target.zoom, next = clamp(target.zoom * factor, .35, 64), scale = this.baseScale * next;
+      target.x += (anchor.x - this.width / 2) * (1 / previous - 1 / scale); target.y += (anchor.y - this.height / 2) * (1 / previous - 1 / scale);
+      target.zoom = next; this.camera.to(target, { immediate: this.pointers.size > 1 }); return this;
     }
     point(event) { const box = this.element.getBoundingClientRect(); return { x: (event.clientX - box.left) * this.width / box.width, y: (event.clientY - box.top) * this.height / box.height }; }
     scheduleRender() {
       if (this.frame !== null) return;
       this.frame = requestAnimationFrame(() => { this.frame = null; this.render(true); });
     }
-    panBy(dx, dy) { if (this.baseScale) { const scale = this.baseScale * this.zoom; this.centre.x -= dx / scale; this.centre.y -= dy / scale; this.render(true); } return this; }
+    panBy(dx, dy) { if (this.baseScale) { const target = this.camera.target(), scale = this.baseScale * target.zoom; target.x -= dx / scale; target.y -= dy / scale; this.camera.to(target); } return this; }
     cancelGesture() {
       const captured = [...this.pointers.keys()]; this.pointers.clear();
       this.tap = null; this.start = null; this.last = null; this.pinch = null; this.moved = false;
@@ -396,7 +403,7 @@
       this.listen(window, 'blur', () => this.cancelGesture());
       this.listen(document, 'visibilitychange', () => { if (document.hidden) this.cancelGesture(); });
     }
-    destroy() { this.destroyed = true; this.resizeObserver.disconnect(); this.listeners.forEach(remove => remove()); if (this.frame !== null) cancelAnimationFrame(this.frame); this.nodes.clear();this.regionNodes.clear(); this.element.replaceChildren(); }
+    destroy() { this.destroyed = true; this.camera.destroy(); this.resizeObserver.disconnect(); this.listeners.forEach(remove => remove()); if (this.frame !== null) cancelAnimationFrame(this.frame); this.nodes.clear();this.regionNodes.clear(); this.element.replaceChildren(); }
   }
 
   return Object.freeze({ GenerationMap, markerRadius, overviewRadius, clusterSites, layoutSites, project, colourFor, TECH_COLOURS, REFERENCE_MW,OVERVIEW_REFERENCE_MW });

@@ -83,6 +83,11 @@
       const initial = projectedBounds(nationalBounds);
       this.initialCentre = { x: (initial.left + initial.right) / 2, y: (initial.top + initial.bottom) / 2 };
       this.centre = { ...this.initialCentre };
+      this.camera = new window.JMapMotion.Camera({ element,
+        read: () => ({ zoom: this.zoom, x: this.centre.x, y: this.centre.y, panX: this.pan.x, panY: this.pan.y }),
+        write: value => { this.zoom = value.zoom; this.centre = { x: value.x, y: value.y }; this.pan = { x: value.panX, y: value.panY }; this.updateView(); },
+        inverseZoom: false
+      });
       element.setAttribute('tabindex', '0');
       element.setAttribute('role', 'group');
       element.setAttribute('aria-label', 'Electricity generation map. Drag to pan. Use plus and minus to zoom, arrow keys to pan, and Home to reset. Tab to explore generation sites.');
@@ -425,6 +430,7 @@
     }
 
     focusSite(id) {
+      this.camera.cancel();
       const site = this.sites.find(item => item.id === id);
       if (!site) return;
       this.centre = project(site.lon, site.lat);
@@ -435,6 +441,7 @@
     }
 
     fitBounds(bounds, { padding = 42 } = {}) {
+      this.camera.cancel();
       if (!this.baseScale || !Array.isArray(bounds) || bounds.length !== 2 || !bounds.every(point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite))) return this;
       const extent = projectedBounds(bounds);
       const worldWidth = Math.abs(extent.right - extent.left);
@@ -450,6 +457,7 @@
     }
 
     fitSites(sites = this.sites) {
+      this.camera.cancel();
       const positioned = (Array.isArray(sites) ? sites : []).filter(site => Number.isFinite(site.lon) && Number.isFinite(site.lat));
       if (!positioned.length) return this;
       if (positioned.length === 1) {
@@ -554,21 +562,23 @@
     }
 
     zoomBy(factor, anchor = { x: this.width / 2, y: this.cameraHeight / 2 }) {
-      const next = Math.max(0.8, Math.min(this.maximumZoom(), this.zoom * factor));
-      const ratio = next / this.zoom;
-      this.pan.x = anchor.x - this.width / 2 - (anchor.x - this.width / 2 - this.pan.x) * ratio;
-      this.pan.y = anchor.y - this.cameraHeight / 2 - (anchor.y - this.cameraHeight / 2 - this.pan.y) * ratio;
-      this.zoom = next;
-      this.updateView();
+      const target = this.camera.target();
+      const next = Math.max(0.8, Math.min(this.maximumZoom(), target.zoom * factor));
+      const ratio = next / target.zoom;
+      target.panX = anchor.x - this.width / 2 - (anchor.x - this.width / 2 - target.panX) * ratio;
+      target.panY = anchor.y - this.cameraHeight / 2 - (anchor.y - this.cameraHeight / 2 - target.panY) * ratio;
+      target.zoom = next;
+      this.camera.to(target, { immediate: this.pointers.size > 1 });
     }
 
     maximumZoom() { return this.showRegions && this.regionNodes.size > 20 ? 256 : 8; }
 
     reset() {
-      this.zoom = 1;
-      this.pan = { x: 0, y: 0 };
-      this.centre = { ...this.initialCentre };
-      this.updateView();
+      this.camera.to({ zoom: 1, ...this.initialCentre, panX: 0, panY: 0 });
+    }
+
+    panBy(dx, dy) {
+      const target = this.camera.target(); target.panX += dx; target.panY += dy; this.camera.to(target);
     }
 
     point(event) {
@@ -612,10 +622,10 @@
           '-': () => this.zoomBy(1 / 1.3), '_': () => this.zoomBy(1 / 1.3),
           Home: () => this.reset(),
           Escape: () => this.onClearSelect(),
-          ArrowLeft: () => { this.pan.x += 45; this.updateView(); },
-          ArrowRight: () => { this.pan.x -= 45; this.updateView(); },
-          ArrowUp: () => { this.pan.y += 45; this.updateView(); },
-          ArrowDown: () => { this.pan.y -= 45; this.updateView(); }
+          ArrowLeft: () => this.panBy(45, 0),
+          ArrowRight: () => this.panBy(-45, 0),
+          ArrowUp: () => this.panBy(0, 45),
+          ArrowDown: () => this.panBy(0, -45)
         };
         if (!actions[event.key]) return;
         event.preventDefault();
@@ -693,6 +703,7 @@
     }
 
     destroy() {
+      this.camera.destroy();
       this.resizeObserver.disconnect();
       this.listeners.forEach(remove => remove());
       this.element.replaceChildren();

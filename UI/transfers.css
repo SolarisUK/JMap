@@ -45,3 +45,6 @@ dialog { max-width:590px; width:calc(100% - 32px); border:1px solid var(--line);
   .mobile-feed-status.stale { color:#edbf75; }
   .mobile-feed-status.unavailable { color:#f0a196; }
 }
+
+.motion-option {display:flex;align-items:center;gap:8px;color:var(--ink);font-size:13px;}
+.motion-option input {accent-color:var(--ink);}

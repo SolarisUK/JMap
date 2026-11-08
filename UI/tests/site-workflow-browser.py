@@ -34,6 +34,7 @@ def fuel_payload():
 
 
 def camera(page, selector):
+    page.wait_for_function("!document.querySelector('[data-camera-moving]')")
     return page.locator(selector).evaluate("""element=>{
       const matrix=element.querySelector('path').getCTM();
       return [matrix.a,matrix.b,matrix.c,matrix.d,matrix.e,matrix.f].map(value=>+value.toFixed(6));
@@ -130,6 +131,7 @@ def check_interrupted_drag(page, selector):
 
 
 def check_live_labels(page, allow_empty=False):
+    page.wait_for_function("!document.querySelector('[data-camera-moving]')")
     values = page.locator("#transfer-map .route-label:visible,#transfer-map .country-label:visible,#transfer-map .sea-label:visible").evaluate_all("""items=>items.map(item=>{
       const box=item.getBoundingClientRect(),matrix=item.getScreenCTM();
       return {text:item.textContent,font:parseFloat(getComputedStyle(item).fontSize)*Math.hypot(matrix.a,matrix.b),

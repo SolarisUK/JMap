@@ -1,0 +1,83 @@
+{
+  "b6_trip_windy_peak": {
+    "scenario": "b6_trip_windy_peak",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 53418.4,
+        "cost_gbp": 370955967.1,
+        "penalty_gbp": 286264372.1,
+        "carbon_t": 180108.5,
+        "curtailed_mwh": 53418.5
+      },
+      "optimiser": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 72128732.1,
+        "penalty_gbp": 5.0,
+        "carbon_t": 189754.7,
+        "curtailed_mwh": 48662.8
+      },
+      "agents": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 72128732.1,
+        "penalty_gbp": 5.0,
+        "carbon_t": 189754.7,
+        "curtailed_mwh": 48662.8
+      }
+    },
+    "agents_is_placeholder": true
+  },
+  "cold_snap": {
+    "scenario": "cold_snap",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 29014617.3,
+        "penalty_gbp": 59180290.3,
+        "carbon_t": 101217.1,
+        "curtailed_mwh": 0.0
+      },
+      "optimiser": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 40415467.2,
+        "penalty_gbp": 1.2,
+        "carbon_t": 85426.9,
+        "curtailed_mwh": 5494.9
+      },
+      "agents": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 40415467.2,
+        "penalty_gbp": 1.2,
+        "carbon_t": 85426.9,
+        "curtailed_mwh": 5494.9
+      }
+    },
+    "agents_is_placeholder": true
+  },
+  "nuclear_outage_low_wind": {
+    "scenario": "nuclear_outage_low_wind",
+    "strategies": {
+      "none": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 26736713.0,
+        "penalty_gbp": 49907159.8,
+        "carbon_t": 92771.2,
+        "curtailed_mwh": 0.0
+      },
+      "optimiser": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 38222026.1,
+        "penalty_gbp": 1.8,
+        "carbon_t": 77140.5,
+        "curtailed_mwh": 6075.8
+      },
+      "agents": {
+        "unserved_mwh": 0.0,
+        "cost_gbp": 38222026.1,
+        "penalty_gbp": 1.8,
+        "carbon_t": 77140.5,
+        "curtailed_mwh": 6075.8
+      }
+    },
+    "agents_is_placeholder": true
+  }
+}

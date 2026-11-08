@@ -1,6 +1,6 @@
 # JMap UI
 
-Open `main.html` or `generation.html` for the main UK generating-site map. `transfers.html` shows live GB interconnector flows, `explorer.html` contains historical local energy statistics, and `operations.html` is the separate simulator. The pages are buildless and can be opened directly or served by any static HTTP server.
+Open `index.html`, `main.html` or `generation.html` for the main UK generating-site map. `transfers.html` shows live GB interconnector flows, `explorer.html` contains historical local energy statistics, and `operations.html` is the separate simulator. The pages are buildless and can be opened directly or served by any static HTTP server. For full-site hosting with the existing API, follow [VERCEL.md](VERCEL.md) and select the repository root as the Vercel Root Directory.
 
 All dashboard pages use the shared minimalist black and charcoal palette in `theme-dark.css`, including native controls, dialogs and scrollbars. Interface highlights are neutral grey; colour is reserved for data and status.
 

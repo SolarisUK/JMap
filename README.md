@@ -1,15 +1,35 @@
 # JMap
 
-A minimalist interface for exploring the UK's energy infrastructure.
+A UK energy dashboard with generation sites, live interconnector flows, annual local-authority statistics and historical real-data grid simulations.
 
-Open `UI/main.html` in a browser to explore the black-and-white energy map. It works directly from the filesystem and needs no install, API key, or external map tiles. The operations overview is at `UI/overview.html`; both pages use the same light, monochrome layout and shared stylesheet. Site directory links open the map's list view directly.
+- `UI/generation.html`: generating-site map and capacity explorer.
+- `UI/transfers.html`: observed GB electricity imports and exports.
+- `UI/explorer.html`: local energy statistics and area heatmap.
+- `UI/operations.html`: No response (network-blind dispatch) versus Optimiser, with forecasts and API-driven results.
 
-Search sites, choose a nation or technology preset, and switch marker sizes between output/capacity/utilisation. The quantitative marker scale stays fixed across filters. Fit results frames the matching sites; choosing a nation frames that area. Site labels, pan/zoom, full-UK reset, touch gestures and keyboard controls are available. On mobile, expand “Refine this view” for filters.
+## Host on Vercel
 
-The analysis panel separates generation, storage discharge and imports; breaks supply down by technology; compares all four nations with the current technology/search filters; and ranks matching sites. Nation comparisons use site location, not electricity transfers. Select a site to inspect it and pin up to three sites for a side-by-side comparison. Pins persist outside current filters and are labelled accordingly. The directory supports sorting and comparison. Export downloads the filtered summary and site rows; comparison has its own CSV export. Filters, measure, labels, analysis tab and comparison pins are retained in the page URL.
+Import this repository and set **Root Directory to the repository root (`.`), not `UI`**. Select **FastAPI** if framework detection does not select it. Leave Install Command and Output Directory overrides disabled; `vercel.json` supplies the build command.
 
-The 45-site dataset is a curated demonstration across England, Scotland, Wales and Northern Ireland. Output figures are synthetic, and locations/capacities approximate. It is not live telemetry or a complete register. Storage output means discharge and interconnector output means imports. Low-carbon share excludes both and covers wind, solar, nuclear and conventional hydro generation. UK aggregates describe this portfolio, not a single electricity-system balance. Demand, transmission flows and constraints are not included, so the map cannot infer local supply adequacy or transfers between nations.
+`UI/index.html` opens the generation map. The build copies public UI assets into generated `public/`, which Vercel serves through its CDN. `pyproject.toml` points Vercel directly to the existing `api:app`; `api.py` and its loader are unchanged. The root `stubs/` folder stays beside the API and supplies the same endpoint payloads.
 
-Geography is bundled from Natural Earth (public domain); attribution is in `UI/assets/README.md`. Dataset source references are documented in `UI/assets/sites.js`. Replace that data file with validated telemetry to connect a production data source.
+See [UI/VERCEL.md](UI/VERCEL.md) for settings, deployment smoke checks and future data updates. This prepares the repository for Vercel; it does not create a Vercel project or claim a cloud deployment has passed.
 
-Run the analytical checks with `node --test tests/analysis.test.cjs`. The UI remains buildless and can be opened directly in a browser.
+## Run locally
+
+With the Python dependencies in `pyproject.toml` installed, run `uvicorn api:app --port 8000` from the repository root. Open `UI/index.html` directly, or run `python -m http.server 8080 --directory UI` and visit `http://localhost:8080/`.
+
+To preview the deployment assets, run `python -B UI/scripts/build-vercel.py`, then `python -m http.server 8080 --directory public`, alongside the API.
+
+## Validate
+
+```powershell
+node --test UI/tests/*.test.cjs
+python -B UI/tests/api-replay.test.py
+python -B UI/tests/vercel-build.test.py
+python -B UI/tests/vercel-browser.py
+```
+
+The API must be running for the replay and deployment-browser checks. Deployment browser checks simulate the CDN and same-origin API routing locally; they do not replace a Vercel cloud smoke test.
+
+Detailed behavior, source provenance and other regression checks are documented in [UI/README.md](UI/README.md).

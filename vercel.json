@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "fastapi",
+  "buildCommand": "python -B UI/scripts/build-vercel.py",
+  "functions": {
+    "api.py": {
+      "includeFiles": "stubs/**",
+      "excludeFiles": "{UI/**,public/**,dhruv_latest/**,tests/**,*.parquet,*.md,debug.log,make_api_stubs.py,schemas.py,agents_baseline*.py}"
+    }
+  },
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ]
+}

@@ -21,9 +21,16 @@ What is already real:
   - forecast slots populated (naive forecast for now, Eugene's model later)
 
 What is still crude:
-  - flows come from a minimum-norm solve of the nodal balance, which is DC power flow with every
-    reactance set equal. The real version weights by susceptance. Closer than a stub needs to be,
-    which is deliberate: convergence here should transfer.
+  - edge limits, reactances, capacities and fuel costs are illustrative, not real GB values.
+  - the weather forecast is treated as the actual weather, so agents never face forecast error.
+
+Episode starts:
+  - Random starts are drawn only from windows of STEPS_PER_EPISODE + 1 contiguous half-hours,
+    so an episode never jumps across a gap in the data.
+  - date_range=("2024-03-07", "2025-07-01") limits random starts to episodes that lie entirely
+    inside [start, end) in UTC. A date-only string means UTC midnight. If the argument is not
+    given, the GRID_ENV_DATE_RANGE environment variable is used, written "START/END".
+  - A fixed start_utc (scripted scenarios) ignores date_range.
 
 Usage:
     import grid_env
@@ -34,7 +41,8 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import timedelta
+import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import gymnasium as gym
@@ -78,6 +86,33 @@ INCIDENT_MIX = {
 STORAGE_EFFICIENCY = 0.90
 # All prices and penalties live in schemas.py: the reward is the cost of running the grid.
 
+HALF_HOUR = timedelta(minutes=30)
+DATE_RANGE_ENV = "GRID_ENV_DATE_RANGE"
+
+
+def _parse_utc(s) -> datetime:
+    """ISO date or datetime -> tz-aware UTC. A string without an offset is taken as UTC."""
+    t = s if isinstance(s, datetime) else datetime.fromisoformat(str(s).strip())
+    return t.replace(tzinfo=timezone.utc) if t.tzinfo is None else t.astimezone(timezone.utc)
+
+
+def _valid_starts(times: list, steps: int, lo: datetime | None, hi: datetime | None) -> np.ndarray:
+    """Indices t0 whose episode t0 .. t0+steps (terminal obs included) is contiguous and in range.
+
+    The upper bound t0 <= n - steps - 2 matches the original sampler exactly, so with no gaps and
+    no date range the seed -> t0 mapping is unchanged and old baselines stay comparable.
+    """
+    n = len(times)
+    span = steps * HALF_HOUR
+    out = [
+        i
+        for i in range(max(0, n - steps - 1))
+        if times[i + steps] - times[i] == span
+        and (lo is None or times[i] >= lo)
+        and (hi is None or times[i + steps] < hi)
+    ]
+    return np.array(out, dtype=np.int64)
+
 
 def _turbine_output_frac(wind_ms: np.ndarray) -> np.ndarray:
     """Fraction of rated wind capacity at a given wind speed. Cut-in 3, rated 12, cut-out 25."""
@@ -96,6 +131,7 @@ class GridEnv(gym.Env):
         scenario: list[S.Incident] | None = None,
         random_incidents: bool = True,
         start_utc: str | None = None,
+        date_range: tuple[str, str] | None = None,
     ):
         super().__init__()
 
@@ -113,6 +149,27 @@ class GridEnv(gym.Env):
 
         self._load_data(Path(data_path))
         self._build_network()
+
+        if date_range is None and os.environ.get(DATE_RANGE_ENV):
+            parts = os.environ[DATE_RANGE_ENV].split("/")
+            if len(parts) != 2:
+                raise ValueError(f"{DATE_RANGE_ENV} must be START/END, got {os.environ[DATE_RANGE_ENV]!r}")
+            date_range = (parts[0], parts[1])
+        self.date_range = None
+        lo = hi = None
+        if date_range is not None:
+            lo, hi = _parse_utc(date_range[0]), _parse_utc(date_range[1])
+            if lo >= hi:
+                raise ValueError(f"date_range start {lo} is not before end {hi}")
+            self.date_range = (lo.isoformat(), hi.isoformat())
+        self._starts = _valid_starts(self.times, S.STEPS_PER_EPISODE, lo, hi)
+        # Fail loudly rather than silently training on the whole file.
+        if start_utc is None and len(self._starts) == 0:
+            raise ValueError(
+                f"No complete {S.STEPS_PER_EPISODE}-step episode in the data"
+                + (f" within {self.date_range}" if self.date_range else "")
+                + f" (data covers {self.times[0]} to {self.times[-1]})"
+            )
 
         # Static per-zone arrays, in ZONE_ORDER.
         self.capacity = np.array(
@@ -152,9 +209,9 @@ class GridEnv(gym.Env):
         n_t = len(self.times)
 
         self.demand = np.full((n_t, S.N_ZONES), np.nan)
-        self.temp = np.zeros((n_t, S.N_ZONES))
-        self.wind = np.zeros((n_t, S.N_ZONES))
-        self.solar = np.zeros((n_t, S.N_ZONES))
+        self.temp = np.full((n_t, S.N_ZONES), np.nan)
+        self.wind = np.full((n_t, S.N_ZONES), np.nan)
+        self.solar = np.full((n_t, S.N_ZONES), np.nan)
 
         for zid, g in df.groupby("zone_id", observed=True):
             if zid not in S.ZONE_INDEX:
@@ -167,12 +224,18 @@ class GridEnv(gym.Env):
             self.solar[rows, j] = g["solar_wm2"].to_numpy()
 
         # Flagged-missing demand is filled here only so the simulation can run; the forecaster
-        # excludes those rows from scoring, which is a separate concern.
-        for j in range(S.N_ZONES):
-            col = self.demand[:, j]
-            bad = np.isnan(col)
-            if bad.any():
-                col[bad] = np.interp(np.flatnonzero(bad), np.flatnonzero(~bad), col[~bad])
+        # excludes those rows from scoring, which is a separate concern. Weather gets the same
+        # treatment: a NaN wind speed would otherwise turn the reward into NaN, and a missing row
+        # used to read as a calm, dark half-hour.
+        for name, arr in (("demand_mw", self.demand), ("temp_c", self.temp),
+                          ("wind_ms", self.wind), ("solar_wm2", self.solar)):
+            for j in range(S.N_ZONES):
+                col = arr[:, j]
+                bad = np.isnan(col)
+                if bad.all():
+                    raise ValueError(f"{path}: no {name} values for zone {S.ZONE_ORDER[j]}")
+                if bad.any():
+                    col[bad] = np.interp(np.flatnonzero(bad), np.flatnonzero(~bad), col[~bad])
 
         self.n_t = n_t
 
@@ -310,7 +373,7 @@ class GridEnv(gym.Env):
 
         return obs.astype(np.float32)
 
-    # -- physics (stub) ----------------------------------------------------
+    # -- physics -----------------------------------------------------------
 
     def _demand_now(self, t_i: int) -> np.ndarray:
         d = self.demand[t_i].copy()
@@ -424,23 +487,23 @@ class GridEnv(gym.Env):
         self.step_idx = 0
         self._step_detail = None
 
-        max_start = max(1, self.n_t - S.STEPS_PER_EPISODE - 1)
         start = (options or {}).get("start_utc", self.start_utc)
         if start is not None:
-            # A fixed episode start, for scripted demo scenarios. Must be a UTC midnight that
-            # exists in the loaded table, with a full day of data after it.
-            from datetime import datetime
-
-            want = datetime.fromisoformat(str(start))
+            # A fixed episode start, for scripted demo scenarios. Must exist in the loaded table,
+            # with a full contiguous day of data after it. Ignores date_range.
+            want = _parse_utc(start)
             matches = [i for i, t in enumerate(self.times) if t == want]
             if not matches:
                 raise ValueError(f"start_utc {start} not found in the loaded data")
+            t0 = matches[0]
             # The terminal observation reads index t0 + STEPS_PER_EPISODE, so that must exist.
-            if matches[0] + S.STEPS_PER_EPISODE > self.n_t - 1:
+            if t0 + S.STEPS_PER_EPISODE > self.n_t - 1:
                 raise ValueError(f"start_utc {start} leaves less than one day of data after it")
-            self.t0 = matches[0]
+            if self.times[t0 + S.STEPS_PER_EPISODE] - self.times[t0] != S.STEPS_PER_EPISODE * HALF_HOUR:
+                raise ValueError(f"start_utc {start}: the day after it has gaps in the data")
+            self.t0 = t0
         else:
-            self.t0 = int(self.np_random.integers(0, max_start))
+            self.t0 = int(self._starts[self.np_random.integers(0, len(self._starts))])
 
         if self.fixed_scenario is not None:
             self.incidents = list(self.fixed_scenario)
@@ -570,7 +633,7 @@ class GridEnv(gym.Env):
         terminated = self.step_idx >= S.STEPS_PER_EPISODE
         truncated = False
 
-        obs = self._observe() if not terminated else self._observe()
+        obs = self._observe()
         return obs, float(reward), terminated, truncated, self._info()
 
     # -- info --------------------------------------------------------------

@@ -469,8 +469,7 @@
       this.listen(this.element, 'wheel', event => {
         if (event.ctrlKey || event.metaKey) return;
         event.preventDefault();
-        const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * this.height : event.deltaY;
-        this.zoomBy(Math.exp(-Math.max(-120, Math.min(120, delta)) * .002), this.point(event));
+        this.zoomBy(this.camera.wheelFactor(event, this.height), this.point(event));
       }, { passive: false });
       this.listen(this.element, 'keydown', event => {
         const actions = { '+': () => this.zoomBy(1.3), '=': () => this.zoomBy(1.3), '-': () => this.zoomBy(1 / 1.3), Home: () => this.reset(), Escape: () => this.clearSelection(), ArrowLeft: () => this.panBy(40, 0), ArrowRight: () => this.panBy(-40, 0), ArrowUp: () => this.panBy(0, 40), ArrowDown: () => this.panBy(0, -40) };

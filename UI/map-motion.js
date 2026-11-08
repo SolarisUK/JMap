@@ -17,19 +17,33 @@
       window.addEventListener('pagehide', this.settle);
     }
     target() { return { ...(this.destination || this.read()) }; }
+    wheelFactor(event, height) {
+      const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? height : 1);
+      const direction = Math.sign(pixels);
+      // Reverse from the visible view, without first finishing the old zoom.
+      if (direction && direction !== this.wheelDirection) this.destination = null;
+      if (direction) this.wheelDirection = direction;
+      return Math.exp(-Math.max(-120, Math.min(120, pixels)) * .002);
+    }
     cancel() {
       if (this.frame !== null) cancelAnimationFrame(this.frame);
-      this.frame = null; this.destination = null; delete this.element.dataset.cameraMoving;
+      this.frame = null; this.destination = null; this.wheelDirection = 0;
+      delete this.element.dataset.cameraMoving;
     }
     to(target, { immediate = false } = {}) {
       const start = this.read();
-      this.cancel();
-      if (immediate || this.media.matches || document.hidden) { this.write(target); return; }
+      if (immediate || this.media.matches || document.hidden) { this.cancel(); this.write(target); return; }
       if (Object.keys(target).every(key => target[key] === start[key])) return;
       this.destination = { ...target }; this.element.dataset.cameraMoving = '';
-      const began = performance.now();
+      this.lastInput = performance.now();
+      // Keep one animation alive across a wheel/trackpad burst. Restarting an
+      // ease-out for every event repeatedly changes speed and delays fine input.
+      if (this.frame !== null) return;
+      let previous = this.lastInput;
       const step = now => {
-        const progress = Math.min(1, (now - began) / 180), eased = 1 - (1 - progress) ** 3;
+        const target = this.destination, start = this.read();
+        const eased = 1 - Math.exp(-Math.min(64, Math.max(0, now - previous)) / 55);
+        previous = now;
         const value = {};
         for (const key of Object.keys(target)) {
           // Interpolating inverse zoom with world centres keeps the cursor's
@@ -38,7 +52,7 @@
             ? 1 / (1 / start[key] + (1 / target[key] - 1 / start[key]) * eased)
             : start[key] + (target[key] - start[key]) * eased;
         }
-        if (progress === 1) { this.cancel(); this.write(target); }
+        if (now - this.lastInput >= 400) { this.cancel(); this.write(target); }
         else { this.write(value); this.frame = requestAnimationFrame(step); }
       };
       this.frame = requestAnimationFrame(step);

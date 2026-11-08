@@ -370,8 +370,7 @@
     if (event.ctrlKey || event.metaKey) return;
     event.preventDefault();
     const rect = map.getBoundingClientRect();
-    const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.height : 1);
-    zoom(Math.exp(-Math.max(-120, Math.min(120, pixels)) * .002), [event.clientX - rect.left, event.clientY - rect.top]);
+    zoom(camera.wheelFactor(event, view.height), [(event.clientX - rect.left) * view.width / rect.width, (event.clientY - rect.top) * view.height / rect.height]);
   }, { passive: false });
   const pointers = new Map();
   let gesture = null;

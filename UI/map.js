@@ -620,8 +620,7 @@
         if (event.ctrlKey || event.metaKey) return;
         event.preventDefault();
         this.hideTooltips();
-        const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * this.height : event.deltaY;
-        this.zoomBy(Math.exp(-Math.max(-120, Math.min(120, delta)) * 0.002), this.point(event));
+        this.zoomBy(this.camera.wheelFactor(event, this.height), this.point(event));
       }, { passive: false });
       this.listen(this.element, 'dblclick', event => {
         if (event.target.closest('[data-site-id]')) return;

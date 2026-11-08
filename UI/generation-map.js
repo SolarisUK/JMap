@@ -261,7 +261,18 @@
         if(emit)this.onViewChange({zoom:this.zoom,mode:this.mode,overviewCount:this.overviewGroups.length,visibleCount,clusterCount:0,markerCount:0,totalCount:this.sites.length,mappedCount:this.points.length});
         return;
       }
-      const items = layoutSites(positioned.filter(point=>point.id!==this.selectedId), this.zoom).map(item => ({ ...item, x: item.x + tx, y: item.y + ty }));
+      const moving = this.element.hasAttribute('data-camera-moving');
+      if (!moving) this.motionLayout = null;
+      if (moving && (!this.motionLayout || this.motionLayout.points !== this.points || this.motionLayout.selected !== this.selectedId)) {
+        // Keep membership fixed during a gesture. Rebinning on every fractional
+        // zoom makes bubbles jump between groups while the geography moves.
+        const all = this.points.filter(point => point.id !== this.selectedId).map(point => ({ ...point, x: point.world.x * scale, y: point.world.y * scale }));
+        this.motionLayout = { points: this.points, selected: this.selectedId, zoom: this.zoom, items: layoutSites(all, this.zoom) };
+      }
+      const ratio = this.motionLayout ? this.zoom / this.motionLayout.zoom : 1;
+      const layout = this.motionLayout?.items || layoutSites(positioned.filter(point=>point.id!==this.selectedId), this.zoom);
+      const items = layout.map(item => ({ ...item, x: item.x * ratio + tx, y: item.y * ratio + ty }))
+        .filter(item => item.x > -50 && item.x < this.width + 50 && item.y > -50 && item.y < this.height + 50);
       const clusterCount = items.filter(item => item.kind === 'cluster' && item.x >= 0 && item.x <= this.width && item.y >= 0 && item.y <= this.height).length;
       // A selected member of a cluster stays inspectable as a bounded individual
       // marker, removed from its former group's capacity to avoid double counting.
@@ -361,7 +372,7 @@
       if (captured.length) { this.onHover(null); this.render(true); }
     }
     bindEvents() {
-      this.listen(this.element, 'wheel', event => { if (event.ctrlKey || event.metaKey) return; event.preventDefault(); const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY; this.zoomBy(Math.exp(-clamp(delta, -120, 120) * .002), this.point(event)); }, { passive: false });
+      this.listen(this.element, 'wheel', event => { if (event.ctrlKey || event.metaKey) return; event.preventDefault(); this.zoomBy(this.camera.wheelFactor(event, this.height), this.point(event)); }, { passive: false });
       this.listen(this.element, 'keydown', event => {
         if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
         const actions = { '+': () => this.zoomBy(1.35), '=': () => this.zoomBy(1.35), '-': () => this.zoomBy(1 / 1.35), Home: () => this.reset(), Escape: () => this.clearSelection(), ArrowLeft: () => this.panBy(40, 0), ArrowRight: () => this.panBy(-40, 0), ArrowUp: () => this.panBy(0, 40), ArrowDown: () => this.panBy(0, -40) };

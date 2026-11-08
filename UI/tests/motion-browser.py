@@ -181,6 +181,63 @@ class MotionTests(unittest.TestCase):
         self.assertEqual(self.page.locator('.transfer-geometry-layer').get_attribute('transform'), stopped)
         self.assertEqual(self.page.evaluate('getSelection().toString()'), '')
 
+    def test_wheel_bursts_keep_cursor_anchor_and_reverse_without_rebound_on_all_maps(self):
+        for filename, selector in [('generation.html', '#generation-map'), ('transfers.html', '#transfer-map'),
+                                   ('explorer.html', '#energy-map'), ('operations.html', '#response-map')]:
+            with self.subTest(filename=filename):
+                self.open(filename)
+                if filename == 'generation.html':
+                    self.page.locator('#sites-view').click()
+                result = self.page.evaluate('''async selector=>{
+                  const el=document.querySelector(selector),path=el.querySelector('path'),box=el.getBoundingClientRect();
+                  const anchor=new DOMPoint(box.x+box.width*.62,box.y+box.height*.44);
+                  const world=anchor.matrixTransform(path.getScreenCTM().inverse());
+                  const frame=()=>new Promise(requestAnimationFrame),scales=[],errors=[];
+                  const wheel=delta=>el.dispatchEvent(new WheelEvent('wheel',{
+                    deltaY:delta,clientX:anchor.x,clientY:anchor.y,bubbles:true,cancelable:true}));
+                  const sample=()=>{
+                    const p=world.matrixTransform(path.getScreenCTM());
+                    errors.push(Math.hypot(p.x-anchor.x,p.y-anchor.y));
+                    scales.push(path.getCTM().a);
+                  };
+                  for(let i=0;i<14;i++){wheel(-8);await frame();sample();}
+                  const reverseAt=scales.at(-1),back=[];
+                  for(let i=0;i<8;i++){wheel(8);await frame();sample();back.push(scales.at(-1));}
+                  while(document.querySelector('[data-camera-moving]')){await frame();sample();}
+                  const stopped=path.getCTM().a;await new Promise(r=>setTimeout(r,100));
+                  return {scales:scales.slice(0,14),reverseAt,back,maxAnchorError:Math.max(...errors),stopped,after:path.getCTM().a};
+                }''', selector)
+                self.assertTrue(all(b >= a for a, b in zip(result['scales'], result['scales'][1:])), result)
+                self.assertTrue(all(b <= a for a, b in zip([result['reverseAt']]+result['back'], result['back'])), result)
+                self.assertLess(result['back'][-1], result['reverseAt'])
+                # SVG matrices use float precision; stay within half a CSS pixel.
+                self.assertLess(result['maxAnchorError'], .5, result)
+                self.assertEqual(result['stopped'], result['after'])
+
+    def test_generation_groups_stay_stable_during_continuous_zoom(self):
+        self.open('generation.html')
+        self.page.locator('#sites-view').click()
+        result = self.page.evaluate('''async()=>{
+          const el=document.querySelector('#generation-map'),box=el.getBoundingClientRect();
+          const proto=GenerationMap.prototype,original=proto.render,layouts=[],zooms=[];
+          proto.render=function(...args){
+            const result=original.apply(this,args);
+            if(this.element.hasAttribute('data-camera-moving')){layouts.push(this.motionLayout);zooms.push(this.zoom);}
+            return result;
+          };
+          try{
+            for(let i=0;i<16;i++){
+              el.dispatchEvent(new WheelEvent('wheel',{deltaY:-12,clientX:box.x+box.width/2,clientY:box.y+box.height/2,bubbles:true,cancelable:true}));
+              await new Promise(requestAnimationFrame);
+            }
+            while(el.hasAttribute('data-camera-moving'))await new Promise(requestAnimationFrame);
+            return {frames:layouts.length,stable:layouts.every(layout=>layout&&layout===layouts[0]),zoomed:zooms.at(-1)>zooms[0]};
+          }finally{proto.render=original;}
+        }''')
+        self.assertGreater(result['frames'], 10)
+        self.assertTrue(result['stable'], result)
+        self.assertTrue(result['zoomed'], result)
+
     def test_simulation_motion_uses_signed_flow_and_obeys_saved_off_setting(self):
         self.open('operations.html')
         self.page.wait_for_selector('#response-map[data-flow-moving]')

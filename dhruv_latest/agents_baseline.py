@@ -139,7 +139,7 @@ class OptimiserAgent(Agent):
     The next four hours interpolate the P50 observation leads; only the first action is
     executed, then the LP is rebuilt from the next observation. Future plant availability
     and topology persist at their currently observed values, not an invented weather feed.
-    Demand response and curtailment are left out of the LP objective (the env still prices them at £300 and £70/MWh).
+    The objective uses the simulator's prices: fuel + carbon (£67/t), DR (£300/MWh), curtailment (£70/MWh), VoLL.
 
     Firm must-run spill is an expensive emergency variable, not a freely dispatchable fuel.
     If capacity is insufficient, planned nodal shedding is diagnostic: the simulator applies
@@ -147,7 +147,7 @@ class OptimiserAgent(Agent):
     """
 
     name = S.STRATEGIES[1]
-    version = "dc-lp-v1"
+    version = "dc-lp-v2"
 
     def __init__(self, congestion_trigger: float = 0.90, damping: float = 0.5) -> None:
         # Keep the former optional constructor arguments compatible with existing callers.
@@ -221,7 +221,8 @@ class OptimiserAgent(Agent):
             storage = nodal + S.N_ZONES
             for k, (j, f_i) in enumerate(self.pairs):
                 equality[nodal + j, offset + k] = 1
-                objective[offset + k] = dt * S.FUEL_COST[S.FUEL_ORDER[f_i]]
+                fuel = S.FUEL_ORDER[f_i]
+                objective[offset + k] = dt * (S.FUEL_COST[fuel] + S.PRICE_CARBON_GBP_PER_T * S.FUEL_CARBON[fuel])
                 bounds.append((0, float(available[j, f_i])))
             for k, sign in ((curtail, -1), (discharge, 1), (charge, -1), (dr, 1), (shed, 1), (spill, -1)):
                 equality[nodal:nodal + S.N_ZONES, offset + k:offset + k + S.N_ZONES] = np.eye(S.N_ZONES) * sign
@@ -236,6 +237,8 @@ class OptimiserAgent(Agent):
                 rhs[storage:storage + S.N_ZONES] = initial_energy
             objective[offset + shed:offset + shed + S.N_ZONES] = dt * self.value_of_lost_load
             objective[offset + spill:offset + spill + S.N_ZONES] = dt * self.value_of_lost_load
+            objective[offset + dr:offset + dr + S.N_ZONES] = dt * S.PRICE_DR_GBP_PER_MWH
+            objective[offset + curtail:offset + curtail + S.N_ZONES] = dt * S.PRICE_CURTAIL_GBP_PER_MWH
             for caps in (renewable, power, power, np.minimum(dr_capacity, demand[t]), demand[t], firm):
                 bounds.extend((0, float(cap)) for cap in caps)
             bounds.extend((0, 0) if j in references else (None, None) for j in range(S.N_ZONES))

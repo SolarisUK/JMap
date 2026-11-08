@@ -34,10 +34,8 @@ class ReplayApiTests(unittest.TestCase):
         for scenario in get('/scenarios')['scenarios']:
             name = scenario['name']
             comparison = get('/compare', scenario=name)
-            series = {key: get('/state/series', scenario=name, strategy=key) for key in reference['strategies']}
+            series = {key: get('/state/series', scenario=name, strategy=key) for key in ('none','optimiser')}
             self.assertNotEqual(series['none']['frames'], series['optimiser']['frames'])
-            self.assertEqual(series['agents']['frames'], series['optimiser']['frames'])
-            self.assertTrue(series['agents']['agents_is_placeholder'])
             fingerprints.add(json.dumps(series['none']['frames'], sort_keys=True))
             for strategy, run in series.items():
                 self.assertEqual(len(run['frames']), 48)

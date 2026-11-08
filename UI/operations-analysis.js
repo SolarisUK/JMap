@@ -107,24 +107,21 @@
     [minBaselineMWh, energyToleranceMWh].forEach(value => {
       if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw new RangeError('Comparison thresholds must be finite nonnegative MWh values.');
     });
-    if (payload.agents_is_placeholder !== undefined && typeof payload.agents_is_placeholder !== 'boolean') throw new TypeError('agents_is_placeholder must be boolean.');
-    const keys = reference?.strategies || Object.keys(payload.strategies);
-    if (!Array.isArray(keys) || keys.some(key => typeof key !== 'string') || new Set(keys).size !== keys.length) throw new TypeError('Reference strategies must be unique string keys.');
-    const labels = { none: 'No response', optimiser: 'Optimiser', agents: 'Agents' };
+    const keys = ['none', 'optimiser'];
+    const labels = { none: 'No response', optimiser: 'Optimiser' };
     const baseline = totalKpis({ totals: payload.strategies.none });
     const materialUnserved = baseline.unserved_mwh === null ? null : baseline.unserved_mwh > 0 && baseline.unserved_mwh >= minBaselineMWh;
     const rows = keys.map(key => {
-      const isPlaceholder = key === 'agents' && payload.agents_is_placeholder === true;
-      const totals = totalKpis({ totals: isPlaceholder ? null : payload.strategies[key] });
+      const totals = totalKpis({ totals: payload.strategies[key] });
       const unservedAvoidedMWh = baseline.unserved_mwh === null || totals.unserved_mwh === null ? null : baseline.unserved_mwh - totals.unserved_mwh;
       const reductionPercent = materialUnserved && unservedAvoidedMWh !== null ? unservedAvoidedMWh / baseline.unserved_mwh * 100 : null;
       return {
-        key, label: isPlaceholder ? `${labels[key] || key} · not yet trained` : labels[key] || key,
-        isPlaceholder, totals, reductionPercent, unservedAvoidedMWh,
+        key, label: labels[key],
+        totals, reductionPercent, unservedAvoidedMWh,
         costChangeGbp: baseline.cost_gbp === null || totals.cost_gbp === null ? null : totals.cost_gbp - baseline.cost_gbp
       };
     });
-    const eligible = rows.filter(row => !row.isPlaceholder && row.totals.unserved_mwh !== null);
+    const eligible = rows.filter(row => row.totals.unserved_mwh !== null);
     const lowest = eligible.length ? Math.min(...eligible.map(row => row.totals.unserved_mwh)) : null;
     let winners = eligible.filter(row => row.totals.unserved_mwh - lowest <= energyToleranceMWh);
     const energyTie = winners.length > 1;

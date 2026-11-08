@@ -8,6 +8,7 @@ from pathlib import Path
 import unittest
 
 from playwright.sync_api import sync_playwright
+from replay_fixture import install_replay_fixture
 
 UI = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('live_tests', UI / 'tests/live-transfers-browser.py')
@@ -46,6 +47,7 @@ class MotionTests(unittest.TestCase):
     def setUp(self):
         self.context = self.browser.new_context(viewport={'width': 1440, 'height': 900}, reduced_motion='no-preference')
         self.page = self.context.new_page()
+        install_replay_fixture(self.page)
         self.errors = []
         self.page.on('pageerror', lambda error: self.errors.append(str(error)))
         self.sign = 1

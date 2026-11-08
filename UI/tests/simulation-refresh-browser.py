@@ -9,6 +9,7 @@ import sys
 import tempfile
 
 from playwright.sync_api import sync_playwright
+from replay_fixture import install_replay_fixture
 
 sys.stdout.reconfigure(encoding="utf-8")
 UI = Path(__file__).resolve().parents[1]
@@ -47,7 +48,7 @@ def run():
                     bundle.series[name][strategy]=series;bundle.states[name][strategy]=states;
                     strategies[strategy]=structuredClone(states.at(-1).totals);
                   }
-                  bundle.compare[name]={scenario:name,strategies,agents_is_placeholder:true};
+                  bundle.compare[name]={scenario:name,strategies};
                   bundle.scenario_forecasts[name]=structuredClone(original.scenario_forecasts?.[source.name]||original.forecasts);
                   for(const forecast of Object.values(bundle.scenario_forecasts[name])){
                     forecast.issue_time_utc=start;forecast.timestamps_utc=forecast.timestamps_utc.map(shift);
@@ -56,6 +57,7 @@ def run():
                 // Deliberately retain the old global date/forecasts: the UI must use the scenario.
               }});
             })();""")
+            install_replay_fixture(page)
             page.goto((UI/"operations.html").as_uri())
             page.wait_for_function("!document.querySelector('#export-episode').disabled")
             assert page.locator("#scenario option").count() == 6
@@ -79,9 +81,8 @@ def run():
                 metrics = {row[0]: dict(zip(rows[header], row)) for row in rows[header+1:]}
                 assert float(metrics['none']['Unserved MWh']) == (index+1)*1000
                 assert float(metrics['optimiser']['Unserved MWh']) == (index+1)*200
-                assert metrics['agents']['Status'] == 'Not yet trained'
-                assert metrics['agents']['Unserved MWh'] == ''
-            print('PASS six fixed-date scenarios show their own timelines, forecasts and refreshed scores; placeholders stay withheld')
+                assert set(metrics) == {'none','optimiser'}
+            print('PASS six fixed-date scenarios show their own timelines, forecasts and refreshed scores; only the two response strategies are shown')
             page.locator('[data-tab="forecast"]').click()
             page.wait_for_function("document.querySelector('#forecast-chart path')")
             page.evaluate("delete JMAP_SIMULATION_STUBS.scenario_forecasts.fixed_day_5")

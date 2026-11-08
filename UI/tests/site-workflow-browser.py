@@ -11,6 +11,7 @@ from pathlib import Path
 import sys
 
 from playwright.sync_api import sync_playwright
+from replay_fixture import install_replay_fixture
 
 sys.stdout.reconfigure(encoding="utf-8")
 UI = Path(__file__).resolve().parents[1]
@@ -162,6 +163,7 @@ def run():
         context.route("https://**/*", intercept)
         context.route("http://**/*", intercept)
         page = context.new_page()
+        install_replay_fixture(page)
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         for index, (filename, config) in enumerate(PAGES.items()):

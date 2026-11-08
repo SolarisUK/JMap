@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from playwright.sync_api import sync_playwright
+from replay_fixture import install_replay_fixture
 
 sys.stdout.reconfigure(encoding="utf-8")
 PAGE_URL = (Path(__file__).resolve().parents[1] / "operations.html").as_uri()
@@ -73,6 +74,7 @@ def run():
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         positive_shortage_fixture(page)
+        install_replay_fixture(page)
         page.goto(PAGE_URL)
         ready(page)
         assert page.locator("#transfer-zone-detail").is_hidden(), "Default sidebar should show the network, not a preselected zone card"

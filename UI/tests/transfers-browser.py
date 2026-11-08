@@ -11,6 +11,7 @@ import sys
 import tempfile
 
 from playwright.sync_api import sync_playwright
+from replay_fixture import install_replay_fixture
 
 sys.stdout.reconfigure(encoding="utf-8")
 TEST_DIR = Path(__file__).resolve().parent
@@ -89,9 +90,10 @@ def run():
             page = context.new_page()
             errors = []
             page.on("pageerror", lambda error: errors.append(str(error)))
+            install_replay_fixture(page)
             page.goto(PAGE_URL)
             ready(page)
-            assert "Generated demo" in page.locator("#data-status").inner_text()
+            assert "Read-only stubs API" in page.locator("#data-status").inner_text()
             assert page.locator("#panel-transfers").is_visible()
             assert page.locator("#network-transfer-list .transfer-row").count() == len(current(page)["edges"])
 
@@ -162,6 +164,7 @@ def run():
 
             unknown = context.new_page()
             fixture(unknown, "bundle=>{for(const strategies of Object.values(bundle.states))for(const frames of Object.values(strategies))for(const frame of frames)delete frame.edges['MIDL-EAST'].flow_mw;}")
+            install_replay_fixture(unknown)
             unknown.goto(PAGE_URL+"?zone=MIDL&focus=zone")
             ready(unknown)
             assert unknown.locator("#transfer-zone-detail").is_visible()
@@ -179,6 +182,7 @@ def run():
 
             out = context.new_page()
             fixture(out, "bundle=>{for(const strategies of Object.values(bundle.states))for(const frames of Object.values(strategies))for(const frame of frames)Object.assign(frame.edges['SSCO-NORT'],{flow_mw:0,limit_mw:0,loading_frac:0,tripped:true});}")
+            install_replay_fixture(out)
             out.goto(PAGE_URL)
             ready(out)
             out.locator('#network-transfer-list [data-transfer-edge="SSCO-NORT"]').click()

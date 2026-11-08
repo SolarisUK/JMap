@@ -52,7 +52,7 @@ def read_bundle(path):
 def validate_bundle(bundle):
     ref = bundle["reference"]
     zones, edges = ref["zone_order"], ref["edge_order"]
-    strategies = ref["strategies"]
+    strategies = ("none", "optimiser")
     if "none" not in strategies or "optimiser" not in strategies:
         raise ValueError("Baseline and optimiser strategies are required")
     scenarios = bundle["scenarios"]["scenarios"]
@@ -99,9 +99,6 @@ def validate_bundle(bundle):
                     raise ValueError(f"{name}/{strategy}: unavailable final {key}")
                 if not isinstance(reported, (int, float)) or not math.isfinite(reported) or not math.isclose(final, reported, rel_tol=1e-9, abs_tol=0.001):
                     raise ValueError(f"{name}/{strategy}: scoreboard {key} differs from final snapshot")
-            if strategy == "agents" and comparison.get("agents_is_placeholder") is not False:
-                if comparison.get("agents_is_placeholder") is not True:
-                    raise ValueError(f"{name}: agent placeholder status must be explicit")
         forecasts = bundle["scenario_forecasts"][name] if "scenario_forecasts" in bundle else bundle["forecasts"]
         for zone in zones:
             forecast = forecasts[zone]
@@ -172,8 +169,8 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
         import grid_env
         import schemas as S
         spec = importlib.util.spec_from_file_location("ui_baseline_agents", agents_path)
-        agents = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(agents)
+        baselines = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(baselines)
     except ImportError as error:
         raise ValueError(f"Simulator dependency unavailable: {error}. Install the backend's declared dependencies, then rerun.") from error
     if not hasattr(grid_env, "make_scenario_env"):
@@ -212,7 +209,7 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
             bundle["scenarios"]["scenarios"].append(metadata)
             bundle["series"][name], bundle["states"][name] = {}, {}
             strategies = {}
-            for key, agent_class in (("none", agents.NoOpAgent), ("optimiser", agents.OptimiserAgent)):
+            for key, controller_class in (("none", baselines.NoOpAgent), ("optimiser", baselines.OptimiserAgent)):
                 options = {"start_utc": scenario["episode_start_utc"]} if not specs[name].get("episode_start_utc") else {}
                 env = grid_env.make_scenario_env(name, random_incidents=False, **options)
                 try:
@@ -221,13 +218,13 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
                         raise ValueError(f"{name}: make_scenario_env did not apply episode_start_utc")
                     if key == "none":
                         bundle["scenario_forecasts"][name] = baseline_forecasts(env, S, scenario["episode_start_utc"])
-                    agent = agent_class()
-                    agent.reset()
+                    controller = controller_class()
+                    controller.reset()
                     frames, states = [], []
                     for index in range(S.STEPS_PER_EPISODE):
-                        observation, reward, terminated, truncated, info = env.step(agent.act(observation, info))
+                        observation, reward, terminated, truncated, info = env.step(controller.act(observation, info))
                         snapshot = copy.deepcopy(info)
-                        snapshot.update(scenario=name, strategy=key, step_index=index, agents_is_placeholder=True, forecast_is_placeholder=True, data_is_synthetic=synthetic)
+                        snapshot.update(scenario=name, strategy=key, step_index=index, forecast_is_placeholder=True, data_is_synthetic=synthetic)
                         states.append(snapshot)
                         frames.append({field: copy.deepcopy(snapshot[field]) for field in ("timestamp_utc", "zones", "edges", "incidents")})
                         if terminated or truncated:
@@ -237,27 +234,20 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
                     strategies[key] = copy.deepcopy(info["totals"])
                 finally:
                     env.close()
-            # No trained policy is silently substituted into the scoreboard.
-            bundle["series"][name]["agents"] = copy.deepcopy(bundle["series"][name]["optimiser"])
-            bundle["series"][name]["agents"].update(strategy="agents", agents_is_placeholder=True)
-            bundle["states"][name]["agents"] = copy.deepcopy(bundle["states"][name]["optimiser"])
-            for snapshot in bundle["states"][name]["agents"]:
-                snapshot["strategy"] = "agents"
-            strategies["agents"] = copy.deepcopy(strategies["optimiser"])
-            bundle["compare"][name] = {"scenario": name, "strategies": strategies, "agents_is_placeholder": True}
+            bundle["compare"][name] = {"scenario": name, "strategies": strategies}
         flags = {entry["data_is_synthetic"] for entry in bundle["scenarios"]["scenarios"]}
         ref = bundle["reference"]
         ref.update(
             contract_version=S.CONTRACT_VERSION,
             zone_order=list(S.ZONE_ORDER), edge_order=list(S.EDGE_ORDER),
-            fuel_order=list(S.FUEL_ORDER), strategies=list(S.STRATEGIES),
+            fuel_order=list(S.FUEL_ORDER), strategies=["none", "optimiser"],
             fuels=[vars(fuel).copy() for fuel in S.FUELS],
             incident_types=list(S.INCIDENT_TYPES), quantiles=list(S.QUANTILE_NAMES),
             quality_flags={key: value for key, value in vars(S.QF).items() if key.isupper() and isinstance(value, int)},
             obs_dim=S.OBS_DIM, act_dim=S.ACT_DIM,
             scenarios=names, steps_per_episode=S.STEPS_PER_EPISODE,
             forecast_horizon=S.FORECAST_HORIZON, display_timezone=S.DISPLAY_TZ,
-            backend_mode="stubs", agents_is_placeholder=True,
+            backend_mode="stubs",
             forecast_is_placeholder=True, geometry_is_placeholder=True,
             simulator_is_simplified=True, optimiser_is_heuristic=True,
             data_is_synthetic=next(iter(flags)) if len(flags)==1 else None,
@@ -296,7 +286,7 @@ def write_bundle(bundle, output):
     try:
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=output.parent, prefix=output.name+".", suffix=".tmp", delete=False) as file:
             temporary = Path(file.name)
-            file.write("/* Generated simulation replay data; agent and forecast placeholders remain explicit. */\nwindow.JMAP_SIMULATION_STUBS = " + payload + ";\n")
+            file.write("/* Generated optimisation replay data; forecast provenance remains explicit. */\nwindow.JMAP_SIMULATION_STUBS = " + payload + ";\n")
         temporary.replace(output)
     finally:
         if temporary:

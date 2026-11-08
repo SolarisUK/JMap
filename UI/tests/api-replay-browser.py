@@ -1,4 +1,4 @@
-"""Check both dashboard modes against the running replay API and its /compare.
+"""Check the API-only dashboard against its runtime responses.
 
 python -B UI/tests/api-replay-browser.py
 Requires uvicorn on port 8000, Python Playwright and Chromium.
@@ -31,6 +31,113 @@ def ready(page):
     assert page.locator('#error-banner').is_hidden(), page.locator('#error-message').inner_text()
 
 
+def check_api_only(browser):
+    """Change API responses while withholding all bundled numerical data."""
+    reference = get('/reference')
+    scenarios = get('/scenarios')['scenarios']
+    edge_id, zone_id = reference['edge_order'][0], reference['zone_order'][0]
+    phase = {'version': 1, 'failed': False}
+    context = browser.new_context(viewport={'width': 1440, 'height': 900})
+    page = context.new_page()
+    requests, errors = [], []
+    page.on('request', lambda request: requests.append(request.url))
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.route('**/assets/simulation-stubs.js', lambda route: route.fulfill(
+        status=200, content_type='application/javascript', body='/* No bundled data in API audit. */'))
+
+    def state_response(route):
+        if phase['failed']:
+            route.fulfill(status=503, content_type='application/json',
+                          headers={'Access-Control-Allow-Origin': '*'},
+                          body=json.dumps({'detail': 'API audit temporarily unavailable'}))
+            return
+        response = route.fetch()
+        data = response.json()
+        baseline = parse_qs(urlparse(route.request.url).query)['strategy'][0] == 'none'
+        for zone in data['zones'].values():
+            zone['unserved_mw'] = 0
+        data['zones'][zone_id]['unserved_mw'] = 41.25 if baseline else 0
+        data['edges'][edge_id].update(flow_mw=-987.25 if baseline else 321.5,
+                                      limit_mw=1000, loading_frac=.98725 if baseline else .3215, tripped=False)
+        data['totals'].update(cost_gbp=9870000 if baseline else 12340000,
+                              penalty_gbp=4560000 if baseline else 7890000)
+        route.fulfill(response=response, json=data)
+
+    def compare_response(route):
+        response = route.fetch()
+        data = response.json()
+        data['strategies']['none'].update(unserved_mwh=8000, cost_gbp=90000000, penalty_gbp=4000000)
+        data['strategies']['optimiser'].update(unserved_mwh=2000 if phase['version'] == 1 else 1600,
+                                               cost_gbp=40000000 if phase['version'] == 1 else 41000000,
+                                               penalty_gbp=7000000)
+        route.fulfill(response=response, json=data)
+
+    def forecast_response(route):
+        response = route.fetch()
+        data = response.json()
+        centres = [5000+11*h if phase['version'] == 1 else 7000+7*h+(h % 5)*200 for h in range(48)]
+        data['forecast'] = [[mid*.8, mid, mid*1.2] for mid in centres]
+        data['explanation'] = [f"API audit payload v{phase['version']}.", 'Quantiles returned by the API.', 'No bundled forecast data is loaded.']
+        route.fulfill(response=response, json=data)
+
+    page.route(BASE+'/state?*', state_response)
+    page.route(BASE+'/compare?*', compare_response)
+    page.route(BASE+'/forecast/**', forecast_response)
+    page.goto((UI/'operations.html').as_uri()+'?'+urlencode({'mode': 'api', 'api': BASE}))
+    ready(page)
+    assert page.evaluate('window.JMAP_SIMULATION_STUBS === undefined')
+    assert page.locator('#maps').evaluate('e=>!e.classList.contains("single")')
+    assert page.locator('#baseline-map').is_visible() and page.locator('#response-map').is_visible()
+    baseline = page.locator(f'#baseline-map .simulation-edge[data-edge-id="{edge_id}"]')
+    response = page.locator(f'#response-map .simulation-edge[data-edge-id="{edge_id}"]')
+    assert 'Signed flow: -987.25 MW' in baseline.get_attribute('aria-label')
+    assert 'Signed flow: 321.5 MW' in response.get_attribute('aria-label')
+    assert baseline.get_attribute('data-reverse') == 'true'
+    assert response.get_attribute('data-reverse') == 'false'
+    assert baseline.get_attribute('data-band') == 'warning'
+    assert response.get_attribute('data-band') == 'healthy'
+    assert '41.3 MW' in page.locator('#baseline-summary').inner_text()
+    assert page.locator('#kpi-cost').inner_text() == money(12340000)
+    assert page.locator('#kpi-penalty').inner_text() == money(7890000)
+
+    page.locator('[data-tab="forecast"]').click()
+    page.wait_for_function("document.querySelector('#forecast-explanation').textContent.includes('API audit payload v1.')")
+    assert 'P50 5000 MW' in page.locator('#forecast-chart circle title').first.text_content()
+    first_curve = page.locator('#forecast-chart .forecast-median').get_attribute('d')
+    page.locator('[data-tab="results"]').click()
+    assert '75%' in page.locator('#result-headline').inner_text()
+    assert page.locator('[data-metric="cost_gbp"] [data-strategy="optimiser"] span').inner_text() == money(40000000)
+    assert page.locator('[data-metric="penalty_gbp"] [data-strategy="optimiser"] span').inner_text() == money(7000000)
+    assert page.locator('#results-table th').all_text_contents() == ['No response','Optimiser']
+    assert page.locator('#results-body tr').count() == 5
+
+    phase['version'] = 2
+    page.locator('#scenario').select_option(scenarios[1]['name'])
+    ready(page)
+    assert '80%' in page.locator('#result-headline').inner_text()
+    assert page.locator('[data-metric="cost_gbp"] [data-strategy="optimiser"] span').inner_text() == money(41000000)
+    page.locator('[data-tab="forecast"]').click()
+    page.wait_for_function("document.querySelector('#forecast-explanation').textContent.includes('API audit payload v2.')")
+    assert 'P50 7000 MW' in page.locator('#forecast-chart circle title').first.text_content()
+    assert page.locator('#forecast-chart .forecast-median').get_attribute('d') != first_curve
+    assert any(urlparse(url).path == '/zones' for url in requests)
+    assert any(urlparse(url).path == '/edges' for url in requests)
+    assert any(urlparse(url).path == '/forecast/LOND' for url in requests)
+    assert any(urlparse(url).path == '/compare' for url in requests)
+
+    phase['failed'] = True
+    page.locator('[data-tab="transfers"]').click()
+    page.locator('#next-frame').click()
+    page.wait_for_selector('#error-banner:not([hidden])')
+    assert 'API audit temporarily unavailable' in page.locator('#error-message').inner_text()
+    assert page.locator('#export-transfers').is_disabled()
+    assert page.locator('#use-bundle').count() == 0
+    assert page.evaluate('window.JMAP_SIMULATION_STUBS === undefined')
+    assert not errors, errors
+    context.close()
+    print('PASS API-only: changed network data, signed directions, forecasts, scoreboards and penalties render without a bundle; API failures remain visible')
+
+
 def run():
     scenarios = get('/scenarios')['scenarios']
     with tempfile.TemporaryDirectory(dir=UI/'tests', prefix='replay-browser-') as directory, sync_playwright() as p:
@@ -40,20 +147,20 @@ def run():
         errors, requests = [], []
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('request', lambda request: requests.append(request.url))
-        for mode in ('api', 'bundled'):
-            url = (UI/'operations.html').as_uri() + '?' + urlencode({'mode': mode, 'api': BASE})
+        for mode in ('api',):
+            url = (UI/'operations.html').as_uri()
             page.goto(url)
             ready(page)
             for scenario in scenarios:
                 name = scenario['name']
                 page.locator('#scenario').select_option(name)
                 ready(page)
-                series = get('/state/series', scenario=name, strategy='agents')
+                series = get('/state/series', scenario=name, strategy='optimiser')
                 for step in (0, 38, 47):
                     page.locator('#time-step').evaluate("(e,step)=>{e.value=step;e.dispatchEvent(new Event('input',{bubbles:true}));}", step)
                     ready(page)
                     timestamp = series['frames'][step]['timestamp_utc']
-                    expected = get('/state', scenario=name, strategy='agents', t=timestamp)
+                    expected = get('/state', scenario=name, strategy='optimiser', t=timestamp)
                     baseline = get('/state', scenario=name, strategy='none', t=timestamp)
                     display_time = page.evaluate("t=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(t))", timestamp)
                     assert display_time in page.locator('#frame-time').inner_text()
@@ -71,9 +178,11 @@ def run():
                 comparison = get('/compare', scenario=name)
                 for key in ('none', 'optimiser'):
                     totals = comparison['strategies'][key]
-                    assert page.locator(f'#results-body tr[data-strategy="{key}"] td').nth(2).inner_text() == money(totals['cost_gbp'])
-                    assert page.locator(f'[data-strategy-detail="{key}"] .result-penalty').inner_text() == money(totals['penalty_gbp'])
-                assert page.locator('#response-heading').inner_text() == 'Optimiser preview'
+                    assert page.locator(f'[data-metric="cost_gbp"] [data-strategy="{key}"] span').inner_text() == money(totals['cost_gbp'])
+                    assert page.locator(f'[data-metric="penalty_gbp"] [data-strategy="{key}"] span').inner_text() == money(totals['penalty_gbp'])
+                assert page.locator('#response-heading').inner_text() == 'Optimiser'
+                assert page.locator('#baseline-heading').inner_text() == 'No response'
+                assert page.locator('#result-honesty').inner_text() == 'RL agents were also trained; they did not beat the optimiser.'
                 with page.expect_download() as event:
                     page.locator('#export-results').click()
                 rows = list(csv.reader(io.StringIO(Path(event.value.path()).read_text(encoding='utf-8-sig'))))
@@ -82,15 +191,18 @@ def run():
                 for key in ('none', 'optimiser'):
                     assert float(values[key]['Cost GBP']) == comparison['strategies'][key]['cost_gbp']
                     assert float(values[key]['Penalty GBP (model)']) == comparison['strategies'][key]['penalty_gbp']
-                assert values['agents']['Status'] == 'Not yet trained'
-                assert values['agents']['Penalty GBP (model)'] == ''
+                assert set(values) == {'none','optimiser'}
+                assert page.locator('#results-table th').all_text_contents() == ['No response','Optimiser']
                 page.locator('[data-tab="forecast"]').click()
                 page.wait_for_function("document.querySelector('#forecast-status').textContent.includes('Illustrative')")
                 assert page.locator('#forecast-chart path').count() > 0
                 page.locator('[data-tab="transfers"]').click()
             print(f'PASS {mode}: all scenarios and selected times, distinct split-map measurements, separate penalties, /compare scoreboard and CSV, recorded forecasts')
+        assert page.evaluate('window.JMAP_SIMULATION_STUBS === undefined')
+        strategy_requests = [parse_qs(urlparse(url).query)['strategy'][0] for url in requests if urlparse(url).path in ('/state','/state/series')]
+        assert set(strategy_requests) == {'none','optimiser'}
         state_requests = [parse_qs(urlparse(url).query) for url in requests if urlparse(url).path == '/state']
-        assert {'none', 'agents'} <= {query['strategy'][0] for query in state_requests}
+        assert {'none', 'optimiser'} == {query['strategy'][0] for query in state_requests}
         assert {row['name'] for row in scenarios} <= {parse_qs(urlparse(url).query)['scenario'][0] for url in requests if urlparse(url).path == '/compare'}
         for width in (1440, 390, 320):
             page.set_viewport_size({'width': width, 'height': 900})
@@ -107,6 +219,7 @@ def run():
         assert not errors, errors
         print('PASS compact 320/390/1440 layouts and no browser errors')
         context.close()
+        check_api_only(browser)
         browser.close()
 
 

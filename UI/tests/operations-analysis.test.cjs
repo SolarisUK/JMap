@@ -94,11 +94,11 @@ test('Europe/London display disambiguates repeated autumn hours and observes sum
   assert.throws(() => operations.formatTime('2026-02-30T00:00:00Z'), /valid UTC/);
 });
 
-function comparison(none, optimiser, agents, placeholder = false) {
-  return { scenario: 'dynamic-test', agents_is_placeholder: placeholder, strategies: { none, optimiser, agents } };
+function comparison(none, optimiser) {
+  return { scenario: 'dynamic-test', strategies: { none, optimiser } };
 }
 
-test('the optimiser can beat trained agents and the headline uses actual arithmetic', () => {
+test('the optimiser headline uses actual API arithmetic', () => {
   const result = operations.compareResults(comparison(
     { unserved_mwh: 100, cost_gbp: 1000 },
     { unserved_mwh: 20, cost_gbp: 900 },
@@ -107,36 +107,16 @@ test('the optimiser can beat trained agents and the headline uses actual arithme
   assert.equal(result.bestStrategy, 'optimiser');
   assert.equal(result.reductionPercent, 80);
   assert.match(result.headline, /Optimiser reduced unserved energy by 80\.0%/);
-  assert.equal(result.rows.find(row => row.key === 'agents').reductionPercent, 60);
   assert.equal(result.rows.find(row => row.key === 'optimiser').unservedAvoidedMWh, 80);
   assert.equal(result.rows.find(row => row.key === 'optimiser').costChangeGbp, -100);
 });
 
-test('trained agents win only when their reported results are actually best', () => {
-  const result = operations.compareResults(comparison(
-    { unserved_mwh: 100, cost_gbp: 1000 },
-    { unserved_mwh: 30, cost_gbp: 700 },
-    { unserved_mwh: 10, cost_gbp: 900 }
-  ));
-  assert.equal(result.bestStrategy, 'agents');
-  assert.equal(result.reductionPercent, 90);
-  assert.match(result.headline, /^Agents reduced/);
-});
-
-test('placeholder agents cannot win and copied figures are withheld from every returned metric', () => {
-  const result = operations.compareResults(comparison(
-    { unserved_mwh: 100, cost_gbp: 1000 },
-    { unserved_mwh: 30, cost_gbp: 700 },
-    { unserved_mwh: 0, cost_gbp: 0, carbon_t: 0, curtailed_mwh: 0 }, true
-  ));
-  assert.equal(result.bestStrategy, 'optimiser');
-  const agents = result.rows.find(row => row.key === 'agents');
-  assert.equal(agents.isPlaceholder, true);
-  assert.match(agents.label, /not yet trained/);
-  assert.ok(Object.values(agents.totals).every(value => value === null));
-  assert.equal(agents.reductionPercent, null);
-  assert.equal(agents.unservedAvoidedMWh, null);
-  assert.equal(agents.costChangeGbp, null);
+test('only the two configured strategies are shown even if the API returns extra runs', () => {
+  const payload = comparison({unserved_mwh:100,cost_gbp:1000}, {unserved_mwh:20,cost_gbp:900});
+  payload.strategies.retired = {unserved_mwh:0,cost_gbp:0};
+  const result = operations.compareResults(payload,{strategies:['retired','optimiser','none']});
+  assert.deepEqual(result.rows.map(row=>row.key),['none','optimiser']);
+  assert.equal(result.bestStrategy,'optimiser');
 });
 
 test('strategies worse than no response retain negative changes instead of a winning story', () => {
@@ -148,7 +128,6 @@ test('strategies worse than no response retain negative changes instead of a win
   assert.equal(result.bestStrategy, 'none');
   assert.match(result.headline, /^No response has the lowest/);
   assert.equal(result.rows.find(row => row.key === 'optimiser').reductionPercent, -50);
-  assert.equal(result.rows.find(row => row.key === 'agents').reductionPercent, -100);
 });
 
 test('unknown totals and a zero baseline never manufacture percentage improvements', () => {
@@ -162,14 +141,11 @@ test('unknown totals and a zero baseline never manufacture percentage improvemen
   assert.equal(operations.compareResults({ strategies: {} }).bestStrategy, null);
 });
 
-test('ties use cost only when every tied strategy reports it, and reference order stays intact', () => {
-  const payload = comparison({ unserved_mwh: 100 }, { unserved_mwh: 20, cost_gbp: 50 }, { unserved_mwh: 20 });
-  const result = operations.compareResults(payload, { strategies: ['agents', 'none', 'optimiser'] });
-  assert.deepEqual(result.rows.map(row => row.key), ['agents', 'none', 'optimiser']);
-  assert.equal(result.bestStrategy, null);
-  assert.deepEqual(result.winnerKeys, ['agents', 'optimiser']);
-  payload.strategies.agents.cost_gbp = 40;
-  assert.equal(operations.compareResults(payload).bestStrategy, 'agents');
+test('ties use real cost only when both strategies report it', () => {
+  const payload = comparison({unserved_mwh:20,cost_gbp:50}, {unserved_mwh:20});
+  assert.deepEqual(operations.compareResults(payload).winnerKeys,['none','optimiser']);
+  payload.strategies.optimiser.cost_gbp = 40;
+  assert.equal(operations.compareResults(payload).bestStrategy,'optimiser');
 });
 
 test('tiny simulator residuals retain exact totals without a percentage-saving headline', () => {

@@ -18,17 +18,17 @@ Sites mode uses technology colours and one MW scale for individual sites and nea
 
 The live transfer page requests the public [Elexon FUELINST dataset](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELINST) from the browser. No API key or backend change is required. It preserves signed imports/exports, selects one five-minute observation interval for all ten links, refreshes every 60 seconds, and identifies missing or stale observations. Routes join approximate terminal areas; they are not surveyed cable paths. Cross-border imports do not determine local shortage risk. The Data & method dialog links to source definitions and terminal references.
 
-The operations page defaults to the existing UI-contained simulation bundle. These episodes are explicitly labelled synthetic and simulated. Small zone markers show shortage status; curved routes show transfer direction, loading colour and a fixed width scale for absolute MW. The map shows at most one corridor value, on hover, keyboard focus or selection. Full readings stay in a compact side-panel table; selecting a zone or route reveals its details. Blank-map clicks, Escape and Clear focus return to the whole network. Snapshot exports preserve the original signed measurements. Route-value and animation controls are under Sources, and their settings are retained in the URL; motion respects reduced-motion settings.
+The operations page reads its simulation values from the API at runtime. These episodes are explicitly labelled synthetic and simulated. Small zone markers show shortage status; curved routes show transfer direction, loading colour and a fixed width scale for absolute MW. The map shows at most one corridor value, on hover, keyboard focus or selection. Full readings stay in a compact side-panel table; selecting a zone or route reveals its details. Blank-map clicks, Escape and Clear focus return to the whole network. Snapshot exports preserve the original signed measurements. Route-value and animation controls are under Sources, and their settings are retained in the URL; motion respects reduced-motion settings.
 
-Refresh the simulation bundle after changes to `GridEnv`, scenario inputs or baseline policies:
+Refresh the archived regression fixture after changes to `GridEnv`, scenario inputs or baseline policies:
 
 ```powershell
 python -B UI/scripts/build-simulation-stubs.py
 ```
 
-The builder reads the backend's `scenarios/*.json`, calls `make_scenario_env(name)` separately for each strategy, and writes only `UI/assets/simulation-stubs.js`. It uses each scenario's `episode_start_utc` and `selected_from`, discovers additional scenario files, and retains explicit untrained-agent and illustrative-forecast labels. Scenario-specific forecasts use that scenario's recorded start. Source hashes accompany the generated data. The simulator dependencies and selected data files must be available; missing inputs leave the existing preview unchanged. If the baseline module was supplied under another name, use `--agents-file "agents_baseline(1).py"`. Use `--backend-root` or `--scenarios-dir` to read a separate backend checkout without modifying it.
+The builder reads the backend's `scenarios/*.json`, calls `make_scenario_env(name)` separately for each strategy, and writes only `UI/assets/simulation-stubs.js`. It uses each scenario's `episode_start_utc` and `selected_from`, discovers additional scenario files, and retains the two response strategies and illustrative-forecast labels. Scenario-specific forecasts use that scenario's recorded start. Source hashes accompany the generated data. The simulator dependencies and selected data files must be available; missing inputs leave the existing fixture unchanged. If the baseline module was supplied under another name, use `--agents-file "agents_baseline(1).py"`. Use `--backend-root` or `--scenarios-dir` to read a separate backend checkout without modifying it.
 
-Every refresh checks all 48 half-hours, aligned strategy/snapshot timelines, forecast issue times, and scoreboard totals against final snapshots before replacing the bundle. It supports the simulator's post-step timestamps without shifting measurements to another interval. Updating the root `stubs/` alone does not update this bundled preview. A complete exported replay bundle can also be validated and packaged:
+Every refresh checks all 48 half-hours, aligned strategy/snapshot timelines, forecast issue times, and scoreboard totals against final snapshots before replacing the bundle. It supports the simulator's post-step timestamps without shifting measurements to another interval. Updating the root `stubs/` alone does not update the archived regression fixture. A complete exported replay bundle can also be validated and packaged:
 
 ```powershell
 python -B UI/scripts/build-simulation-stubs.py --import-bundle path/to/replay.json
@@ -36,17 +36,17 @@ python -B UI/scripts/build-simulation-stubs.py --import-bundle UI/assets/simulat
 python -B UI/tests/simulation-bundle.test.py
 ```
 
-To connect the operations page to a separately managed contract-compatible API, open:
+The operations dashboard defaults to the local API on file/localhost previews and to same-origin endpoints on hosted deployments. To select a different API, open:
 
 ```text
 operations.html?mode=api&api=http://127.0.0.1:8000
 ```
 
-Alternatively, set `window.JMAP_OPERATIONS_CONFIG = { mode: 'api', apiBase: 'http://127.0.0.1:8000' }` before loading `operations-api.js`. Endpoint failures remain visible; an API failure never silently replaces observations with simulated data. The API must allow your UI origin through CORS when hosted separately. The UI consumes `/reference`, `/zones`, `/edges`, `/scenarios`, `/state/series`, `/state`, `/compare`, `/forecast/{zone}`, and `/incident` as specified by the project contract. Read-only stub APIs should identify `backend_mode: 'stubs'` in `/reference`.
+Alternatively, set `window.JMAP_OPERATIONS_CONFIG = { apiBase: 'http://127.0.0.1:8000' }` before loading `operations-api.js`. Endpoint failures remain visible; archived replay data is never used as a runtime fallback. The API must allow your UI origin through CORS when hosted separately. The UI consumes `/reference`, `/zones`, `/edges`, `/scenarios`, `/state/series`, `/state`, `/compare`, `/forecast/{zone}`, and `/incident` as specified by the project contract. Read-only stub APIs should identify `backend_mode: 'stubs'` in `/reference`.
 
-Refresh the root API stubs and matching offline preview from the supplied simulator with `python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest`. This writes a complete `stubs/replay.json` with all 48 full snapshots for every scenario and strategy, alongside the conventional JSON files. The source checkout is read-only. Scenarios with no configured date use UTC midnight of the day selected by reset seed 1; the chosen start and source hashes are recorded. `/state` looks up the exact requested UTC interval and returns 404 for absent times instead of substituting another snapshot. Forecasts also retain their actual scenario, zone and issue time. Custom incident injection is unavailable on the read-only replay API.
+Refresh the root API stubs and archived regression fixture from the supplied simulator with `python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest`. This writes a complete `stubs/replay.json` with all 48 full snapshots for every scenario and strategy, alongside the conventional JSON files. The source checkout is read-only. Scenarios with no configured date use UTC midnight of the day selected by reset seed 1; the chosen start and source hashes are recorded. `/state` looks up the exact requested UTC interval and returns 404 for absent times instead of substituting another snapshot. Forecasts also retain their actual scenario, zone and issue time. Custom incident injection is unavailable on the read-only replay API.
 
-Episode cost uses `cost_gbp` alone. Model penalty uses `penalty_gbp` in its own KPI, result detail and CSV column; it never increases displayed cost or changes the cost tie-break. `decision_time_utc` does not change the map or slider labels. API-mode results always come from `GET /compare`; the offline preview contains the same generated totals.
+Episode cost uses `cost_gbp` alone. Model penalty uses `penalty_gbp` in its own KPI, result detail and CSV column; it never increases displayed cost or changes the cost tie-break. `decision_time_utc` does not change the map or slider labels. API-mode results always come from `GET /compare`; the archived fixture is reserved for automated regressions.
 
 All code, source configuration and tests for these views are inside `UI/`. The backend, simulator inputs and dependency management are maintained separately.
 
@@ -69,6 +69,8 @@ python -B UI/tests/area-render-browser.py
 python -B UI/tests/motion-browser.py
 ```
 
-With the root Uvicorn API running, `python -B UI/tests/api-replay.test.py` checks all 432 scenario/strategy snapshots, final scoreboard totals, invalid requests and forecast identity. `python -B UI/tests/api-replay-browser.py` checks API and offline dashboard modes, separate cost/penalty values and CSVs, map data, time labels and mobile layout.
+With the root Uvicorn API running, `python -B UI/tests/api-replay.test.py` checks all 288 displayed scenario/strategy snapshots, final scoreboard totals, invalid requests and forecast identity. `python -B UI/tests/api-replay-browser.py` checks the API-only dashboard, separate cost/penalty values and CSVs, map data, time labels and mobile layout.
 
 The live browser suite can additionally check Elexon itself when `JMAP_LIVE_NETWORK_TEST=1` and outbound network access is available.
+
+The response screen always compares `none` (No response) with `optimiser` (Optimiser). The scoreboard has exactly these two strategy columns and ignores any additional strategy returned by the backend. The required historical footnote appears only under that table. CSV exports also contain just the two strategies. Numerical results come from `/state`, `/state/series`, `/forecast/{zone}` and `/compare` at runtime; result percentages are calculated from those returned totals. Map legend scales and control limits remain fixed display configuration.

@@ -89,8 +89,8 @@ class ReplayRefreshTests(unittest.TestCase):
             folder.mkdir()
             for name in ("grid_env.py", "schemas.py", "_fake.parquet"):
                 (root/name).write_text("test fixture", encoding="utf-8")
-            agents = root/"agents_baseline.py"
-            agents.write_text("class NoOpAgent:\n def reset(self): pass\n def act(self, observation, info): return 1\nclass OptimiserAgent(NoOpAgent):\n def act(self, observation, info): return 0\n", encoding="utf-8")
+            baseline_module = root/"agents_baseline.py"
+            baseline_module.write_text("class NoOpAgent:\n def reset(self): pass\n def act(self, observation, info): return 1\nclass OptimiserAgent(NoOpAgent):\n def act(self, observation, info): return 0\n", encoding="utf-8")
             scenarios = {}
             for index in range(6):
                 name = f"scenario_{index}"
@@ -102,7 +102,7 @@ class ReplayRefreshTests(unittest.TestCase):
             grid = SimpleNamespace(make_scenario_env=make_scenario_env, DEFAULT_DATA="_fake.parquet")
             zone = SimpleNamespace(id="A", name="Test zone", demand_share=1, storage_mwh=0, dr_mw=0, lon=0, lat=51)
             schema = SimpleNamespace(SCENARIO_DIR="scenarios", SCENARIOS=tuple(scenarios)[:3], STEPS_PER_EPISODE=48, CONTRACT_VERSION="test", ZONE_ORDER=("A",), EDGE_ORDER=(), FUEL_ORDER=("GAS",), ZONES=[zone], EDGES=[])
-            schema.STRATEGIES = ("none", "optimiser", "agents")
+            schema.STRATEGIES = ("none", "optimiser")
             schema.FUELS, schema.INCIDENT_TYPES = [], []
             schema.QUANTILE_NAMES = ("p10", "p50", "p90")
             schema.QF = SimpleNamespace(OK=0)
@@ -117,7 +117,7 @@ class ReplayRefreshTests(unittest.TestCase):
                 self.assertEqual(bundle["scenario_forecasts"][name]["A"]["issue_time_utc"], scenarios[name]["episode_start_utc"])
                 self.assertEqual(bundle["compare"][name]["strategies"]["none"]["unserved_mwh"], 96)
                 self.assertEqual(bundle["compare"][name]["strategies"]["optimiser"]["unserved_mwh"], 48)
-                self.assertTrue(bundle["compare"][name]["agents_is_placeholder"])
+                self.assertEqual(set(bundle["compare"][name]["strategies"]), {"none", "optimiser"})
             output = root/"refreshed.js"
             builder.write_bundle(bundle, output)
             self.assertEqual(builder.read_bundle(output), bundle)

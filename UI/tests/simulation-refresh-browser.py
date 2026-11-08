@@ -72,7 +72,7 @@ def run():
                 assert f"{10+index:02d} Nov" in page.locator("#forecast-issued").inner_text()
                 assert page.locator("#forecast-chart path").count() > 0
                 page.locator('[data-tab="results"]').click()
-                assert "80%" in page.locator("#result-headline").inner_text()
+                assert "80%" in page.locator("#outcome-reduction").inner_text()
                 assert "80.0%" in page.locator("#result-description").inner_text()
                 with page.expect_download() as event:
                     page.locator("#export-results").click()

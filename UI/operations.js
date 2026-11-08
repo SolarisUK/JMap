@@ -8,7 +8,7 @@
   const state = { scenario: params.get('scenario') || '', strategy: 'optimiser', zone: params.get('zone') || '', edge: params.get('edge') || null, focus: params.get('focus') === 'zone' ? 'zone' : params.get('edge') ? 'edge' : null, step: Number(params.get('step') ?? 38), split: params.get('view') !== 'single', tab: ['transfers','inspect','forecast','results'].includes(params.get('tab')) ? params.get('tab') : 'transfers', showValues: params.get('values') !== '0', animate: params.get('motion') !== '0', reference: null, zones: null, edges: [], scenarios: [], series: null, comparison: null, baseline: null, response: null, forecast: null, playing: false, busy: false };
   let api, baselineMap, responseMap, timer, episodeVersion = 0, frameVersion = 0, forecastVersion = 0;
   const finite = value => typeof value === 'number' && Number.isFinite(value);
-  const number = (value, digits = 1) => finite(value) ? value.toLocaleString('en-GB', { maximumFractionDigits: digits }) : '—';
+  const number = (value, digits = 1) => finite(value) ? value.toLocaleString('en-GB', { maximumFractionDigits: digits, signDisplay: 'negative' }) : '—';
   const energy = value => finite(value) ? `${number(value)} MWh` : '—';
   const power = value => finite(value) ? `${number(value)} MW` : '—';
   const money = value => !finite(value) ? '—' : Math.abs(value) >= 1e6 ? `£${number(value / 1e6, 2)}m` : `£${number(value, 0)}`;
@@ -31,6 +31,7 @@
   }
   function showError(error) {
     pause(); $('#error-message').textContent = `Data could not be loaded: ${error.message || error}`; $('#error-banner').hidden = false;
+    if (!state.comparison) { $('#result-headline').textContent = 'Outcome unavailable'; $('#outcome-reduction').textContent = ''; }
     $('#export-episode').disabled = true; $('#export-results').disabled = true; $('#export-transfers').disabled = true; document.body.classList.add('data-error');
     $('#loading-state').textContent = '';
     announce(`Data error. ${error.message || error}`);
@@ -113,7 +114,7 @@
       if (!reference.zone_order.includes(state.zone)) state.zone = reference.zone_order.find(key => /london/i.test(zoneName(key))) || reference.zone_order[0];
       if (!reference.edge_order.includes(state.edge)) { state.edge = null; if (state.focus === 'edge') state.focus = null; }
       fillOptions($('#scenario'),state.scenarios.map(scenario => [scenario.name,scenario.name.replaceAll('_',' ').replace(/^./,character=>character.toUpperCase())]));
-      [...$('#scenario').options].forEach(option=>option.title=state.scenarios.find(item=>item.name===option.value)?.description||option.textContent);
+      [...$('#scenario').options].forEach(option=>option.title=option.textContent);
       fillOptions($('#strategy'),[['optimiser','Optimiser']]);
       fillOptions($('#zone'),[['','All zones'],...reference.zone_order.map(key => [key,`${key} · ${zoneName(key)}`])]);
       $('#scenario').value = state.scenario; $('#strategy').value = state.strategy; $('#zone').value = state.zone; $('#zone').disabled = false;
@@ -131,6 +132,7 @@
   }
   async function loadEpisode() {
     pause(); const version = ++episodeVersion; ++frameVersion; ++forecastVersion; state.series = null; state.comparison = null; state.forecast = null;
+    $('#result-headline').textContent = 'Loading outcome…'; $('#outcome-reduction').textContent = '';
     $('#forecast-chart').replaceChildren(); $('#forecast-explanation').replaceChildren(); $('#forecast-issued').textContent = ''; $('#forecast-note').textContent = ''; $('#forecast-status').textContent = 'Waiting for episode…';
     $('#export-episode').disabled = true; $('#export-results').disabled = true; $('#export-transfers').disabled = true; $('#zone').disabled = true;
     loading(true,'Loading episode…'); $('#error-banner').hidden = true; document.body.classList.remove('data-error');
@@ -142,8 +144,9 @@
       if (baseline.frames.some((frame,index) => frame.timestamp_utc !== response.frames[index].timestamp_utc)) throw new Error('Baseline and response timelines do not align.');
       state.series = {baseline,response}; state.comparison = comparison;
       state.step = Math.max(0,Math.min(47,Number.isInteger(state.step) ? state.step : 0));
-      $('#scenario-description').textContent = state.scenarios.find(scenario => scenario.name === state.scenario)?.description || state.scenario;
+      $('#scenario-description').textContent = A.scenarioSummary(state.scenarios.find(scenario => scenario.name === state.scenario), baseline);
       $('#scenario-description').title = $('#scenario-description').textContent;
+      [...$('#scenario').options].find(option => option.value === state.scenario).title = $('#scenario-description').textContent;
       $('#episode-range').textContent = `${A.formatTime(baseline.frames[0].timestamp_utc,{includeDate:true})} — ${A.formatTime(baseline.frames[47].timestamp_utc,{includeDate:true})}`;
       $('#time-step').max = baseline.frames.length - 1;
       $('#results-scope').textContent = `Full episode \u00b7 ${baseline.frames.length} half-hours`;
@@ -192,7 +195,7 @@
   function edgeValues(edge) {
     const row = state.response?.edges[edge.edge_id] || {};
     const out = row.limit_mw === 0; const loading = finite(row.loading_frac) ? row.loading_frac : null;
-    return { row, out, loading, status: out ? 'out' : loading > 1 ? 'overloaded' : row.tripped ? 'tripped' : loading >= .75 ? 'warning' : loading === null ? 'unknown' : 'healthy' };
+    return { row, out, loading, status: out ? 'out' : loading > 1 + 1e-6 ? 'overloaded' : row.tripped ? 'tripped' : loading >= .75 ? 'warning' : loading === null ? 'unknown' : 'healthy' };
   }
   function transferButton(row) {
     const button = node('button','transfer-row'); button.type = 'button'; button.dataset.transferEdge = row.id; button.dataset.status = row.status;
@@ -271,8 +274,10 @@
     }) : [node('p','muted','No active incidents at this half-hour.')]));
   }
   function renderResults() {
-    const comparison = A.compareResults(state.comparison,state.reference); const best = comparison.rows.find(row => row.key === comparison.bestStrategy);
-    $('#result-headline').textContent = comparison.materialUnserved === false ? 'Near-zero unserved energy' : best && best.reductionPercent > 0 && best.unservedAvoidedMWh > .1 ? `${number(best.reductionPercent)}% less unserved energy` : comparison.bestStrategy === 'none' ? 'No response ranks first' : comparison.winnerKeys.length > 1 ? 'Results tied' : 'Episode comparison';
+    const comparison = A.compareResults(state.comparison,state.reference);
+    const optimiser = comparison.rows.find(row => row.key === 'optimiser');
+    $('#result-headline').textContent = finite(optimiser?.totals.unserved_mwh) ? `${energy(optimiser.totals.unserved_mwh)} unserved` : 'Unserved energy unavailable';
+    $('#outcome-reduction').textContent = finite(optimiser?.reductionPercent) ? `${number(optimiser.reductionPercent)}% less unserved energy` : '';
     $('#result-description').textContent = comparison.headline;
     const body = $('#results-body'); body.replaceChildren();
     const metrics = [
@@ -292,7 +297,10 @@
       });
       body.append(tr);
     });
-    facts($('#result-other-metrics'),best ? [['Unserved energy avoided',energy(best.unservedAvoidedMWh)],['Cost change vs baseline',finite(best.costChangeGbp) ? `${best.costChangeGbp < 0 ? '−' : '+'}${money(Math.abs(best.costChangeGbp))}` : '—']] : []);
+    const penaltyReduction = A.reductionPercent(comparison.rows[0].totals.penalty_gbp,optimiser?.totals.penalty_gbp);
+    const costChange = optimiser?.costChangeGbp;
+    const costLabel = finite(costChange) ? `${Math.round(Math.abs(costChange)) === 0 ? '' : costChange < 0 ? '−' : '+'}${money(Math.abs(costChange))}` : '—';
+    facts($('#result-other-metrics'),optimiser ? [['Unserved energy avoided',energy(optimiser.unservedAvoidedMWh)],['Cost change vs baseline',costLabel],['Penalty reduction',finite(penaltyReduction) ? `${number(penaltyReduction)}%` : '—']] : []);
   }
   async function loadForecast() {
     if (!state.response || !state.series || state.tab !== 'forecast') return;

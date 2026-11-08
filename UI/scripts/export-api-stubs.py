@@ -4,6 +4,7 @@ python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest
 Writes only the root stubs/ and UI/assets/simulation-stubs.js; source files are read-only.
 """
 import argparse
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -36,7 +37,10 @@ def export(backend_root):
     })
     # Validate and serialize everything before replacing any working data.
     serialized = {name: json.dumps(value, ensure_ascii=True, allow_nan=False, separators=(',', ':'))
-                  for name, value in payloads.items()}
+                  for name, value in payloads.items() if name != 'replay'}
+    bundle['stub_source_hashes'] = {name+'.json': hashlib.sha256((content+'\n').encode('utf-8')).hexdigest()
+                                  for name, content in serialized.items()}
+    serialized['replay'] = json.dumps(bundle, ensure_ascii=True, allow_nan=False, separators=(',', ':'))
     STUBS.mkdir(exist_ok=True)
     for name, content in serialized.items():
         temporary = None

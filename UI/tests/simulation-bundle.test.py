@@ -47,6 +47,16 @@ class ReplayRefreshTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "different scenario start"):
             builder.validate_bundle(changed)
 
+    def test_rejects_a_replay_shifted_half_an_hour_after_episode_start(self):
+        changed = deepcopy(self.current)
+        name = changed["scenarios"]["scenarios"][0]["name"]
+        for strategy in ("none", "optimiser"):
+            for collection in (changed["series"][name][strategy]["frames"], changed["states"][name][strategy]):
+                for frame in collection:
+                    frame["timestamp_utc"] = (builder.utc(frame["timestamp_utc"])+timedelta(minutes=30)).isoformat()
+        with self.assertRaisesRegex(ValueError, "fixed start"):
+            builder.validate_bundle(changed)
+
     def test_invalid_refresh_preserves_existing_output_and_output_stays_in_ui(self):
         with tempfile.TemporaryDirectory(dir=UI/"tests", prefix="replay-refresh-") as directory:
             output = Path(directory)/"bundle.js"
@@ -79,7 +89,7 @@ class ReplayRefreshTests(unittest.TestCase):
             def step(self, action):
                 self.index += 1
                 totals = {key: self.index*(action+1) for key in builder.TOTAL_FIELDS}
-                info = {"timestamp_utc": (builder.utc(self.scenario["episode_start_utc"])+timedelta(minutes=30*self.index)).isoformat(), "zones": {"A": {"demand_mw": 1000}}, "edges": {}, "incidents": [], "totals": totals}
+                info = {"timestamp_utc": (builder.utc(self.scenario["episode_start_utc"])+timedelta(minutes=30*(self.index-1))).isoformat(), "zones": {"A": {"demand_mw": 1000}}, "edges": {}, "incidents": [], "totals": totals}
                 return None, 0, self.index == 48, False, info
             def close(self):
                 pass

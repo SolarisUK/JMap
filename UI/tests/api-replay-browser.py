@@ -105,7 +105,7 @@ def check_api_only(browser):
     assert 'P50 5000 MW' in page.locator('#forecast-chart circle title').first.text_content()
     first_curve = page.locator('#forecast-chart .forecast-median').get_attribute('d')
     page.locator('[data-tab="results"]').click()
-    assert '75%' in page.locator('#result-headline').inner_text()
+    assert '75%' in page.locator('#outcome-reduction').inner_text()
     assert page.locator('[data-metric="cost_gbp"] [data-strategy="optimiser"] span').inner_text() == money(40000000)
     assert page.locator('[data-metric="penalty_gbp"] [data-strategy="optimiser"] span').inner_text() == money(7000000)
     assert page.locator('#results-table th').all_text_contents() == ['No response','Optimiser']
@@ -114,7 +114,7 @@ def check_api_only(browser):
     phase['version'] = 2
     page.locator('#scenario').select_option(scenarios[1]['name'])
     ready(page)
-    assert '80%' in page.locator('#result-headline').inner_text()
+    assert '80%' in page.locator('#outcome-reduction').inner_text()
     assert page.locator('[data-metric="cost_gbp"] [data-strategy="optimiser"] span').inner_text() == money(41000000)
     page.locator('[data-tab="forecast"]').click()
     page.wait_for_function("document.querySelector('#forecast-explanation').textContent.includes('API audit payload v2.')")

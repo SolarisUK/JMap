@@ -1,5 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+
+test('LP feasibility residue does not look overloaded while real overloads stay red', () => {
+  const {corridorState} = require('../operations-map.js');
+  const noise={flow_mw:1000.0001,limit_mw:1000,loading_frac:1.0000001,tripped:false};
+  assert.equal(corridorState(noise,{}).band,'warning');
+  assert.equal(corridorState(noise,{}).loading,noise.loading_frac);
+  assert.equal(corridorState({...noise,loading_frac:1.001},{}).band,'overload');
+});
 const { corridorState, zoneColour, unservedLabel } = require('../operations-map.js');
 const edge = { from: 'A', to: 'B', limit_mw: 6000 };
 

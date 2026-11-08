@@ -40,6 +40,35 @@ test('model penalties remain separate from money and never alter cost ranking', 
   assert.equal(result.rows[0].totals.penalty_gbp, 10000);
 });
 
+test('reduction percentages handle zero baselines, perfect outcomes and signed zero', () => {
+  assert.equal(operations.reductionPercent(100,0),100);
+  assert.equal(operations.reductionPercent(100,100),0);
+  assert.equal(Object.is(operations.reductionPercent(100,100),-0),false);
+  assert.equal(operations.reductionPercent(0,0),null);
+  assert.equal(operations.reductionPercent(0,5),null);
+  assert.equal(operations.reductionPercent(null,0),null);
+  assert.equal(operations.reductionPercent(100,NaN),null);
+  assert.equal(operations.reductionPercent(Infinity,0),null);
+});
+
+test('incident descriptions follow recorded API events instead of conflicting source prose', () => {
+  const scenario = {name:'boundary_trip',description:'Trip at 17:00.',incidents:[{type:'line_trip',target:'A-B'}]};
+  const series = {frames:[
+    {timestamp_utc:'2026-11-08T10:00:00Z',edges:{'A-B':{tripped:false,limit_mw:1000}},zones:{A:{unserved_mw:.0001}}},
+    {timestamp_utc:'2026-11-08T10:30:00Z',edges:{'A-B':{tripped:true,limit_mw:0}},zones:{A:{unserved_mw:0}}},
+    {timestamp_utc:'2026-11-08T11:00:00Z',edges:{'A-B':{tripped:true,limit_mw:0}},zones:{A:{unserved_mw:200}}}
+  ]};
+  const summary = operations.scenarioSummary(scenario,series);
+  assert.ok(summary.includes(`first recorded unavailable at ${operations.formatTime(series.frames[1].timestamp_utc,{includeDate:true})}`));
+  assert.ok(summary.includes(`shortages first recorded at ${operations.formatTime(series.frames[2].timestamp_utc,{includeDate:true})}`));
+  assert.ok(!summary.includes('17:00'));
+  assert.ok(!summary.includes('10:00'));
+  series.frames[1].timestamp_utc='2026-11-08T10:45:00Z';
+  assert.ok(operations.scenarioSummary(scenario,series).includes('10:45'));
+  assert.match(operations.scenarioSummary(scenario,{frames:[]}),/no trip recorded/);
+  assert.equal(operations.scenarioSummary({description:'Demand spike.'},{frames:[]}), 'Demand spike.');
+});
+
 test('snapshot validation preserves signed flows, overloads, importing zones and fully tripped corridors', () => {
   const snapshot = {
     timestamp_utc: '2026-11-07T12:00:00+00:00',

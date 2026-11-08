@@ -34,4 +34,15 @@ Other retained configuration numbers are the incident start/duration defaults (3
 
 Source URLs/legal titles, the HTTP `User-Agent` header, official operator names in source data, upstream baseline-module filenames and provenance keys retain their original identifiers. They do not describe the project's response layer and changing them would alter unrelated data or interfaces.
 
-The API still reports legacy heuristic implementation metadata. This presentation change neither verifies nor replaces the backend optimisation algorithm; it uses the requested Optimiser/optimisation-engine labels without making an implementation claim.
+At the time of this presentation-only change, the API reported legacy heuristic implementation metadata. The subsequent upgraded LP data and current server setup are documented in `LP_STUB_UPDATE.md`.
+
+## Upgraded optimiser dashboard fixes
+
+- `operations.html`, `operations.css`, `operations.js`: keep the API-driven full-episode unserved figure prominent above the map, label slider-dependent cost as Cost so far, clear the outcome during loading/errors, suppress rounded negative zero and show penalty reduction separately. The scoreboard still has only No response and Optimiser.
+- `operations-analysis.js`: guard percentage calculations against zero, unknown and non-finite inputs. Derive line-trip descriptions from the first recorded unavailable/derated corridor and no-response shortage frames, preserving API timestamps.
+- `operations-map.js`, `operations-transfers.js`, `operations.js`: apply the same `1e-6` loading tolerance in the maps, Transfers and Inspect. Preserve raw values and meaningful baseline overloads.
+- `scripts/build-simulation-stubs.py`: reject replays shifted after their configured start; retain the existing deterministic seeded-start option. `scripts/export-api-stubs.py` fingerprints the conventional files alongside the complete replay. Backend source files remain read-only.
+- `tests/lp-demo-browser.py`: verify the B6 release scoreboard, all 48 map and Inspect frames, incident-description timestamps, dominant outcome, zero baselines, signed zero and compact layouts. Updated analysis, corridor, replay and refresh tests cover the same behavior and prevent the old half-hour offset.
+- `README.md`, `LP_STUB_UPDATE.md`: document standard `api:app` startup, exporter-only data refresh, current verification results and the recording guide. Compatibility-loader files are unchanged and excluded from this dashboard update.
+
+Validation passed: all 85 Node tests; three API replay tests covering 288 snapshots; seven replay/export validation tests; API and B6 browser checks; six-scenario refresh checks; site workflows on all four pages; and six motion tests. No API code or loader changes are included.

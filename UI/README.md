@@ -20,6 +20,8 @@ The live transfer page requests the public [Elexon FUELINST dataset](https://bmr
 
 The operations page reads its simulation values from the API at runtime. These episodes are explicitly labelled synthetic and simulated. Small zone markers show shortage status; curved routes show transfer direction, loading colour and a fixed width scale for absolute MW. The map shows at most one corridor value, on hover, keyboard focus or selection. Full readings stay in a compact side-panel table; selecting a zone or route reveals its details. Blank-map clicks, Escape and Clear focus return to the whole network. Snapshot exports preserve the original signed measurements. Route-value and animation controls are under Sources, and their settings are retained in the URL; motion respects reduced-motion settings.
 
+Start the local API from the repository root with `uvicorn api:app --port 8000`. Use the complete exporter-generated root `stubs/` folder, including `replay.json`; keep `api.py` and the loader unchanged. After refreshing data, restart the API and hard-refresh the dashboard. See `LP_STUB_UPDATE.md` for the data audit and validation commands.
+
 Refresh the archived regression fixture after changes to `GridEnv`, scenario inputs or baseline policies:
 
 ```powershell
@@ -74,3 +76,7 @@ With the root Uvicorn API running, `python -B UI/tests/api-replay.test.py` check
 The live browser suite can additionally check Elexon itself when `JMAP_LIVE_NETWORK_TEST=1` and outbound network access is available.
 
 The response screen always compares `none` (No response) with `optimiser` (Optimiser). The scoreboard has exactly these two strategy columns and ignores any additional strategy returned by the backend. The required historical footnote appears only under that table. CSV exports also contain just the two strategies. Numerical results come from `/state`, `/state/series`, `/forecast/{zone}` and `/compare` at runtime; result percentages are calculated from those returned totals. Map legend scales and control limits remain fixed display configuration.
+
+The dominant outcome is the optimiser's full-episode unserved MWh from `/compare`, separate from the time slider's cumulative KPI values. Overload colour classification tolerates LP feasibility residue up to `1e-6` of capacity consistently in the maps, Transfers and Inspect; raw measurements are preserved. Run `python -B UI/tests/lp-demo-browser.py` for the B6 release check. Incident descriptions and selected-scenario tooltips derive trip and shortage times from recorded API frames rather than contradictory source prose. Export validation rejects a replay whose first interval is shifted after its configured episode start.
+
+The timed backup capture and rehearsal guide are in `recordings/README.md`. `scripts/record-b6-demo.py` records the actual dashboard against the running API and regenerates captions from its current results. It stops if the supplied Scottish supply story or optimiser guarantees change.

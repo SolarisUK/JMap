@@ -75,8 +75,8 @@ def validate_bundle(bundle):
             if len(frames) != 48 or len(states) != 48:
                 raise ValueError(f"{name}/{strategy}: expected 48 half-hours")
             times = [utc(frame["timestamp_utc"]) for frame in frames]
-            # GridEnv currently timestamps post-step snapshots at interval end.
-            if times[0] not in (start, start + timedelta(minutes=30)):
+            # Snapshot timestamps label the simulated interval, never its end.
+            if times[0] != start:
                 raise ValueError(f"{name}/{strategy}: episode does not use its fixed start")
             if any(time != times[0] + timedelta(minutes=30*i) for i, time in enumerate(times)):
                 raise ValueError(f"{name}/{strategy}: non-consecutive half-hours")
@@ -146,7 +146,7 @@ def baseline_forecasts(env, schema, start):
     return forecasts
 
 
-def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=1, allow_seeded_start=False):
+def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=1, allow_seeded_start=False, seeded_midnight=True):
     root = Path(backend_root).resolve()
     folder = Path(scenarios_dir).resolve() if scenarios_dir else root / "scenarios"
     paths = sorted(folder.glob("*.json"))
@@ -198,9 +198,11 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
                 probe = grid_env.make_scenario_env(name, random_incidents=False)
                 try:
                     _, initial = probe.reset(seed=seed)
-                    selected = utc(initial["timestamp_utc"]).replace(hour=0, minute=0, second=0, microsecond=0)
+                    selected = utc(initial["timestamp_utc"])
+                    if seeded_midnight:
+                        selected = selected.replace(hour=0, minute=0, second=0, microsecond=0)
                     scenario["episode_start_utc"] = selected.isoformat()
-                    scenario["start_selection"] = f"UTC midnight of simulator seed {seed} selected day"
+                    scenario["start_selection"] = f"{'UTC midnight of' if seeded_midnight else 'Exact'} simulator seed {seed} selected start"
                 finally:
                     probe.close()
             data_path = root / scenario.get("selected_from", str(grid_env.DEFAULT_DATA))

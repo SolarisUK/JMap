@@ -11,6 +11,7 @@
   const DEG = Math.PI / 180;
   const BOUNDS = [[-8.7, 49.3], [3.4, 61.1]];
   const REPORTING_TOLERANCE_MW = .05;
+  const OVERLOAD_TOLERANCE = 1e-6; // Ignore LP feasibility noise; preserve raw measurements.
   const COLOURS = Object.freeze({ healthy: '#17816b', warning: '#b47b13', overload: '#ba3437', out: '#8c9796', unknown: '#8c9796' });
   const DISPLAY_COLOURS = Object.freeze({ healthy: 'var(--accent, #83cdb7)', warning: 'var(--ops-warning-text, #e8c483)', overload: 'var(--ops-danger-text, #ff9c9f)', out: 'var(--muted, #a8b8bf)', unknown: 'var(--muted, #a8b8bf)' });
   const finite = value => typeof value === 'number' && Number.isFinite(value);
@@ -26,7 +27,7 @@
       : flowMW !== null && limitMW > 0 ? Math.abs(flowMW) / limitMW : null;
     const tripped = typeof state.tripped === 'boolean' ? state.tripped : null;
     const unavailable = limitMW === 0;
-    const band = unavailable ? 'out' : loading === null ? 'unknown' : loading > 1 ? 'overload' : loading >= .75 ? 'warning' : 'healthy';
+    const band = unavailable ? 'out' : loading === null ? 'unknown' : loading > 1 + OVERLOAD_TOLERANCE ? 'overload' : loading >= .75 ? 'warning' : 'healthy';
     const reverse = flowMW !== null && flowMW < 0;
     return {
       flowMW, limitMW, nameplateMW, loading, tripped, unavailable, band, reverse,

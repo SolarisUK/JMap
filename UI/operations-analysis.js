@@ -50,6 +50,29 @@
     return Object.fromEntries(TOTAL_FIELDS.map(key => [key, knownNumber(totals?.[key], `totals.${key}`)]));
   }
 
+  function reductionPercent(baseline, response) {
+    if (typeof baseline !== 'number' || !Number.isFinite(baseline) || baseline <= 0 ||
+        typeof response !== 'number' || !Number.isFinite(response) || response < 0) return null;
+    const value = (baseline - response) / baseline * 100;
+    return Number.isFinite(value) ? (value === 0 ? 0 : value) : null;
+  }
+
+  function scenarioSummary(scenario, series) {
+    const trips = [...new Set((scenario?.incidents || []).filter(incident => incident.type === 'line_trip').map(incident => incident.target))];
+    if (!trips.length) return scenario?.description || scenario?.name || 'Scenario description unavailable';
+    const frames = series?.frames || [];
+    const summaries = trips.map(target => {
+      const frame = frames.find(frame => frame.edges?.[target]?.tripped === true || frame.edges?.[target]?.limit_mw === 0);
+      if (!frame) return `${target}: no trip recorded in the returned frames.`;
+      const status = frame.edges[target].limit_mw === 0 ? 'unavailable' : 'derated';
+      return `${target}: first recorded ${status} at ${formatTime(frame.timestamp_utc, { includeDate: true })}.`;
+    });
+    const shortage = frames.find(frame => Object.values(frame.zones || {}).some(zone => typeof zone.unserved_mw === 'number' && Number.isFinite(zone.unserved_mw) && zone.unserved_mw >= .05));
+    if (shortage) summaries.push(`No-response shortages first recorded at ${formatTime(shortage.timestamp_utc, { includeDate: true })}.`);
+    summaries.push('Times follow the API snapshots.');
+    return summaries.join(' ');
+  }
+
   function validateSnapshot(snapshot) {
     record(snapshot, 'Snapshot');
     utcMilliseconds(snapshot.timestamp_utc, 'snapshot.timestamp_utc');
@@ -114,10 +137,10 @@
     const rows = keys.map(key => {
       const totals = totalKpis({ totals: payload.strategies[key] });
       const unservedAvoidedMWh = baseline.unserved_mwh === null || totals.unserved_mwh === null ? null : baseline.unserved_mwh - totals.unserved_mwh;
-      const reductionPercent = materialUnserved && unservedAvoidedMWh !== null ? unservedAvoidedMWh / baseline.unserved_mwh * 100 : null;
+      const reduction = materialUnserved ? reductionPercent(baseline.unserved_mwh,totals.unserved_mwh) : null;
       return {
         key, label: labels[key],
-        totals, reductionPercent, unservedAvoidedMWh,
+        totals, reductionPercent: reduction, unservedAvoidedMWh,
         costChangeGbp: baseline.cost_gbp === null || totals.cost_gbp === null ? null : totals.cost_gbp - baseline.cost_gbp
       };
     });
@@ -216,5 +239,5 @@
     return payload;
   }
 
-  return { totalKpis, validateSnapshot, validateForecast, compareResults, formatTime, renderForecast };
+  return { totalKpis, reductionPercent, scenarioSummary, validateSnapshot, validateForecast, compareResults, formatTime, renderForecast };
 });

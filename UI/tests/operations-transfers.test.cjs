@@ -2,6 +2,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { summarize } = require('../operations-transfers.js');
 
+test('transfer status ignores only tiny LP feasibility residue and keeps the raw ratio', () => {
+  const edges=[{edge_id:'A-B',from:'A',to:'B',limit_mw:1000}];
+  const state={edges:{'A-B':{flow_mw:1000.0001,limit_mw:1000,loading_frac:1.0000001,tripped:false}}};
+  assert.equal(summarize(edges,state).rows[0].status,'warning');
+  assert.equal(summarize(edges,state).rows[0].loading,1.0000001);
+  state.edges['A-B'].loading_frac=1.001;
+  assert.equal(summarize(edges,state).rows[0].status,'overloaded');
+});
+
 const topology = [
   { edge_id: 'A-B', from: 'A', to: 'B', limit_mw: 100 },
   { edge_id: 'B-C', from: 'B', to: 'C', limit_mw: 80 },

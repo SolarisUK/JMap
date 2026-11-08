@@ -141,3 +141,8 @@ dialog p { color:var(--muted); }
   .kpi-strip span,.kpi-strip strong {display:block;}
   .kpi-strip strong {margin-top:2px;font-size:14px;}
 }
+
+.outcome-summary {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;padding:3px 1px 5px;}
+.outcome-summary .result-headline {margin:1px 0 0;font-size:clamp(30px,3.5vw,44px);line-height:1.1;}
+.outcome-summary > .eyebrow {text-align:right;max-width:180px;}
+@media(max-width:600px) {.outcome-summary {gap:8px;align-items:flex-end;}.outcome-summary .result-headline {font-size:30px;}.outcome-summary > .eyebrow {max-width:105px;font-size:8px;}}

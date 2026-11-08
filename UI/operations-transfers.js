@@ -62,7 +62,7 @@
       const loading = reportedLoading !== null ? reportedLoading : known && limitMw > 0 ? magnitudeMw / limitMw : null;
       if (loading !== null && !Number.isFinite(loading)) throw new RangeError(`${edge.edge_id} loading exceeds the supported numeric range.`);
       const status = available === false ? 'out'
-        : loading !== null && loading > 1 ? 'overloaded'
+        : loading !== null && loading > 1 + 1e-6 ? 'overloaded'
         : tripped === true ? 'tripped'
         : !known ? 'unknown'
         : magnitudeMw < IDLE_THRESHOLD_MW ? 'idle'

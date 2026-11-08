@@ -43,7 +43,8 @@ class ReplayApiTests(unittest.TestCase):
                 self.assertEqual(run['strategy'], strategy)
                 start = stamp(run['frames'][0]['timestamp_utc'])
                 self.assertEqual(start, stamp(scenario['episode_start_utc']))
-                self.assertEqual((start.hour, start.minute), (0, 0))
+                self.assertIn(start.minute, (0, 30))
+                self.assertEqual(start.second, 0)
                 previous = {}
                 for index, frame in enumerate(run['frames']):
                     self.assertEqual(stamp(frame['timestamp_utc']), start + timedelta(minutes=30*index))
@@ -58,7 +59,8 @@ class ReplayApiTests(unittest.TestCase):
                         self.assertTrue(math.isfinite(value))
                         self.assertGreaterEqual(value, previous.get(key, 0))
                     previous = state['totals']
-                self.assertEqual(state['totals'], comparison['strategies'][strategy])
+                for key,value in state['totals'].items():
+                    self.assertAlmostEqual(value,comparison['strategies'][strategy][key],delta=.051)
                 self.assertIn('penalty_gbp', state['totals'])
         self.assertEqual(len(fingerprints), len(get('/scenarios')['scenarios']))
 

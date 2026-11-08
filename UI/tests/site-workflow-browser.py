@@ -260,12 +260,10 @@ def run():
                 route.focus()
                 route.press("Enter")
                 assert page.locator("#transfer-edge-detail").is_visible()
-                before = camera(page, selector)
-                page.locator("#open-incidents").click()
-                page.locator("#incident-start").focus()
-                page.locator("#incident-start").press("ArrowUp")
-                assert camera(page, selector) == before, "Editing incident input must not pan the map"
-                page.locator('[data-close="incident-dialog"]').click()
+                assert page.locator("#strategy").count() == 0, "A fixed optimiser needs no response selector"
+                assert page.locator("#open-incidents").is_hidden(), "Replay scenarios already have a scenario selector"
+                assert page.locator("#scenario option").count() > 1
+                assert page.locator("#single-view").inner_text() == "Optimiser only"
 
             for width, height in [(320, 740), (390, 844), (1366, 768), (1440, 900)]:
                 page.set_viewport_size({"width": width, "height": height})

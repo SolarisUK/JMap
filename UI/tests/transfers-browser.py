@@ -26,7 +26,7 @@ def ready(page):
 def current(page):
     return page.evaluate("""() => {
       const b=window.JMAP_SIMULATION_STUBS,scenario=document.querySelector('#scenario').value,
-        strategy=document.querySelector('#strategy').value,step=+document.querySelector('#time-step').value;
+        strategy='optimiser',step=+document.querySelector('#time-step').value;
       return {scenario,strategy,step,snapshot:b.states[scenario][strategy][step],edges:b.edges.edges||b.edges};
     }""")
 
@@ -93,7 +93,7 @@ def run():
             install_replay_fixture(page)
             page.goto(PAGE_URL)
             ready(page)
-            assert "Read-only stubs API" in page.locator("#data-status").inner_text()
+            assert "Real-data replay" in page.locator("#data-status").inner_text()
             assert page.locator("#panel-transfers").is_visible()
             assert page.locator("#network-transfer-list .transfer-row").count() == len(current(page)["edges"])
 
@@ -122,7 +122,9 @@ def run():
             metadata, exported = transfer_csv(page)
             row = next(row for row in exported if row["Corridor"] == edge_id)
             assert float(row["Signed MW"]) == updated
-            assert row["Flow source"] == negative["to"] and row["Flow destination"] == negative["from"]
+            # Real replay flows can reverse between consecutive half-hours.
+            source, target = (negative["to"], negative["from"]) if updated < 0 else (negative["from"], negative["to"])
+            assert row["Flow source"] == source and row["Flow destination"] == target
             assert any(row == ["Timestamp UTC", current(page)["snapshot"]["timestamp_utc"]] for row in metadata)
             print("PASS next-frame updates panel/map and CSV preserves signed flow/direction")
 

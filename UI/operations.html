@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="description" content="GB grid simulation: compare responses to incidents, inspect transmission constraints and unmet demand, and explore half-hour forecasts.">
   <title>Grid operations — JMap</title>
-  <link rel="stylesheet" href="operations.css">
+  <link rel="stylesheet" href="operations.css?v=20261108-controls">
   <link rel="stylesheet" href="theme-dark.css">
   <script src="map-interactions.js" defer></script>
   <script src="map-motion.js?v=20261108-smooth" defer></script>
@@ -16,7 +16,7 @@
   <script src="operations-analysis.js" defer></script>
   <script src="operations-transfers.js" defer></script>
   <script src="operations-map.js?v=20261108-smooth" defer></script>
-  <script src="operations.js" defer></script>
+  <script src="operations.js?v=20261108-controls" defer></script>
   <link rel="stylesheet" href="site-shell.css">
 </head>
 <body>
@@ -25,9 +25,8 @@
   <main>
     <section class="control-bar" aria-label="Episode controls">
       <label>Scenario<select id="scenario" disabled><option>Loading…</option></select></label>
-      <label>Response<select id="strategy" disabled><option>Loading…</option></select></label>
-      <div class="segmented" role="group" aria-label="Map layout"><button id="split-view" type="button" aria-pressed="true">Compare maps</button><button id="single-view" type="button" aria-pressed="false">Response only</button></div>
-      <button id="open-incidents" type="button" class="incident-trigger">Inject incident +</button><button class="text-button" id="export-episode" type="button" disabled>Export ↓</button>
+      <div class="segmented" role="group" aria-label="Map layout"><button id="split-view" type="button" aria-pressed="true">Compare maps</button><button id="single-view" type="button" aria-pressed="false">Optimiser only</button></div>
+      <button id="open-incidents" type="button" class="incident-trigger" hidden>Inject incident +</button><button class="text-button" id="export-episode" type="button" disabled>Export ↓</button>
     </section>
     <section class="outcome-summary" aria-label="Optimiser full-episode outcome" aria-live="polite"><div><p class="eyebrow">Optimiser &middot; full episode</p><p id="result-headline" class="result-headline">Loading outcome&hellip;</p></div><p id="outcome-reduction" class="eyebrow"></p></section>
     <section class="kpi-strip" aria-label="Cumulative episode totals at selected time" aria-live="polite">
@@ -40,7 +39,7 @@
 
         <div class="maps" id="maps">
           <article class="map-panel baseline-panel" aria-labelledby="baseline-heading"><div class="map-heading"><h2 id="baseline-heading">No response (network-blind dispatch)</h2><span id="baseline-summary">Baseline</span></div><div class="map-stage"><svg id="baseline-map" aria-label="Network without response"></svg></div></article>
-          <article class="map-panel response-panel" aria-labelledby="response-heading"><div class="map-heading"><h2 id="response-heading">Optimiser</h2><span id="response-summary"></span></div><div class="map-stage"><svg id="response-map" aria-label="Network with response"></svg><span id="response-chip" hidden>Optimiser</span><div class="map-navigation" role="group" aria-label="Map navigation"><button type="button" id="zoom-in" aria-label="Zoom in">+</button><button type="button" id="zoom-out" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map" title="Reset map">&#8634;</button></div></div></article>
+          <article class="map-panel response-panel" aria-labelledby="response-heading"><div class="map-heading"><h2 id="response-heading">Optimiser</h2><span id="response-summary"></span></div><div class="map-stage"><svg id="response-map" aria-label="Network with response"></svg><div class="map-navigation" role="group" aria-label="Map navigation"><button type="button" id="zoom-in" aria-label="Zoom in">+</button><button type="button" id="zoom-out" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map" title="Reset map">&#8634;</button></div></div></article>
         </div>
         <div class="network-legend"><div><strong>Zone shortage</strong><span class="legend-swatch healthy"></span><span title="Display-only tolerance; exact simulator values remain in tooltips and API responses.">&lt;0.05 MW</span><span class="unserved-ramp"></span><span>1,000+ MW</span><span class="legend-swatch unknown"></span><span>No data</span></div><div><strong>Line loading</strong><span class="line-key healthy-line"></span><span>&lt;75%</span><span class="line-key amber-line"></span><span>75–100%</span><span class="line-key red-line"></span><span>&gt;100%</span><span class="line-key trip-line"></span><span>Tripped</span></div><div class="flow-width-key"><strong>Width = flow</strong><svg width="22" height="10" aria-hidden="true"><path d="M1 5H21" stroke="#6f8177" stroke-width="1.72"/></svg><span>100</span><svg width="22" height="10" aria-hidden="true"><path d="M1 5H21" stroke="#6f8177" stroke-width="3.07"/></svg><span>1,000</span><svg width="22" height="10" aria-hidden="true"><path d="M1 5H21" stroke="#6f8177" stroke-width="5.5"/></svg><span>5,000 MW</span></div></div>
         <div class="timeline"><button id="previous-frame" type="button" aria-label="Previous half-hour">‹</button><button id="play" type="button" aria-pressed="false" disabled>Play</button><button id="next-frame" type="button" aria-label="Next half-hour">›</button><label for="time-step" class="sr-only">Half-hour snapshot</label><input id="time-step" type="range" min="0" max="47" step="1" value="0" disabled><output id="frame-time" for="time-step">—</output><span id="frame-count">—</span></div>

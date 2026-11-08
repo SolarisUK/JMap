@@ -174,8 +174,8 @@
   }
   function renderSnapshot() {
     const totals = A.totalKpis(state.response); const baselineTotals = A.totalKpis(state.baseline);
-    const cards = [['unserved',totals.unserved_mwh,energy,baselineTotals.unserved_mwh],['cost',totals.cost_gbp,money,baselineTotals.cost_gbp],['carbon',totals.carbon_t,value => finite(value) ? `${number(value)} tCO₂` : '—',baselineTotals.carbon_t],['curtailed',totals.curtailed_mwh,energy,baselineTotals.curtailed_mwh]];
-    cards.forEach(([key,value,format,baseline]) => { $(`#kpi-${key}`).textContent = format(value); $(`#kpi-${key}`).closest('article').title = `${responseName()}: ${format(value)}. No response: ${format(baseline)}. Cumulative to selected half-hour.`; });
+    const cards = [['unserved',totals.unserved_mwh,energy,baselineTotals.unserved_mwh],['cost',totals.cost_gbp,money,baselineTotals.cost_gbp],['penalty',totals.penalty_gbp,money,baselineTotals.penalty_gbp],['carbon',totals.carbon_t,value => finite(value) ? `${number(value)} tCO₂` : '—',baselineTotals.carbon_t],['curtailed',totals.curtailed_mwh,energy,baselineTotals.curtailed_mwh]];
+    cards.forEach(([key,value,format,baseline]) => { $(`#kpi-${key}`).textContent = format(value); $(`#kpi-${key}`).closest('article').title = `${responseName()}: ${format(value)}. No response: ${format(baseline)}. Cumulative to selected half-hour.${key === 'penalty' ? ' Model penalty for overloads and spilled surplus; excluded from real episode cost.' : ''}`; });
     const unmet = snapshot => { const values = state.reference.zone_order.map(key => snapshot.zones[key]?.unserved_mw); return values.every(finite) ? values.reduce((total,value) => total + value,0) : null; };
     $('#baseline-summary').textContent = `${power(unmet(state.baseline))} unmet now`; $('#response-summary').textContent = `${power(unmet(state.response))} unmet now`;
     renderZone(); renderCorridors(); renderTransfers(); renderIncidents(); syncMapFocus();
@@ -283,7 +283,9 @@
       const cell = node('td'); cell.colSpan = 3; const content = node('div');
       const carbon = node('span'); carbon.append(document.createTextNode('Carbon '),node('strong','result-carbon',row.isPlaceholder || !finite(row.totals.carbon_t) ? '—' : `${number(row.totals.carbon_t)} tCO₂`));
       const curtailed = node('span'); curtailed.append(document.createTextNode('Curtailed '),node('strong','result-curtailed',row.isPlaceholder ? '—' : energy(row.totals.curtailed_mwh)));
-      content.append(carbon,curtailed); cell.append(content); detail.append(cell); body.append(detail);
+      const penalty = node('span'); penalty.append(document.createTextNode('Model penalty '),node('strong','result-penalty',row.isPlaceholder ? '—' : money(row.totals.penalty_gbp)));
+      penalty.title = 'Optimisation penalty, excluded from real episode cost.';
+      content.append(carbon,curtailed,penalty); cell.append(content); detail.append(cell); body.append(detail);
     });
     facts($('#result-other-metrics'),best ? [['Unserved energy avoided',energy(best.unservedAvoidedMWh)],['Cost change vs baseline',finite(best.costChangeGbp) ? `${best.costChangeGbp < 0 ? '−' : '+'}${money(Math.abs(best.costChangeGbp))}` : '—']] : []);
     $('#result-honesty').textContent = state.comparison.agents_is_placeholder ? 'Untrained agent results excluded.' : 'Ranked by unserved energy, then cost.';
@@ -352,7 +354,7 @@
   document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click',() => injectPreset(button.dataset.preset)));
   $('#retry').addEventListener('click',() => init()); $('#use-bundle').addEventListener('click',() => { const url = new URL(location.href); url.searchParams.set('mode','bundled'); history.replaceState(null,'',url.href); init('bundled'); });
   $('#export-episode').addEventListener('click',() => { if (!state.series || !state.comparison) return; const episode = state.series.response; download([['JMap simulated episode',episode.scenario],['Strategy',episode.strategy],['Agents placeholder',state.comparison.agents_is_placeholder],['Data mode',api.mode],[],['Timestamp UTC','Zone','Demand MW','Generation MW','Unserved MW','Storage SOC'],...episode.frames.flatMap(frame => state.reference.zone_order.map(key => [frame.timestamp_utc,key,frame.zones[key].demand_mw,frame.zones[key].generation_mw,frame.zones[key].unserved_mw,frame.zones[key].storage_soc]))],`jmap-${episode.scenario}-${episode.strategy}-episode.csv`); });
-  $('#export-results').addEventListener('click',() => { if (!state.comparison) return; const comparison = A.compareResults(state.comparison,state.reference); download([['JMap simulated strategy comparison',comparison.scenario],['Agents placeholder',state.comparison.agents_is_placeholder],[],['Strategy','Status','Unserved MWh','Cost GBP','Carbon tonnes','Curtailed MWh'],...comparison.rows.map(row => [row.key,row.isPlaceholder ? 'Not yet trained' : 'Reported',row.totals.unserved_mwh,row.totals.cost_gbp,row.totals.carbon_t,row.totals.curtailed_mwh])],`jmap-${comparison.scenario}-comparison.csv`); });
+  $('#export-results').addEventListener('click',() => { if (!state.comparison) return; const comparison = A.compareResults(state.comparison,state.reference); download([['JMap simulated strategy comparison',comparison.scenario],['Agents placeholder',state.comparison.agents_is_placeholder],[],['Strategy','Status','Unserved MWh','Cost GBP','Penalty GBP (model)','Carbon tonnes','Curtailed MWh'],...comparison.rows.map(row => [row.key,row.isPlaceholder ? 'Not yet trained' : 'Reported',row.totals.unserved_mwh,row.totals.cost_gbp,row.totals.penalty_gbp,row.totals.carbon_t,row.totals.curtailed_mwh])],`jmap-${comparison.scenario}-comparison.csv`); });
   $('#export-transfers').addEventListener('click',() => {
     if (!state.response || !state.series || $('#export-transfers').disabled) return;
     const summary = T.summarize(state.edges,state.response,state.zone);

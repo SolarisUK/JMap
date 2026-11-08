@@ -44,6 +44,10 @@ operations.html?mode=api&api=http://127.0.0.1:8000
 
 Alternatively, set `window.JMAP_OPERATIONS_CONFIG = { mode: 'api', apiBase: 'http://127.0.0.1:8000' }` before loading `operations-api.js`. Endpoint failures remain visible; an API failure never silently replaces observations with simulated data. The API must allow your UI origin through CORS when hosted separately. The UI consumes `/reference`, `/zones`, `/edges`, `/scenarios`, `/state/series`, `/state`, `/compare`, `/forecast/{zone}`, and `/incident` as specified by the project contract. Read-only stub APIs should identify `backend_mode: 'stubs'` in `/reference`.
 
+Refresh the root API stubs and matching offline preview from the supplied simulator with `python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest`. This writes a complete `stubs/replay.json` with all 48 full snapshots for every scenario and strategy, alongside the conventional JSON files. The source checkout is read-only. Scenarios with no configured date use UTC midnight of the day selected by reset seed 1; the chosen start and source hashes are recorded. `/state` looks up the exact requested UTC interval and returns 404 for absent times instead of substituting another snapshot. Forecasts also retain their actual scenario, zone and issue time. Custom incident injection is unavailable on the read-only replay API.
+
+Episode cost uses `cost_gbp` alone. Model penalty uses `penalty_gbp` in its own KPI, result detail and CSV column; it never increases displayed cost or changes the cost tie-break. `decision_time_utc` does not change the map or slider labels. API-mode results always come from `GET /compare`; the offline preview contains the same generated totals.
+
 All code, source configuration and tests for these views are inside `UI/`. The backend, simulator inputs and dependency management are maintained separately.
 
 Run the UI data checks from the repository root:
@@ -64,5 +68,7 @@ python -B UI/tests/simulation-refresh-browser.py
 python -B UI/tests/area-render-browser.py
 python -B UI/tests/motion-browser.py
 ```
+
+With the root Uvicorn API running, `python -B UI/tests/api-replay.test.py` checks all 432 scenario/strategy snapshots, final scoreboard totals, invalid requests and forecast identity. `python -B UI/tests/api-replay-browser.py` checks API and offline dashboard modes, separate cost/penalty values and CSVs, map data, time labels and mobile layout.
 
 The live browser suite can additionally check Elexon itself when `JMAP_LIVE_NETWORK_TEST=1` and outbound network access is available.

@@ -1,11 +1,1 @@
-{
-  "ok": true,
-  "incident_id": "inc_7f3a",
-  "incident": {
-    "type": "line_trip",
-    "target": "SSCO-NORT",
-    "start_step": 34,
-    "duration_steps": 14,
-    "magnitude": 0.5
-  }
-}
+{"ok":false,"detail":"Read-only replay; select a pre-generated scenario."}

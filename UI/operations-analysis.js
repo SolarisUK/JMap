@@ -10,7 +10,7 @@
 })(typeof globalThis === 'object' ? globalThis : this, function () {
   'use strict';
 
-  const TOTAL_FIELDS = ['unserved_mwh', 'cost_gbp', 'carbon_t', 'curtailed_mwh'];
+  const TOTAL_FIELDS = ['unserved_mwh', 'cost_gbp', 'penalty_gbp', 'carbon_t', 'curtailed_mwh'];
   const HALF_HOUR_MS = 30 * 60 * 1000;
   const DISPLAY_TZ = 'Europe/London';
 

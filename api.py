@@ -1,7 +1,7 @@
 """The backend. Serves the stub files now, real data later.
 
 Run it:
-    python3 scripts/make_api_stubs.py      # once, creates stubs/
+    python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest
     uvicorn api:app --reload --port 8000
 
 Then open http://localhost:8000/docs to click through every endpoint.
@@ -12,6 +12,8 @@ working while you do it.
 """
 
 import json
+from datetime import datetime, timedelta
+from functools import lru_cache
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -32,31 +34,76 @@ def stub(name: str):
     path = STUBS / f"{name}.json"
     if not path.exists():
         raise HTTPException(
-            503, f"{path} missing. Run: python3 scripts/make_api_stubs.py"
+            503, f"{path} missing. Run: python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest"
         )
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def _cached_replay(path: str, modified: int, size: int):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def replay():
+    path = STUBS / "replay.json"
+    if not path.is_file():
+        raise HTTPException(503, "Complete replay missing. Run: python -B UI/scripts/export-api-stubs.py --backend-root dhruv_latest")
+    version = path.stat()
+    return _cached_replay(str(path), version.st_mtime_ns, version.st_size)
+
+
+def run(scenario: str, strategy: str, collection: str):
+    data = replay()
+    if scenario not in data[collection]:
+        raise HTTPException(404, f"Unknown scenario: {scenario}")
+    if strategy not in data[collection][scenario]:
+        raise HTTPException(404, f"Unknown strategy: {strategy}")
+    return data[collection][scenario][strategy]
+
+
+def utc(value: str):
+    try:
+        stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if stamp.utcoffset() != timedelta(0):
+            raise ValueError("UTC required")
+        return stamp
+    except (ValueError, TypeError):
+        raise HTTPException(422, "Timestamp must be an ISO 8601 UTC date and time.") from None
 
 
 @app.get("/zones")
 def zones():
     """GeoJSON polygons for the 10 zones. Join key is properties.zone_id."""
-    return stub("zones")
+    return replay()["zones"]
 
 
 @app.get("/edges")
 def edges():
     """The 14 transmission corridors, with endpoint lat/lons for drawing lines."""
-    return stub("edges")
+    return replay()["edges"]
 
 
 @app.get("/state")
-def state(t: str | None = None, incident: bool = False):
+def state(t: str | None = None, incident: bool = False,
+          scenario: str = "b6_trip_windy_peak", strategy: str = "optimiser"):
     """One half-hour snapshot: demand, generation, unserved MW per zone; flows per edge.
 
-    `incident=true` returns a snapshot taken mid-outage, so you can build and style the red
-    states without waiting for the real simulator.
+    Select the scenario, strategy and exact UTC interval start. Without t, return the
+    first interval; incident=true selects the first recorded active incident.
     """
-    return stub("state_incident" if incident else "state_calm")
+    frames = run(scenario, strategy, "states")
+    if t is not None:
+        requested = utc(t)
+        for frame in frames:
+            if utc(frame["timestamp_utc"]) == requested:
+                return frame
+        raise HTTPException(404, "Requested timestamp is not in this scenario's episode.")
+    if incident:
+        for frame in frames:
+            if frame.get("incidents"):
+                return frame
+        raise HTTPException(404, "This episode has no active incident snapshot.")
+    return frames[0]
 
 
 @app.get("/state/series")
@@ -66,26 +113,26 @@ def series(scenario: str = "b6_trip_windy_peak", strategy: str = "optimiser"):
     Fetch it twice -- strategy="none" and strategy="agents" -- to show the same incident with and
     without the response, side by side.
     """
-    data = stub("state_series")
-    data["scenario"] = scenario
-    data["strategy"] = strategy
-    return data
+    return run(scenario, strategy, "series")
 
 
 @app.get("/forecast/{zone_id}")
-def forecast(zone_id: str, issue_time: str | None = None):
+def forecast(zone_id: str, issue_time: str | None = None,
+             scenario: str = "b6_trip_windy_peak"):
     """48 half-hours of [p10, p50, p90] demand in MW, plus a plain-English explanation."""
-    data = stub("forecast_LOND")
-    data["zone_id"] = zone_id
-    if issue_time:
-        data["issue_time_utc"] = issue_time
+    forecasts = replay()["scenario_forecasts"]
+    if scenario not in forecasts or zone_id not in forecasts[scenario]:
+        raise HTTPException(404, "Unknown scenario or forecast zone.")
+    data = forecasts[scenario][zone_id]
+    if issue_time and utc(issue_time) != utc(data["issue_time_utc"]):
+        raise HTTPException(409, "Read-only forecast is available only at this scenario's recorded issue time.")
     return data
 
 
 @app.get("/scenarios")
 def scenarios():
     """The three scripted scenarios, for the picker."""
-    return stub("scenarios")
+    return replay()["scenarios"]
 
 
 class Incident(BaseModel):
@@ -99,14 +146,12 @@ class Incident(BaseModel):
 @app.post("/incident")
 def post_incident(body: Incident):
     """Inject an incident. Returns an acknowledgement."""
-    data = stub("incident_response")
-    data["incident"] = body.model_dump()
-    return data
+    raise HTTPException(409, "Read-only replay. Select a pre-generated scenario; custom incidents require a running simulator.")
 
 
 @app.get("/compare")
 def compare(scenario: str = "b6_trip_windy_peak"):
-    """The scoreboard: unserved MWh, cost, carbon and curtailment for all three strategies."""
+    """Episode scoreboard; real cost and model penalties remain separate fields."""
     data = stub("compare")
     if scenario not in data:
         raise HTTPException(404, f"unknown scenario {scenario}; have {sorted(data)}")
@@ -116,7 +161,7 @@ def compare(scenario: str = "b6_trip_windy_peak"):
 @app.get("/reference")
 def reference():
     """Zone order, edge order, fuel order, incident types, strategy keys. Don't hardcode these."""
-    return stub("reference")
+    return replay()["reference"]
 
 
 @app.get("/health")
@@ -126,6 +171,7 @@ def health():
         for n in (
             "zones", "edges", "state_calm", "state_incident", "state_series",
             "forecast_LOND", "compare", "scenarios", "incident_response", "reference",
+            "state_series_none", "state_series_optimiser", "replay",
         )
         if not (STUBS / f"{n}.json").exists()
     ]

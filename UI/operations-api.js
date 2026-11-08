@@ -46,7 +46,7 @@
       return clone(result);
     }
     async forecast(zone, issueTime, scenario) {
-      if (this.mode !== 'bundled') return this.request(`/forecast/${encodeURIComponent(zone)}?${new URLSearchParams({ issue_time: issueTime })}`);
+      if (this.mode !== 'bundled') return this.request(`/forecast/${encodeURIComponent(zone)}?${new URLSearchParams({ issue_time: issueTime, ...(scenario ? { scenario } : {}) })}`);
       const forecasts = this.bundle.scenario_forecasts && scenario ? this.bundle.scenario_forecasts[scenario] : this.bundle.forecasts;
       const result = forecasts?.[zone];
       if (!result) throw new Error(`No bundled forecast for ${zone}${scenario ? ` in ${scenario}` : ''}.`);

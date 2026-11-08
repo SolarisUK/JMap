@@ -48,7 +48,7 @@ def run():
                     strategies[strategy]=structuredClone(states.at(-1).totals);
                   }
                   bundle.compare[name]={scenario:name,strategies,agents_is_placeholder:true};
-                  bundle.scenario_forecasts[name]=structuredClone(original.forecasts);
+                  bundle.scenario_forecasts[name]=structuredClone(original.scenario_forecasts?.[source.name]||original.forecasts);
                   for(const forecast of Object.values(bundle.scenario_forecasts[name])){
                     forecast.issue_time_utc=start;forecast.timestamps_utc=forecast.timestamps_utc.map(shift);
                   }

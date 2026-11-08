@@ -21,7 +21,7 @@ import tempfile
 sys.dont_write_bytecode = True
 UI_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = UI_ROOT / "assets" / "simulation-stubs.js"
-TOTAL_FIELDS = ("unserved_mwh", "cost_gbp", "carbon_t", "curtailed_mwh")
+TOTAL_FIELDS = ("unserved_mwh", "cost_gbp", "penalty_gbp", "carbon_t", "curtailed_mwh")
 
 
 def utc(value):
@@ -91,6 +91,8 @@ def validate_bundle(bundle):
                 if any(key not in frame["edges"] or key not in state["edges"] for key in edges):
                     raise ValueError(f"{name}/{strategy}: missing corridor")
             for key in TOTAL_FIELDS:
+                if key == "penalty_gbp" and key not in states[-1]["totals"] and key not in comparison["strategies"][strategy]:
+                    continue  # Older replay exports did not report penalties.
                 final = states[-1]["totals"][key]
                 reported = comparison["strategies"][strategy][key]
                 if not isinstance(final, (int, float)) or not math.isfinite(final):
@@ -147,7 +149,7 @@ def baseline_forecasts(env, schema, start):
     return forecasts
 
 
-def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=1):
+def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=1, allow_seeded_start=False):
     root = Path(backend_root).resolve()
     folder = Path(scenarios_dir).resolve() if scenarios_dir else root / "scenarios"
     paths = sorted(folder.glob("*.json"))
@@ -155,9 +157,10 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
         raise ValueError(f"No scenario files in {folder}. Sync the scenario JSON files before refreshing the UI bundle.")
     specs = {path.stem: json.loads(path.read_text(encoding="utf-8-sig")) for path in paths}
     for name, spec in specs.items():
-        if not spec.get("episode_start_utc"):
+        if not spec.get("episode_start_utc") and not allow_seeded_start:
             raise ValueError(f"{name}: episode_start_utc is required for deterministic replay")
-        utc(spec["episode_start_utc"])
+        if spec.get("episode_start_utc"):
+            utc(spec["episode_start_utc"])
         data = root / spec.get("selected_from", "data/canonical/_fake.parquet")
         if not data.is_file():
             raise ValueError(f"{name}: selected data file is missing: {data}")
@@ -191,7 +194,18 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
             "scenario_forecasts": {},
         }
         for name in names:
-            scenario = specs[name]
+            scenario = dict(specs[name])
+            if not scenario.get("episode_start_utc"):
+                # Keep the scenario file read-only. Use midnight of the seed-
+                # selected day when the source omits a fixed episode start.
+                probe = grid_env.make_scenario_env(name, random_incidents=False)
+                try:
+                    _, initial = probe.reset(seed=seed)
+                    selected = utc(initial["timestamp_utc"]).replace(hour=0, minute=0, second=0, microsecond=0)
+                    scenario["episode_start_utc"] = selected.isoformat()
+                    scenario["start_selection"] = f"UTC midnight of simulator seed {seed} selected day"
+                finally:
+                    probe.close()
             data_path = root / scenario.get("selected_from", str(grid_env.DEFAULT_DATA))
             synthetic = scenario.get("data_is_synthetic", True if "fake" in data_path.name.lower() else None)
             metadata = {**scenario, "name": name, "start_timestamp_utc": scenario["episode_start_utc"], "data_is_synthetic": synthetic, "scenario_sha256": digest(folder/f"{name}.json"), "data_sha256": digest(data_path)}
@@ -199,7 +213,8 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
             bundle["series"][name], bundle["states"][name] = {}, {}
             strategies = {}
             for key, agent_class in (("none", agents.NoOpAgent), ("optimiser", agents.OptimiserAgent)):
-                env = grid_env.make_scenario_env(name, random_incidents=False)
+                options = {"start_utc": scenario["episode_start_utc"]} if not specs[name].get("episode_start_utc") else {}
+                env = grid_env.make_scenario_env(name, random_incidents=False, **options)
                 try:
                     observation, info = env.reset(seed=seed)
                     if utc(info["timestamp_utc"]) != utc(scenario["episode_start_utc"]):
@@ -246,7 +261,7 @@ def build_from_backend(backend_root, scenarios_dir=None, agents_file=None, seed=
             forecast_is_placeholder=True, geometry_is_placeholder=True,
             simulator_is_simplified=True, optimiser_is_heuristic=True,
             data_is_synthetic=next(iter(flags)) if len(flags)==1 else None,
-            episode_start_utc=specs[names[0]]["episode_start_utc"],
+            episode_start_utc=bundle["scenarios"]["scenarios"][0]["episode_start_utc"],
             generated_at_utc=datetime.now(timezone.utc).isoformat(),
             source_hashes={
                 "grid_env.py": digest(root/"grid_env.py"),

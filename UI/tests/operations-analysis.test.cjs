@@ -16,15 +16,28 @@ test('live KPI values read cumulative episode totals, never instantaneous zone c
     zones: { first: { cost_gbp: 10, unserved_mw: 200 }, second: { cost_gbp: 20, unserved_mw: 300 } },
     totals: { cost_gbp: 4500, unserved_mwh: 750, carbon_t: 125, curtailed_mwh: 600 }
   };
-  assert.deepEqual(operations.totalKpis(snapshot), { unserved_mwh: 750, cost_gbp: 4500, carbon_t: 125, curtailed_mwh: 600 });
+  assert.deepEqual(operations.totalKpis(snapshot), { unserved_mwh: 750, cost_gbp: 4500, penalty_gbp: null, carbon_t: 125, curtailed_mwh: 600 });
 });
 
 test('reduced series snapshots and missing cumulative fields remain unknown rather than zero', () => {
-  assert.deepEqual(operations.totalKpis({ zones: { first: { cost_gbp: 10 } } }), { unserved_mwh: null, cost_gbp: null, carbon_t: null, curtailed_mwh: null });
-  assert.deepEqual(operations.totalKpis({ totals: { cost_gbp: 0, unserved_mwh: null } }), { unserved_mwh: null, cost_gbp: 0, carbon_t: null, curtailed_mwh: null });
+  assert.deepEqual(operations.totalKpis({ zones: { first: { cost_gbp: 10 } } }), { unserved_mwh: null, cost_gbp: null, penalty_gbp: null, carbon_t: null, curtailed_mwh: null });
+  assert.deepEqual(operations.totalKpis({ totals: { cost_gbp: 0, unserved_mwh: null } }), { unserved_mwh: null, cost_gbp: 0, penalty_gbp: null, carbon_t: null, curtailed_mwh: null });
   assert.equal(operations.totalKpis(null).cost_gbp, null);
   assert.throws(() => operations.totalKpis({ totals: { cost_gbp: '4500' } }), TypeError);
   assert.throws(() => operations.totalKpis({ totals: [] }), TypeError);
+});
+
+test('model penalties remain separate from money and never alter cost ranking', () => {
+  const totals = operations.totalKpis({ totals: { cost_gbp: 125, penalty_gbp: 900 } });
+  assert.equal(totals.cost_gbp, 125);
+  assert.equal(totals.penalty_gbp, 900);
+  assert.throws(() => operations.totalKpis({ totals: { penalty_gbp: '900' } }), TypeError);
+  const result = operations.compareResults({ strategies: {
+    none: { unserved_mwh: 1, cost_gbp: 100, penalty_gbp: 10000 },
+    optimiser: { unserved_mwh: 1, cost_gbp: 110, penalty_gbp: 0 }
+  }});
+  assert.equal(result.bestStrategy, 'none');
+  assert.equal(result.rows[0].totals.penalty_gbp, 10000);
 });
 
 test('snapshot validation preserves signed flows, overloads, importing zones and fully tripped corridors', () => {

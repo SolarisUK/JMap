@@ -11,7 +11,7 @@ main { height:calc(100dvh - 40px); padding:5px 10px 8px; display:flex; flex-dire
 .segmented button { border:0; font-size:10px; padding:5px 7px; white-space:nowrap; } .segmented [aria-pressed=true] { background:var(--surface-hover); color:var(--ink); }
 #scenario-description { flex:1; font:10px/1.5 Arial,sans-serif; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .incident-trigger { padding:6px 9px; font-size:10px; white-space:nowrap; border-color:var(--control-border); }
-.kpi-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--line); background:var(--surface); flex-shrink:0; }
+.kpi-strip { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); border:1px solid var(--line); background:var(--surface); flex-shrink:0; }
 .kpi-strip article { display:flex; justify-content:space-between; gap:8px; align-items:baseline; padding:6px 11px; border-right:1px solid var(--line); min-width:0; }
 .kpi-strip article:last-child { border-right:0; } .kpi-strip span { font-size:10px; color:var(--muted); } .kpi-strip strong { font-size:17px; line-height:1.2; font-weight:500; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .snapshot-bar { display:flex; gap:12px; align-items:center; font:9px/1.5 monospace; color:var(--muted); min-height:17px; flex-shrink:0; } #model-status { margin-left:auto; color:#78582e; } #loading-state { color:var(--accent); }
@@ -131,3 +131,13 @@ dialog p { color:var(--muted); }
 #notes-dialog #model-status { margin-left:0; }
 /* SVG selections use corner brackets while ordinary controls retain focus outlines. */
 .simulation-edge:focus-visible,.simulation-zone-label:focus-visible,.simulation-zone:focus-visible { outline:none; }
+
+@media(max-width:850px) {
+  .kpi-strip {grid-template-columns:repeat(6,minmax(0,1fr));}
+  .kpi-strip article {grid-column:span 2;display:block;padding:5px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .kpi-strip article:nth-child(3) {border-right:0;}
+  .kpi-strip article:nth-child(n+4) {grid-column:span 3;border-bottom:0;}
+  .kpi-strip article:nth-child(2) {border-right:1px solid var(--line);}
+  .kpi-strip span,.kpi-strip strong {display:block;}
+  .kpi-strip strong {margin-top:2px;font-size:14px;}
+}

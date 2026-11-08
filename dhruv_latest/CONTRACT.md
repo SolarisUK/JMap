@@ -14,7 +14,7 @@ with nothing installed. Where this document and `schemas.py` disagree, `schemas.
 2. **Cross boundaries as files, never imports.** Eugene saves models to `models/`. Dhruv and
    Leonard load from `models/`. Nobody imports anybody else's training or simulation code.
 3. **UTC everywhere internally.** Convert to Europe/London only for display labels. The UK had a
-   25-hour day on 26 October 2026; index by local time and lag features break silently.
+   25-hour day on 25 October 2026; index by local time and lag features break silently.
 4. **One branch each, merge when it runs.** `dhruv/`, `eugene/`, `ranya/`, `leonard/`.
 5. **MW for power, MWh for energy, £ for money, tCO2 for carbon.** No kW anywhere.
 
@@ -37,7 +37,7 @@ Ten zones. The IDs are literal and final — they key every table, file and API 
 | `LOND` | London | 13% | Almost pure demand sink |
 | `SOUT` | South & South East England | 14% | Interconnector-heavy |
 
-Demand shares come from DESNZ subnational consumption and sum to 1.00. Ranya multiplies national
+Demand shares are rough estimates, not yet checked against DESNZ subnational consumption statistics; they sum to 1.00. Ranya multiplies national
 half-hourly demand by these to get estimated zone demand.
 
 **`MIDL` is the slack bus** for the power flow. Don't change this without telling Dhruv.
@@ -212,18 +212,30 @@ order, which is `EDGE_ORDER` order — not geographic, so don't assume north-to-
 Non-dispatchable fuels ignore their dispatch element. The slot stays in the vector so the shape
 is fixed.
 
-**Reward**, summed across zones:
+**Reward** is the cost of running the grid, in pounds (contract v1.1.0):
 
 ```
-reward = - W_UNSERVED  * unserved_mwh
-         - W_OVERLOAD  * overload_mw
-         - W_COST      * cost_gbp / 1000
-         - W_CARBON    * carbon_t
-         - W_CURTAIL   * curtailed_mwh
+reward = -(cost_gbp + penalty_gbp) / REWARD_SCALE_GBP        per half-hour step
 ```
 
-Weights are in `schemas.py`. `W_UNSERVED` dominates by two orders of magnitude: keeping the lights
-on beats everything else.
+| Term | Price | Kind |
+|---|---|---|
+| Fuel | each fuel's £/MWh (section 3) | cost |
+| Carbon | £67/t: UK ETS (~£49, 2026 reference price) + Carbon Price Support (£18) | cost |
+| Unserved energy | £6,000/MWh: the administrative VoLL in the Balancing and Settlement Code (consumer-survey VoLL is ~£17,000) | cost |
+| Deliberate curtailment | £70/MWh, typical wind turn-down bid (2017 data; dated) | cost |
+| Demand response | £300/MWh (`PRICE_DR_GBP_PER_MWH`, assumption) | cost |
+| Spill (surplus with nowhere to go) | £1,000/MWh | penalty |
+| Line overload | £1,000 per MW over limit, per half-hour | penalty |
+
+`cost_gbp` is money that would really be paid. `penalty_gbp` prices things a real grid can't
+sustain and which have no market price. Per MW per half-hour the ordering is:
+redispatch (≤ ~£260, worst line, using real flow factors) < line overload (£1,000) < blackout (£3,000), and
+deliberate curtailment (£35) < uncontrolled spill (£500). Fuel costs in section 3 are illustrative and
+fuel-only; carbon is added on top. Every value lives in `schemas.py`; never hardcode them.
+
+v1.0.0 used unit-less weights. They let a policy score well by running every plant flat out and
+spilling a quarter of national demand, so they were replaced.
 
 **`info` dict** on every step, so Leonard can render without recomputing:
 
@@ -234,7 +246,7 @@ on beats everything else.
                       "cost_gbp", "carbon_t", "curtailed_mw",
                       "storage_soc", "dr_called_mw"}},
   "edges": {edge_id: {"flow_mw", "limit_mw", "loading_frac", "tripped"}},
-  "totals": {"unserved_mwh", "cost_gbp", "carbon_t", "curtailed_mwh"},
+  "totals": {"unserved_mwh", "cost_gbp", "penalty_gbp", "carbon_t", "curtailed_mwh"},
   "incidents": [ {...} ],          # active incidents, schema in section 7
 }
 ```
@@ -322,3 +334,4 @@ Three, as files in `scenarios/`, not clicked live during the demo.
 ## Changelog
 
 - **v1.0.0** — hour 0, Dhruv. Initial freeze.
+- **v1.1.0** — reward rewritten as system cost in pounds; `totals` gains `penalty_gbp`.

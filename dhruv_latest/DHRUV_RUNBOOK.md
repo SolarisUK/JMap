@@ -11,7 +11,10 @@ Most of your original task list got built early to unblock Eugene. For the recor
 |---|---|
 | `CONTRACT.md`, `schemas.py` | done, self-checking |
 | `grid_env.py` — Gymnasium env, 5 incident types, weighted sampling | done |
-| **Real DC power flow**, susceptance-weighted, solved per island | **done, just landed** |
+| **Real DC power flow**, susceptance-weighted, solved per island | done; v2 with Eugene's merged fixes |
+| Reward as system cost in pounds (contract v1.1.0) | done |
+| `residual_env.py`: residual RL on top of the optimiser | done, settings tested |
+| Assumption audit: weather source, prices, timestamps, split screen | done |
 | Islanding: every one of the 14 edges can fully trip without a crash | done, tested |
 | `agents_baseline.py` — `NoOpAgent`, `OptimiserAgent` (heuristic), `PolicyAgent` | done |
 | `scenarios/*.json`, B6 scenario fixed to a full boundary outage | done |
@@ -24,16 +27,16 @@ Most of your original task list got built early to unblock Eugene. For the recor
 equal-reactance solve. Under real DC flow they're p50 0.43, p90 0.75, with 2.2% of edge-steps
 over limit. That's what a stressed-but-operable grid looks like.
 
-**Current numbers under real physics**, averaged over five seeds:
+**Current numbers** (physics v2, pounds reward), averaged over five seeds on random days:
 
 | Scenario | Unserved, none | Unserved, optimiser | Cost, none | Cost, optimiser |
 |---|---|---|---|---|
-| B6 full outage | 24,341 MWh | **1,167 MWh** | £173M | £35M |
-| North Scotland islanded | 8,188 MWh | **312 MWh** | £76M | £30M |
+| B6 full outage | 31,088 MWh | **26 MWh** | £221M | £38M |
+| North Scotland islanded | 8,770 MWh | **56 MWh** | £87M | £37M |
 | Optimiser beats none | | **6 of 6 scenarios** | | |
 
-Throughput dropped from 2,345 to 1,443 steps/sec with the real solve. Still fine — multiply by
-Eugene's core count.
+On the demo case itself (`make_scenario_env("b6_trip_windy_peak")`, 16 Dec 2025, synthetic):
+53,418 → 180 MWh unserved. Throughput is about 4,000 steps/sec single-core.
 
 ---
 

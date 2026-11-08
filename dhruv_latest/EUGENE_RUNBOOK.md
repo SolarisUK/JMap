@@ -4,6 +4,12 @@ Stage by stage, with the prompt to paste at each one. Times are hours from when 
 clock times. Attach `EUGENE_SPEC.md` and `schemas.py` to your AI session once at the start and
 leave them attached; each stage says what else to add.
 
+> **Status, 8 Nov 00:00.** Stages 0–9 are done and the forecaster is accepted. Since then, two
+> things changed: the reward is now the cost of running the grid in pounds (contract v1.1.0), and
+> PPO is trained as **residual RL** on top of the optimiser. See `EUGENE_SPEC.md` 2.2–2.3 for the
+> tested settings. Stage 10 below is updated; stages 1–2 are kept for the record but their
+> numbers came from the old physics and old reward.
+
 **Read this first:** stage 1 is a PPO smoke test, before any forecasting work. That is deliberate.
 Whether PPO converges on this problem is the single biggest unknown in the project, the simulator
 already exists, and the test needs no data from anyone. Answering it at hour 1 means we can still
@@ -200,7 +206,7 @@ print(df.groupby('h').size().head())
 "
 ```
 
-Expect roughly 10 zones × 4 issue times/day × 21 days × 48 horizons ≈ 40k rows, minus exclusions.
+Expect roughly 10 zones × 4 issue times/day × 180 days × 48 horizons ≈ 345k rows, minus exclusions.
 
 ---
 
@@ -349,18 +355,24 @@ look completely normal.
 
 ## Stage 10 — The real run (6 h, mostly waiting)
 
-By now Dhruv's real power flow is in `grid_env.py` and the API hasn't changed, so `train_ppo.py`
-needs no edits.
+**Updated 8 Nov.** Any run or checkpoint from before the pounds reward is void: delete it.
+
+Change `train_ppo.py` to train residual RL with the tested settings in `EUGENE_SPEC.md` 2.3:
+wrap the env in `residual_env.ResidualEnv(..., scale=0.1)`, use `log_std_init=-1.5`,
+`learning_rate=1e-4`, `ent_coef=0.0`, `clip_range=0.1`, `n_steps=512`, `batch_size=1024`, and keep
+the best checkpoint with `EvalCallback`. Train on `_holdout.parquet` with
+`EUGENE_FORECAST_DATA` pointing at the same file.
+
+Before the long run, report the absolute env steps per second with the forecaster attached.
 
 ```bash
-kill $(cat results/train_stub.pid)        # stop the stub run
 nohup python3 train_ppo.py --steps 5000000 --n-envs $(nproc) > results/train_real.log 2>&1 &
 ```
 
 Check in every 30–45 minutes. While it runs, build stage 11.
 
 **Hour 16 is the decision point.** If the policy is not beating `OptimiserAgent` on at least two
-of the three scenarios, we ship the optimiser and describe the system accurately. That is a good
+of the three scenarios, without adding blackouts, we ship the optimiser and describe the system accurately. That is a good
 outcome, not a failure — and it is only a good outcome if we decide it at 16 rather than 21.
 
 ---
@@ -371,8 +383,11 @@ outcome, not a failure — and it is only a good outcome if we decide it at 16 r
 >
 > Write `scripts/run_comparison.py`. For each scenario in `schemas.SCENARIOS`, run all three
 > strategies — `agents_baseline.NoOpAgent`, `agents_baseline.OptimiserAgent`, and
-> `agents_baseline.PolicyAgent` wrapping the trained policy and its `VecNormalize` statistics —
-> over 5 seeds each, and write the averaged totals to `results/compare.json` in exactly the shape
+> `residual_env.ResidualPolicyAgent` (scale=0.1) wrapping the trained policy and its
+> `VecNormalize` statistics —
+> over 5 seeds each, using `grid_env.make_scenario_env(name)` so every run starts from the
+> scenario's selected conditions, and write the averaged totals (including `penalty_gbp`) to
+> `results/compare.json` in exactly the shape
 > in `EUGENE_SPEC.md` section 2.5. The three strategy keys are `schemas.STRATEGIES` and must not
 > be renamed; Leonard's `/compare` endpoint reads them.
 >

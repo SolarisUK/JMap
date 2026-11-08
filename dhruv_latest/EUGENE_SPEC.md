@@ -295,9 +295,9 @@ assert 500 < fc[0][1] < 12000, f"P50 of {fc[0][1]} MW is not a plausible zone de
 That `h["1"] < h["48"]` assertion is the most valuable one here. A model that predicts 24 hours
 ahead as accurately as 30 minutes ahead has seen the future somewhere in the feature pipeline.
 
-**Note on the stub data:** `_fake.parquet` holds 21 days, so `lag_2w` is thin and
-`same_hh_mean_3w` is barely computable. Expect poor accuracy on the stub — you're testing that the
-pipeline runs, not that the model is good. Judge accuracy only on Ranya's real file.
+**Note on the stub data:** `_fake.parquet` holds 180 days of synthetic data with realistic
+horizon structure (persistent demand deviations, day-ahead weather error). Good stub numbers mean
+the pipeline works, not that the model is good. Judge accuracy only on the real file.
 
 ---
 
@@ -317,7 +317,8 @@ obs, reward, terminated, truncated, info = env.step(action)
 - `obs` — `float32`, shape `(10, 52)`. One row per zone, in `schemas.ZONE_ORDER`.
 - `action` — `float32`, shape `(10, 11)`, every element in `[-1, 1]`.
 - One step is one half-hour. An episode is 48 steps.
-- `reward` — scalar, summed across zones. Heavily negative; near zero is good.
+- `reward` — scalar: minus the cost of running the grid in pounds, divided by 100,000
+  (contract v1.1.0). Near zero is good. Prices are in `schemas.py`.
 
 Observation and action index constants are `schemas.OBS_*` and `schemas.ACT_*`. Full layouts are in
 `CONTRACT.md` sections 6. You don't need to interpret them to train — but you do need them to debug,
@@ -325,52 +326,62 @@ and `OBS_FC_P50` at indices 4–7 is where my env writes *your* forecast. That's
 your two jobs: the agents see the P50 and P90 predictions and act before an incident, not just
 after.
 
-## 2.2 The policy architecture
+## 2.2 The policy architecture: residual RL
 
-Stable-Baselines3 PPO. Two plans; do A first.
+**Updated 8 Nov.** Plain PPO is superseded. Train with residual RL: the policy outputs a
+*correction* to `OptimiserAgent`'s action, not the whole action. A zero correction behaves exactly
+like the optimiser, so training starts from the best known strategy instead of "every plant at
+50%". Under the pounds reward, plain PPO was still at −1,525 after 60k steps against the
+optimiser's −451.
+
+```python
+import grid_env, residual_env
+env = residual_env.ResidualEnv(grid_env.GridEnv(...), scale=0.1)
+```
 
 **Do not flatten the observation.** SB3 accepts the `(10, 52)` Box and the `(10, 11)` action box
-natively; its `FlattenExtractor` handles the reshape internally. `model.predict(obs)` takes
-`(10, 52)` and returns `(10, 11)`. Passing `obs.flatten()` raises `ValueError: Unexpected
-observation shape (520,)`. Verified against stable-baselines3 2.9.2.
+natively. `model.predict(obs)` takes `(10, 52)` and returns `(10, 11)`. Passing `obs.flatten()`
+raises `ValueError: Unexpected observation shape (520,)`. Verified against stable-baselines3 2.9.2.
 
-**Plan A — centralised, works immediately.** `PPO("MlpPolicy", env)` with
-`policy_kwargs=dict(net_arch=[256, 256])`. Nothing else. One policy controls all ten zones. It is
-not really multi-agent, so describe it as a central controller, not as agents.
-
-**Plan B — shared per-zone policy, the better story.** Custom feature extractor that takes the
-`(10, 52)` observation, applies one shared MLP to each zone's row, and concatenates. Every zone
-runs the same weights on its own local observation, which is genuine parameter sharing across
-agents.
-
-Upgrade A to B only once A is converging. If you're still on A at hour 17, ship A.
+One shared MLP over all ten zones (`MlpPolicy`, `net_arch=[256, 256]`). It is a central
+controller on top of the optimiser; describe it that way, not as independent agents.
 
 ## 2.3 PPO configuration
 
+These settings were tested. Larger corrections and default exploration made the policy WORSE than
+the optimiser within 60k steps:
+
 ```python
+ResidualEnv(env, scale=0.1)
 PPO(
-    policy,
-    env,                       # SubprocVecEnv, n_envs = min(os.cpu_count(), 32)
-    n_steps=256,               # per env, so 256 * n_envs per rollout
-    batch_size=4096,
-    n_epochs=10,
-    learning_rate=3e-4,
-    gamma=0.99,
-    gae_lambda=0.95,
-    clip_range=0.2,
-    ent_coef=0.005,
-    vf_coef=0.5,
-    max_grad_norm=0.5,
+    "MlpPolicy",
+    venv,                      # SubprocVecEnv, n_envs = min(os.cpu_count(), 32)
+    policy_kwargs=dict(net_arch=[256, 256], log_std_init=-1.5),
+    n_steps=512,
+    batch_size=1024,
+    learning_rate=1e-4,
+    ent_coef=0.0,
+    clip_range=0.1,
 )
 ```
 
 Wrap the vec env in `VecNormalize(norm_obs=True, norm_reward=True, clip_obs=10.0)`.
 
 **Save the VecNormalize statistics.** `vec_env.save("policies/vecnormalize.pkl")`. If you lose them
-the policy receives differently-scaled observations at inference and behaves like noise. This is the
-single most common way a working PPO run ends up useless, and it fails silently.
+the policy receives differently-scaled observations at inference and behaves like noise. It fails
+silently.
 
-Total budget: 2–5 M steps. With 32 parallel envs that's comfortably inside your window.
+**Keep the best checkpoint, not the last.** `EvalCallback` with `best_model_save_path`,
+evaluating on fixed seeds every ~50k steps. Training can drift below the optimiser; best-checkpoint
+selection means the shipped policy doesn't.
+
+What to expect: on 2 cores, 80k steps reached −438 against the optimiser's −451 (8 evaluation
+days), with slightly fewer line overloads but slightly more blackouts (105 vs 90 MWh). That is
+"not worse, possibly better", not a proven win. Treat any gain as real only if it holds on more
+seeds and doesn't add blackouts.
+
+Train on `GridEnv(data_path="data/canonical/_holdout.parquet", forecaster=forecast)` with
+`EUGENE_FORECAST_DATA` pointing at the same file, so training never touches your test split.
 
 ## 2.4 Incident sampling — one thing to get right
 

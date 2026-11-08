@@ -76,7 +76,7 @@ INCIDENT_MIX = {
 }
 
 STORAGE_EFFICIENCY = 0.90
-UNSERVED_VALUE_GBP_PER_MWH = 6000.0  # value of lost load, for the cost line in info
+# All prices and penalties live in schemas.py: the reward is the cost of running the grid.
 
 
 def _turbine_output_frac(wind_ms: np.ndarray) -> np.ndarray:
@@ -435,8 +435,9 @@ class GridEnv(gym.Env):
             matches = [i for i, t in enumerate(self.times) if t == want]
             if not matches:
                 raise ValueError(f"start_utc {start} not found in the loaded data")
-            if matches[0] > self.n_t - S.STEPS_PER_EPISODE:
-                raise ValueError(f"start_utc {start} leaves less than one day of data")
+            # The terminal observation reads index t0 + STEPS_PER_EPISODE, so that must exist.
+            if matches[0] + S.STEPS_PER_EPISODE > self.n_t - 1:
+                raise ValueError(f"start_utc {start} leaves less than one day of data after it")
             self.t0 = matches[0]
         else:
             self.t0 = int(self.np_random.integers(0, max_start))
@@ -452,7 +453,13 @@ class GridEnv(gym.Env):
         self.output = np.zeros((S.N_ZONES, S.N_FUELS))
         self.flows = np.zeros(S.N_EDGES)
         self._last_unserved = np.zeros(S.N_ZONES)
-        self.totals = {"unserved_mwh": 0.0, "cost_gbp": 0.0, "carbon_t": 0.0, "curtailed_mwh": 0.0}
+        self.totals = {
+            "unserved_mwh": 0.0,
+            "cost_gbp": 0.0,  # real money: fuel, carbon, curtailment, DR, lost load at VoLL
+            "penalty_gbp": 0.0,  # spill and line overload, which have no market price
+            "carbon_t": 0.0,
+            "curtailed_mwh": 0.0,
+        }
 
         obs = self._observe()
         return obs, self._info()
@@ -515,20 +522,31 @@ class GridEnv(gym.Env):
         overload_mw = np.maximum(np.abs(self.flows) - limits, 0.0)
 
         energy = out * 0.5  # MWh in a half-hour
-        cost = float((energy * self.fuel_cost).sum())
+        fuel_gbp = float((energy * self.fuel_cost).sum())
         carbon = float((energy * self.fuel_carbon).sum())
-        curtailed_mwh = float((curtailed_action + spill_mw).sum() * 0.5)
         unserved_mwh = float(unserved_mw.sum() * 0.5)
+        curtailed_action_mwh = float(curtailed_action.sum() * 0.5)
+        spill_mwh = float(spill_mw.sum() * 0.5)
+        dr_mwh = float(dr_called.sum() * 0.5)
+        curtailed_mwh = curtailed_action_mwh + spill_mwh
 
-        reward = -(
-            S.W_UNSERVED * unserved_mwh
-            + S.W_OVERLOAD * float(overload_mw.sum())
-            + S.W_COST * cost / 1000.0
-            + S.W_CARBON * carbon
-            + S.W_CURTAIL * curtailed_mwh
+        # Money that would really be paid.
+        cost_gbp = (
+            fuel_gbp
+            + carbon * S.PRICE_CARBON_GBP_PER_T
+            + unserved_mwh * S.PRICE_VOLL_GBP_PER_MWH
+            + curtailed_action_mwh * S.PRICE_CURTAIL_GBP_PER_MWH
+            + dr_mwh * S.PRICE_DR_GBP_PER_MWH
         )
+        # Things a real grid cannot sustain, priced so the policy avoids them.
+        penalty_gbp = (
+            spill_mwh * S.PENALTY_SPILL_GBP_PER_MWH
+            + float(overload_mw.sum()) * S.PENALTY_OVERLOAD_GBP_PER_MW_HH
+        )
+        reward = -(cost_gbp + penalty_gbp) / S.REWARD_SCALE_GBP
 
         self._last_unserved = unserved_mw
+        self._last_t_i = t_i
         self._step_detail = {
             "demand": demand,
             "demand_net": demand_net,
@@ -543,7 +561,8 @@ class GridEnv(gym.Env):
         }
 
         self.totals["unserved_mwh"] += unserved_mwh
-        self.totals["cost_gbp"] += cost + unserved_mwh * UNSERVED_VALUE_GBP_PER_MWH
+        self.totals["cost_gbp"] += cost_gbp
+        self.totals["penalty_gbp"] += penalty_gbp
         self.totals["carbon_t"] += carbon
         self.totals["curtailed_mwh"] += curtailed_mwh
 
@@ -587,8 +606,12 @@ class GridEnv(gym.Env):
                 "tripped": bool(lim < self.base_limits[e_i]),
             }
 
+        # timestamp_utc labels the interval the zone numbers describe: the one just simulated.
+        # decision_time_utc is the next interval, which the edge limits and the next obs refer to.
+        sim_t = self._last_t_i if d else t_i
         return {
-            "timestamp_utc": self.times[t_i].isoformat(),
+            "timestamp_utc": self.times[sim_t].isoformat(),
+            "decision_time_utc": self.times[t_i].isoformat(),
             "zones": zones,
             "edges": edges,
             "totals": dict(self.totals),

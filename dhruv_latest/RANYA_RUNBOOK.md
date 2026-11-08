@@ -138,7 +138,7 @@ print('demand MW: min', df.national_demand_mw.min(), 'max', df.national_demand_m
 "
 ```
 
-Sanity check on the numbers: GB national demand runs roughly **18,000–48,000 MW**. If you're
+Sanity check on the numbers: GB national demand runs roughly **12,000–50,000 MW**. Summer lows have fallen fast with rooftop solar: the record is 13.4 GW (June 2020), and NESO expected lower in 2025. If you're
 seeing 2,000 or 500,000, something's wrong with units or parsing.
 
 ---
@@ -196,44 +196,54 @@ settlement periods differently. If it's near 0%, one of them is tz-naive and the
 Each zone's centroid is already in `schemas.ZONES` as `lat` and `lon`. You need temperature, wind
 speed and solar radiation for each.
 
-**Use the historical forecast API, not the archive.**
+**Use the Previous Runs API, at a one-day lead.** Not the archive, and not the historical forecast
+API either.
 
 ```
-https://historical-forecast-api.open-meteo.com/v1/forecast
+https://previous-runs-api.open-meteo.com/v1/forecast
     ?latitude=51.5&longitude=-0.1
     &start_date=2024-01-01&end_date=2025-12-31
-    &hourly=temperature_2m,wind_speed_100m,shortwave_radiation
+    &hourly=temperature_2m_previous_day1,wind_speed_100m_previous_day1,shortwave_radiation_previous_day1
 ```
 
-Why this matters: the archive endpoint (`archive-api.open-meteo.com/v1/archive`) gives ERA5
-reanalysis — the weather as it *actually turned out*, reconstructed later. The historical forecast
-endpoint gives archived output from the short-range forecast models — roughly what was *predicted*
-at the time. Training on reanalysis makes Eugene's model look better than it will ever be in
-operation, because in operation you only ever have a forecast. That's the single biggest
-credibility hole in a project like this, and judges who know the domain ask about it.
+Confirm the exact endpoint and variable names against https://open-meteo.com/en/docs/previous-runs-api
+before pulling. Data starts January 2024, which covers our 2024–2025 window.
 
-Set `weather_issue_time_utc` to the forecast issue time. The historical forecast API doesn't let
-you pick an exact issue time, so use the convention Dhruv's stub uses: the 06:00 UTC run of the
-previous day. Note the approximation in your quality report; don't pretend it's exact.
+Why this one, and why the others leak:
+
+- The **archive** (`archive-api.open-meteo.com`) is ERA5 reanalysis: the weather as it actually
+  turned out, reconstructed afterwards.
+- The **historical forecast API** (`historical-forecast-api.open-meteo.com`) looks like a forecast
+  but isn't a day-ahead one. Open-Meteo builds it by stitching together only the first 1–6 hours
+  of each successive model run, so it tracks the actual weather closely. Training on it gives the
+  model near-perfect weather that a real 24-hour-ahead forecaster never has.
+- The **Previous Runs API** with the `_previous_day1` variables drops the first 24 hours of each
+  run, so every value was forecast at least a day before the time it describes. That is the
+  information a real day-ahead forecaster has.
+
+Set `weather_issue_time_utc` to `timestamp_utc − 24 hours`. Read it as "issued at or before": it
+is an upper bound on the issue time, which is the safe direction for the leakage rule. Say so in
+the quality report.
 
 > Prompt:
 >
 > Write `pulls/pull_weather.py`. For each of the 10 zones in `schemas.ZONES`, pull hourly
-> `temperature_2m`, `wind_speed_100m` and `shortwave_radiation` from
-> `https://historical-forecast-api.open-meteo.com/v1/forecast` for the zone's `lat`/`lon` over
-> the same date range as the demand data. Save each raw response to
-> `data/raw/weather/<zone_id>.json` before parsing.
+> `temperature_2m_previous_day1`, `wind_speed_100m_previous_day1` and
+> `shortwave_radiation_previous_day1` from the Open-Meteo Previous Runs API
+> (`https://previous-runs-api.open-meteo.com/v1/forecast`; check the docs page for exact names)
+> for the zone's `lat`/`lon` over the same date range as the demand data. Save each raw response
+> to `data/raw/weather/<zone_id>.json` before parsing.
 >
 > Open-Meteo returns hourly data but we need half-hourly, so resample: interpolate temperature
 > and wind linearly, and interpolate solar radiation linearly too but clamp negatives to zero.
 >
 > Write `data/raw/weather/weather.parquet` with columns `zone_id`, `timestamp_utc`, `temp_c`,
-> `wind_ms`, `solar_wm2`, `weather_issue_time_utc`. Set the issue time to the 06:00 UTC run of
-> the day before each timestamp.
+> `wind_ms`, `solar_wm2`, `weather_issue_time_utc`, with the issue time set to
+> `timestamp_utc - 24h`.
 >
-> Use the historical forecast endpoint, NOT `archive-api.open-meteo.com`. The archive gives
-> reanalysis — the weather as it actually turned out — and training on that leaks future
-> information.
+> Do NOT use `archive-api.open-meteo.com` (reanalysis) or
+> `historical-forecast-api.open-meteo.com` (stitched 1–6 hour forecasts). Both give the model
+> better weather than a day-ahead forecaster would have.
 >
 > Then print per zone: row count, temperature min/max/mean, and the maximum solar radiation
 > between 23:00 and 03:00 UTC.
@@ -249,8 +259,11 @@ Great Britain's real regional demand only exists inside the distribution compani
 every one publishes it differently. We can't stitch that together today. So we estimate: take
 national demand and divide it by each zone's share of annual consumption.
 
-Those shares are **already in the contract**, from DESNZ subnational electricity consumption
-statistics:
+Approximate shares are in the contract. **They were not taken from the DESNZ statistics; they are
+rough estimates and need checking.** If you have time, download the DESNZ regional electricity
+consumption table (GOV.UK, "Subnational electricity consumption data"; the 2024 GB total is
+249,248 GWh), merge its regions into our 10 zones, and send Dhruv the computed shares to replace
+these:
 
 ```python
 import schemas as S
@@ -325,7 +338,7 @@ anything it catches now is something you'd otherwise hear about at hour 12.
 > Write `pulls/quality_report.py` producing `results/data_quality.md`: a one-page report with
 > total rows, date range, rows and coverage percentage per zone, a table of every gap longer
 > than 2 hours, the count of each quality flag, the national demand min/max/mean against the
-> expected 18,000–48,000 MW range, and each zone's share of total demand next to the contract
+> expected 12,000–50,000 MW range, and each zone's share of total demand next to the contract
 > value.
 >
 > At the top, three plain-sentence caveats: that zone demand is estimated from national demand
@@ -417,7 +430,7 @@ stop it. Prefer 2024 and 2025 anyway: complete years, and two years is plenty of
 - The demand/generation join rate is below 95%.
 - `check_parquet.py` reports problems you can't fix in 20 minutes.
 - Solar radiation isn't zero at night.
-- National demand is outside 18,000–48,000 MW.
+- National demand is outside 12,000–50,000 MW.
 - Region boundaries won't dissolve into our 10 zones.
 
 Each of these has a fallback, and the fallback for the last one is that Leonard keeps the

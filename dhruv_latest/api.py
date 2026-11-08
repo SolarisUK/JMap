@@ -66,7 +66,12 @@ def series(scenario: str = "b6_trip_windy_peak", strategy: str = "optimiser"):
     Fetch it twice -- strategy="none" and strategy="agents" -- to show the same incident with and
     without the response, side by side.
     """
-    data = stub("state_series")
+    if strategy == "none":
+        data = stub("state_series_none")
+    else:
+        data = stub("state_series_optimiser")
+        if strategy == "agents":
+            data["agents_is_placeholder"] = True  # policy not trained yet; this is the optimiser
     data["scenario"] = scenario
     data["strategy"] = strategy
     return data

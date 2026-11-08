@@ -33,7 +33,7 @@ S.INCIDENT_TYPES   # the five incident types
 | `GET` | `/zones` | `zones.json` | map polygons |
 | `GET` | `/edges` | `edges.json` | map corridor lines |
 | `GET` | `/state?t=` | `state_calm.json`, `state_incident.json` | map colours, scoreboard tiles |
-| `GET` | `/state/series?scenario=&strategy=` | `state_series.json` | the time slider |
+| `GET` | `/state/series?scenario=&strategy=` | `state_series_none.json`, `state_series_optimiser.json` | the time slider, split screen |
 | `GET` | `/forecast/{zone_id}?issue_time=` | `forecast_LOND.json` | the forecast chart |
 | `GET` | `/scenarios` | `scenarios.json` | scenario picker |
 | `POST` | `/incident` | `incident_response.json` | the incident buttons |
@@ -128,9 +128,16 @@ power and not overloaded — it's gone. Render it as absent, not as healthy.
 
 ### `totals`
 
-Cumulative over the episode so far: `unserved_mwh`, `cost_gbp`, `carbon_t`, `curtailed_mwh`.
-These are your live KPI tiles. `cost_gbp` includes unserved energy valued at £6,000/MWh, which is
-why it moves so sharply during an incident.
+Cumulative over the episode so far: `unserved_mwh`, `cost_gbp`, `penalty_gbp`, `carbon_t`,
+`curtailed_mwh`. These are your live KPI tiles.
+
+- `cost_gbp` is real money: fuel, carbon, curtailment payments, demand response, and unserved
+  energy at £6,000/MWh, which is why it jumps during an incident.
+- `penalty_gbp` (new) prices line overloads and spilled surplus. Those have no market price, so
+  show it separately and **don't add it to "cost"** on screen.
+
+Every `info` payload also carries `decision_time_utc` (new): the next half-hour, which the edge
+limits refer to. Label the map with `timestamp_utc`, the interval the numbers describe.
 
 ---
 
@@ -150,7 +157,9 @@ and a reduced edge payload: `flow_mw`, `loading_frac`, `tripped`. Call `/state` 
 full detail for one moment.
 
 **Fetch two series, one with `strategy=none` and one with `strategy=agents`, and show them side by
-side.** That split-screen is the demo: the same incident, with and without the response. It is far
+side.** On stubs these are now genuinely different runs: no response vs the optimiser. While the
+policy is untrained, `strategy=agents` returns the optimiser's run with
+`"agents_is_placeholder": true`. That split-screen is the demo: the same incident, with and without the response. It is far
 more convincing than any number on a slide.
 
 ---
@@ -224,16 +233,17 @@ The closing scoreboard.
 The three strategy keys are fixed — `S.STRATEGIES`. Don't rename them in your UI layer; the eval
 loop writes them.
 
-**Current real numbers** for `b6_trip_windy_peak`, from the stub:
+**Current numbers** for `b6_trip_windy_peak`, from the stub (8 Nov, synthetic winter data):
 
 | Strategy | Unserved MWh | Cost £ | Curtailed MWh |
 |---|---|---|---|
-| none | 55,564 | 349,734,951 | 55,564 |
-| optimiser | 2,289 | 34,547,151 | 41,330 |
+| none | 53,418 | 370,955,967 | 53,418 |
+| optimiser | 180 | 63,929,908 | 47,549 |
 | agents | *placeholder* | | |
 
-That 96% reduction in unserved energy is the headline of the whole project. Make it the biggest
-thing on the screen.
+The unserved-energy reduction is the headline of the project; make it the biggest thing on the
+screen. **But never hardcode these numbers.** Always read them from `GET /compare`. They change
+when the real data lands, and again when the policy is trained.
 
 **Two honesty requirements.** The stub currently copies the optimiser's numbers into `agents`
 and sets `"agents_is_placeholder": true` so the scoreboard renders before the policy is trained.

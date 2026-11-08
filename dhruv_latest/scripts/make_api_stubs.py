@@ -100,7 +100,7 @@ write(
 # -- GET /state?t= ------------------------------------------------------------
 # Two snapshots: one calm, one mid-incident, so the dashboard's red states can be built and
 # styled before anything real is wired up.
-env = grid_env.GridEnv(scenario=grid_env.load_scenario("b6_trip_windy_peak"))
+env = grid_env.make_scenario_env("b6_trip_windy_peak")
 opt = AB.OptimiserAgent()
 obs, info = env.reset(seed=1)
 calm = None
@@ -116,35 +116,42 @@ write("state_calm", calm)
 
 
 # -- GET /state/series --------------------------------------------------------
-# A whole episode, so the time slider works offline with no backend at all.
-env2 = grid_env.GridEnv(scenario=grid_env.load_scenario("b6_trip_windy_peak"))
-obs, info = env2.reset(seed=1)
-frames = []
-for _ in range(S.STEPS_PER_EPISODE):
-    obs, r, term, trunc, info = env2.step(opt.act(obs, info))
-    frames.append(
-        {
-            "timestamp_utc": info["timestamp_utc"],
-            "zones": {
-                z: {
-                    "demand_mw": round(v["demand_mw"], 1),
-                    "generation_mw": round(v["generation_mw"], 1),
-                    "unserved_mw": round(v["unserved_mw"], 1),
-                    "storage_soc": round(v["storage_soc"], 3),
-                }
-                for z, v in info["zones"].items()
-            },
-            "edges": {
-                e: {"flow_mw": round(v["flow_mw"], 1), "loading_frac": round(v["loading_frac"], 3),
-                    "tripped": v["tripped"]}
-                for e, v in info["edges"].items()
-            },
-            "incidents": info["incidents"],
-        }
-    )
-    if term:
-        break
-write("state_series", {"scenario": "b6_trip_windy_peak", "strategy": "optimiser", "frames": frames})
+# One whole episode per strategy, so the split screen shows two genuinely different runs.
+# "agents" is not trained yet: it is the optimiser's run, flagged as a placeholder.
+def series_for(agent, strategy):
+    env2 = grid_env.make_scenario_env("b6_trip_windy_peak")
+    obs, info = env2.reset(seed=1)
+    frames = []
+    for _ in range(S.STEPS_PER_EPISODE):
+        obs, r, term, trunc, info = env2.step(agent.act(obs, info))
+        frames.append(
+            {
+                "timestamp_utc": info["timestamp_utc"],
+                "zones": {
+                    z: {
+                        "demand_mw": round(v["demand_mw"], 1),
+                        "generation_mw": round(v["generation_mw"], 1),
+                        "unserved_mw": round(v["unserved_mw"], 1),
+                        "storage_soc": round(v["storage_soc"], 3),
+                    }
+                    for z, v in info["zones"].items()
+                },
+                "edges": {
+                    e: {"flow_mw": round(v["flow_mw"], 1), "loading_frac": round(v["loading_frac"], 3),
+                        "tripped": v["tripped"]}
+                    for e, v in info["edges"].items()
+                },
+                "incidents": info["incidents"],
+            }
+        )
+        if term:
+            break
+    return {"scenario": "b6_trip_windy_peak", "strategy": strategy, "frames": frames}
+
+
+write("state_series_none", series_for(AB.NoOpAgent(), "none"))
+write("state_series_optimiser", series_for(AB.OptimiserAgent(), "optimiser"))
+write("state_series", series_for(AB.OptimiserAgent(), "optimiser"))  # kept for older clients
 
 
 # -- GET /forecast/{zone_id} --------------------------------------------------
@@ -182,8 +189,8 @@ write(
 
 
 # -- GET /compare -------------------------------------------------------------
-def totals(agent, scenario):
-    e = grid_env.GridEnv(scenario=scenario)
+def totals(agent, name):
+    e = grid_env.make_scenario_env(name)
     o, i = e.reset(seed=1)
     for _ in range(S.STEPS_PER_EPISODE):
         o, r, t, tr, i = e.step(agent.act(o, i))
@@ -194,10 +201,9 @@ def totals(agent, scenario):
 
 compare = {}
 for name in S.SCENARIOS:
-    sc = grid_env.load_scenario(name)
     strategies = {
-        "none": totals(AB.NoOpAgent(), sc),
-        "optimiser": totals(AB.OptimiserAgent(), sc),
+        "none": totals(AB.NoOpAgent(), name),
+        "optimiser": totals(AB.OptimiserAgent(), name),
     }
     # "agents" is not trained yet. Shown here as the optimiser's numbers so the scoreboard
     # renders; Eugene overwrites this with the real policy at stage 11.

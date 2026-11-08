@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Protocol, Sequence
 
-CONTRACT_VERSION = "1.0.0"
+CONTRACT_VERSION = "1.1.0"
 
 # ---------------------------------------------------------------------------
 # Time
@@ -46,6 +46,7 @@ class Fuel:
 
 
 FUELS: tuple[Fuel, ...] = (
+    # Illustrative, fuel-only marginal costs (carbon is priced separately). Not sourced.
     Fuel("NUCLEAR", 10.0, 0.00, dispatchable=False),
     Fuel("CCGT", 75.0, 0.37, dispatchable=True),
     Fuel("OCGT", 180.0, 0.55, dispatchable=True),
@@ -94,6 +95,8 @@ def _cap(**kw: float) -> dict[str, float]:
     return out
 
 
+# Demand shares, capacities and storage below are rough illustrative estimates, NOT taken from
+# DESNZ or any published dataset. Replace demand_share with DESNZ regional shares when computed.
 ZONES: tuple[Zone, ...] = (
     Zone(
         "NSCO", "North Scotland", 0.04,
@@ -322,14 +325,35 @@ def unit_to_fraction(x: float) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Reward
+# Reward: the cost of running the grid, in pounds
 # ---------------------------------------------------------------------------
+#
+# reward = -(cost_gbp + penalty_gbp) / REWARD_SCALE_GBP, per half-hour step.
+#
+# cost_gbp is money that would really be paid: fuel, carbon, curtailment payments, demand
+# response, and lost load valued at VoLL. penalty_gbp prices two things a real grid cannot do
+# for long -- spilling surplus and running lines over their thermal limit -- which have no
+# market price, so these two are judgement calls.
+#
+# The ordering is what matters, per MW per half-hour:
+#     redispatch (<= ~GBP 260 on the worst line)  <  line overload (1000)  <  blackout (3000)
+#     deliberate curtailment (35)                  <  uncontrolled spill (500)
+# Relieving 1 MW on a line usually needs MORE than 1 MW of redispatch (each zone only partly loads
+# any line), which is why the redispatch bound is ~260 rather than the ~105 raw fuel spread.
 
-W_UNSERVED = 1000.0  # per MWh unserved
-W_OVERLOAD = 100.0  # per MW over a line limit
-W_COST = 1.0  # per £1000
-W_CARBON = 5.0  # per tCO2
-W_CURTAIL = 2.0  # per MWh curtailed
+PRICE_VOLL_GBP_PER_MWH = 6000.0  # administrative VoLL in the BSC (since 2018); survey VoLL ~17,000
+PRICE_CURTAIL_GBP_PER_MWH = 70.0  # typical wind turn-down bid (2017 data, dated); excl. replacement gas
+PRICE_DR_GBP_PER_MWH = 300.0  # demand response utilisation -- assumption
+PRICE_CARBON_GBP_PER_T = 67.0  # UK ETS ~49 (2026 reference) + Carbon Price Support 18, GB power
+
+PENALTY_SPILL_GBP_PER_MWH = 1000.0  # generation with nowhere to go (imbalance)
+PENALTY_OVERLOAD_GBP_PER_MW_HH = 1000.0  # per MW over a line limit, per half-hour
+
+REWARD_SCALE_GBP = 100_000.0  # keeps per-step rewards in a sensible numeric range
+
+# Deprecated: the old unit-less weights. No longer used by the reward. Kept only so stale
+# imports fail loudly in review rather than silently at runtime.
+W_UNSERVED = W_OVERLOAD = W_COST = W_CARBON = W_CURTAIL = None
 
 
 # ---------------------------------------------------------------------------

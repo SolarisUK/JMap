@@ -1,0 +1,6742 @@
+{
+  "scenario": "b6_trip_windy_peak",
+  "strategy": "optimiser",
+  "frames": [
+    {
+      "timestamp_utc": "2025-12-16T00:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1660.6,
+          "generation_mw": 7700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2799.2,
+          "generation_mw": 3035.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "NORT": {
+          "demand_mw": 4858.6,
+          "generation_mw": 5423.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "YORK": {
+          "demand_mw": 2987.1,
+          "generation_mw": 3040.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "WALE": {
+          "demand_mw": 2337.3,
+          "generation_mw": 4096.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "MIDL": {
+          "demand_mw": 6098.3,
+          "generation_mw": 6160.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3610.2,
+          "generation_mw": 3902.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SWES": {
+          "demand_mw": 2936.4,
+          "generation_mw": 1190.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "LOND": {
+          "demand_mw": 4412.0,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SOUT": {
+          "demand_mw": 5031.0,
+          "generation_mw": 2181.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 6039.4,
+          "loading_frac": 1.887,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 6275.7,
+          "loading_frac": 1.046,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4975.3,
+          "loading_frac": 0.995,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1865.3,
+          "loading_frac": 0.746,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3304.5,
+          "loading_frac": 0.551,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1724.2,
+          "loading_frac": 0.575,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 1879.8,
+          "loading_frac": 0.627,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1744.5,
+          "loading_frac": 0.872,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 724.4,
+          "loading_frac": 0.181,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3314.9,
+          "loading_frac": 0.663,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1206.9,
+          "loading_frac": 0.402,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2740.9,
+          "loading_frac": 0.609,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1643.7,
+          "loading_frac": 0.329,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1205.3,
+          "loading_frac": 0.482,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T00:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1572.2,
+          "generation_mw": 4420.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2706.8,
+          "generation_mw": 3369.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "NORT": {
+          "demand_mw": 4656.1,
+          "generation_mw": 6500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "YORK": {
+          "demand_mw": 2849.8,
+          "generation_mw": 6431.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "WALE": {
+          "demand_mw": 2176.0,
+          "generation_mw": 4140.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "MIDL": {
+          "demand_mw": 5892.7,
+          "generation_mw": 4929.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3525.4,
+          "generation_mw": 1294.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SWES": {
+          "demand_mw": 2806.4,
+          "generation_mw": 1183.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "LOND": {
+          "demand_mw": 4223.0,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SOUT": {
+          "demand_mw": 4909.2,
+          "generation_mw": 2712.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 2848.1,
+          "loading_frac": 0.89,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 3594.8,
+          "loading_frac": 0.599,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 3782.5,
+          "loading_frac": 0.756,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1812.2,
+          "loading_frac": 0.725,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4758.4,
+          "loading_frac": 0.793,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2702.0,
+          "loading_frac": 0.901,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2054.3,
+          "loading_frac": 0.685,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1722.3,
+          "loading_frac": 0.861,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1437.5,
+          "loading_frac": 0.359,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3368.8,
+          "loading_frac": 0.674,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1042.7,
+          "loading_frac": 0.348,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1908.8,
+          "loading_frac": 0.424,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1054.6,
+          "loading_frac": 0.211,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1141.9,
+          "loading_frac": 0.457,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T01:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1527.0,
+          "generation_mw": 7700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2720.6,
+          "generation_mw": 3035.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "NORT": {
+          "demand_mw": 4459.3,
+          "generation_mw": 5414.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "YORK": {
+          "demand_mw": 2809.2,
+          "generation_mw": 111.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "WALE": {
+          "demand_mw": 2191.8,
+          "generation_mw": 4125.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "MIDL": {
+          "demand_mw": 5749.7,
+          "generation_mw": 1930.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3410.8,
+          "generation_mw": 8925.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2761.7,
+          "generation_mw": 1213.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "LOND": {
+          "demand_mw": 4129.0,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SOUT": {
+          "demand_mw": 4702.1,
+          "generation_mw": 1886.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 6173.0,
+          "loading_frac": 1.929,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 6487.9,
+          "loading_frac": 1.081,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5640.2,
+          "loading_frac": 1.128,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1802.5,
+          "loading_frac": 0.721,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 2763.4,
+          "loading_frac": 0.461,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 179.5,
+          "loading_frac": 0.06,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2113.6,
+          "loading_frac": 0.705,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1622.0,
+          "loading_frac": 0.811,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -1666.5,
+          "loading_frac": 0.417,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 1876.4,
+          "loading_frac": 0.375,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 847.8,
+          "loading_frac": 0.283,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 4147.2,
+          "loading_frac": 0.922,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1894.5,
+          "loading_frac": 0.379,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 921.5,
+          "loading_frac": 0.369,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T01:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1537.2,
+          "generation_mw": 4155.7,
+          "unserved_mw": 6.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2611.4,
+          "generation_mw": 3260.0,
+          "unserved_mw": 9.8,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4410.4,
+          "generation_mw": 6380.0,
+          "unserved_mw": 16.5,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2744.5,
+          "generation_mw": 6544.0,
+          "unserved_mw": 10.3,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2087.8,
+          "generation_mw": 3385.7,
+          "unserved_mw": 8.1,
+          "storage_soc": 0.5
+        },
+        "MIDL": {
+          "demand_mw": 5670.0,
+          "generation_mw": 113.5,
+          "unserved_mw": 22.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3300.2,
+          "generation_mw": 1863.5,
+          "unserved_mw": 12.8,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2734.7,
+          "generation_mw": 1190.3,
+          "unserved_mw": 10.6,
+          "storage_soc": 0.5
+        },
+        "LOND": {
+          "demand_mw": 4106.9,
+          "generation_mw": 4400.0,
+          "unserved_mw": 15.1,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4575.0,
+          "generation_mw": 1792.6,
+          "unserved_mw": 17.8,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 2624.4,
+          "loading_frac": 0.82,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 3366.9,
+          "loading_frac": 0.561,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 3522.4,
+          "loading_frac": 0.704,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1986.5,
+          "loading_frac": 0.795,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 5276.4,
+          "loading_frac": 0.879,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2151.8,
+          "loading_frac": 0.717,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 1872.2,
+          "loading_frac": 0.624,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1420.3,
+          "loading_frac": 0.71,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 74.2,
+          "loading_frac": 0.019,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 813.6,
+          "loading_frac": 0.163,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 726.3,
+          "loading_frac": 0.242,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 802.1,
+          "loading_frac": 0.178,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2151.8,
+          "loading_frac": 0.43,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 612.9,
+          "loading_frac": 0.245,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T02:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1482.5,
+          "generation_mw": 7700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2526.2,
+          "generation_mw": 3021.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4283.8,
+          "generation_mw": 5475.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2691.7,
+          "generation_mw": 3152.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2087.3,
+          "generation_mw": 4676.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "MIDL": {
+          "demand_mw": 5545.2,
+          "generation_mw": 4328.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3236.7,
+          "generation_mw": 1912.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2706.8,
+          "generation_mw": 1359.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "LOND": {
+          "demand_mw": 3983.0,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4471.2,
+          "generation_mw": 1389.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 6217.5,
+          "loading_frac": 1.943,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 6712.8,
+          "loading_frac": 1.119,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5890.9,
+          "loading_frac": 1.178,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2013.4,
+          "loading_frac": 0.805,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4052.6,
+          "loading_frac": 0.675,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2298.9,
+          "loading_frac": 0.766,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2667.6,
+          "loading_frac": 0.889,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1934.9,
+          "loading_frac": 0.967,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1220.2,
+          "loading_frac": 0.305,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3381.6,
+          "loading_frac": 0.676,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 901.7,
+          "loading_frac": 0.301,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2194.5,
+          "loading_frac": 0.488,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1593.1,
+          "loading_frac": 0.319,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1489.0,
+          "loading_frac": 0.596,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T02:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1449.6,
+          "generation_mw": 4331.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2552.9,
+          "generation_mw": 2900.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4169.2,
+          "generation_mw": 5900.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2610.3,
+          "generation_mw": 5961.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2062.1,
+          "generation_mw": 439.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "MIDL": {
+          "demand_mw": 5397.4,
+          "generation_mw": 5744.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3190.5,
+          "generation_mw": 2057.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2634.9,
+          "generation_mw": 3310.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 3910.4,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4474.0,
+          "generation_mw": 1375.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 2881.7,
+          "loading_frac": 0.901,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 3312.8,
+          "loading_frac": 0.552,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 2914.5,
+          "loading_frac": 0.583,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2285.1,
+          "loading_frac": 0.914,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4124.8,
+          "loading_frac": 0.687,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2236.7,
+          "loading_frac": 0.746,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 228.5,
+          "loading_frac": 0.076,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 434.2,
+          "loading_frac": 0.217,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1056.2,
+          "loading_frac": 0.264,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3163.7,
+          "loading_frac": 0.633,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 479.9,
+          "loading_frac": 0.16,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2159.8,
+          "loading_frac": 0.48,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1413.0,
+          "loading_frac": 0.283,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1685.4,
+          "loading_frac": 0.674,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T03:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1393.8,
+          "generation_mw": 5999.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2474.1,
+          "generation_mw": 3142.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4180.3,
+          "generation_mw": 1329.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2516.2,
+          "generation_mw": 3025.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 1986.1,
+          "generation_mw": 4760.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 5376.9,
+          "generation_mw": 6036.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3155.5,
+          "generation_mw": 4969.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2660.1,
+          "generation_mw": 1230.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 3822.1,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4365.8,
+          "generation_mw": 1281.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 4605.4,
+          "loading_frac": 1.439,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5357.8,
+          "loading_frac": 0.893,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 2093.0,
+          "loading_frac": 0.419,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 414.0,
+          "loading_frac": 0.166,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1772.3,
+          "loading_frac": 0.295,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 829.6,
+          "loading_frac": 0.277,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 1699.8,
+          "loading_frac": 0.567,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1560.9,
+          "loading_frac": 0.78,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 217.3,
+          "loading_frac": 0.054,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2847.4,
+          "loading_frac": 0.569,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1066.6,
+          "loading_frac": 0.356,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2860.5,
+          "loading_frac": 0.636,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1885.8,
+          "loading_frac": 0.377,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1198.3,
+          "loading_frac": 0.479,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T03:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1438.1,
+          "generation_mw": 5137.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2426.9,
+          "generation_mw": 3083.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4173.1,
+          "generation_mw": 5712.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2547.5,
+          "generation_mw": 3006.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 1913.0,
+          "generation_mw": 4642.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 5467.6,
+          "generation_mw": 5203.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3130.7,
+          "generation_mw": 2538.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2579.1,
+          "generation_mw": 1205.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 3810.9,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4370.4,
+          "generation_mw": 1242.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3699.2,
+          "loading_frac": 1.156,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 4440.1,
+          "loading_frac": 0.74,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4557.7,
+          "loading_frac": 0.912,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1421.8,
+          "loading_frac": 0.569,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3174.5,
+          "loading_frac": 0.529,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1842.7,
+          "loading_frac": 0.614,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2336.5,
+          "loading_frac": 0.779,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1814.9,
+          "loading_frac": 0.907,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1031.2,
+          "loading_frac": 0.258,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3245.8,
+          "loading_frac": 0.649,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 970.0,
+          "loading_frac": 0.323,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2281.4,
+          "loading_frac": 0.507,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1716.4,
+          "loading_frac": 0.343,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1411.2,
+          "loading_frac": 0.564,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T04:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1395.1,
+          "generation_mw": 5590.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2433.7,
+          "generation_mw": 3021.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4026.7,
+          "generation_mw": 1331.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2526.2,
+          "generation_mw": 5902.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 1962.6,
+          "generation_mw": 914.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 5399.4,
+          "generation_mw": 6130.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3080.2,
+          "generation_mw": 4500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2599.9,
+          "generation_mw": 2808.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 3776.4,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4306.0,
+          "generation_mw": 1307.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 4195.3,
+          "loading_frac": 1.311,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 4783.2,
+          "loading_frac": 0.797,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 774.4,
+          "loading_frac": 0.155,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1313.3,
+          "loading_frac": 0.525,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 2915.6,
+          "loading_frac": 0.486,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1234.6,
+          "loading_frac": 0.412,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": -142.1,
+          "loading_frac": 0.047,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 406.9,
+          "loading_frac": 0.203,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 123.1,
+          "loading_frac": 0.031,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2665.0,
+          "loading_frac": 0.533,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 716.9,
+          "loading_frac": 0.239,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2777.6,
+          "loading_frac": 0.617,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1666.1,
+          "loading_frac": 0.333,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1332.0,
+          "loading_frac": 0.533,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T04:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1422.4,
+          "generation_mw": 5342.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2440.8,
+          "generation_mw": 3102.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4179.9,
+          "generation_mw": 5404.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2606.1,
+          "generation_mw": 3002.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 1973.5,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 5474.3,
+          "generation_mw": 3369.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "EAST": {
+          "demand_mw": 3084.2,
+          "generation_mw": 3654.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2584.7,
+          "generation_mw": 1103.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 3853.9,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4320.6,
+          "generation_mw": 1260.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3920.0,
+          "loading_frac": 1.225,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 4581.5,
+          "loading_frac": 0.764,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4608.3,
+          "loading_frac": 0.922,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1197.9,
+          "loading_frac": 0.479,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3394.3,
+          "loading_frac": 0.566,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1610.7,
+          "loading_frac": 0.537,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2912.7,
+          "loading_frac": 0.971,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2011.6,
+          "loading_frac": 1.006,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 455.3,
+          "loading_frac": 0.114,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2914.3,
+          "loading_frac": 0.583,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 832.8,
+          "loading_frac": 0.278,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2636.6,
+          "loading_frac": 0.586,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1697.1,
+          "loading_frac": 0.339,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1363.3,
+          "loading_frac": 0.545,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T05:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1429.4,
+          "generation_mw": 5480.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2546.4,
+          "generation_mw": 3462.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4275.9,
+          "generation_mw": 1200.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2651.1,
+          "generation_mw": 5905.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2047.9,
+          "generation_mw": 1693.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 5618.8,
+          "generation_mw": 7421.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 3295.7,
+          "generation_mw": 3654.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2590.4,
+          "generation_mw": 2615.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 4040.6,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4448.8,
+          "generation_mw": 1307.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 4050.6,
+          "loading_frac": 1.266,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 4966.7,
+          "loading_frac": 0.828,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 807.0,
+          "loading_frac": 0.161,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1083.7,
+          "loading_frac": 0.433,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 2608.0,
+          "loading_frac": 0.435,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1453.5,
+          "loading_frac": 0.485,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 116.0,
+          "loading_frac": 0.039,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 613.4,
+          "loading_frac": 0.307,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 738.7,
+          "loading_frac": 0.185,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3158.8,
+          "loading_frac": 0.632,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 833.2,
+          "loading_frac": 0.278,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2551.3,
+          "loading_frac": 0.567,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1669.5,
+          "loading_frac": 0.334,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1471.5,
+          "loading_frac": 0.589,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T05:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1530.7,
+          "generation_mw": 5414.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2662.8,
+          "generation_mw": 3768.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4519.3,
+          "generation_mw": 5436.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 2849.2,
+          "generation_mw": 3010.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2170.4,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 6064.9,
+          "generation_mw": 5564.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 3379.6,
+          "generation_mw": 3356.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2741.3,
+          "generation_mw": 1117.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 4234.9,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 4717.6,
+          "generation_mw": 1503.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3884.0,
+          "loading_frac": 1.214,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 4989.1,
+          "loading_frac": 0.832,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4674.5,
+          "loading_frac": 0.935,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1231.8,
+          "loading_frac": 0.493,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3098.4,
+          "loading_frac": 0.516,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1737.0,
+          "loading_frac": 0.579,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2717.1,
+          "loading_frac": 0.906,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2044.3,
+          "loading_frac": 1.022,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 895.7,
+          "loading_frac": 0.224,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3390.3,
+          "loading_frac": 0.678,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1028.7,
+          "loading_frac": 0.343,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2609.7,
+          "loading_frac": 0.58,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1765.1,
+          "loading_frac": 0.353,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1449.1,
+          "loading_frac": 0.58,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T06:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1617.3,
+          "generation_mw": 5498.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2870.9,
+          "generation_mw": 4595.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 4869.9,
+          "generation_mw": 1200.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3009.5,
+          "generation_mw": 5910.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2306.9,
+          "generation_mw": 1677.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 6476.0,
+          "generation_mw": 7260.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 3604.6,
+          "generation_mw": 6621.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 2968.6,
+          "generation_mw": 2828.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 4556.1,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 5135.0,
+          "generation_mw": 1822.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3880.8,
+          "loading_frac": 1.213,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5605.1,
+          "loading_frac": 0.934,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 747.7,
+          "loading_frac": 0.15,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1187.4,
+          "loading_frac": 0.475,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 2737.0,
+          "loading_frac": 0.456,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 911.4,
+          "loading_frac": 0.304,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": -36.3,
+          "loading_frac": 0.012,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 594.6,
+          "loading_frac": 0.297,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -330.2,
+          "loading_frac": 0.083,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2896.0,
+          "loading_frac": 0.579,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 919.1,
+          "loading_frac": 0.306,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3598.3,
+          "loading_frac": 0.8,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1938.2,
+          "loading_frac": 0.388,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1374.1,
+          "loading_frac": 0.55,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T06:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1744.0,
+          "generation_mw": 5499.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3058.2,
+          "generation_mw": 4572.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5238.9,
+          "generation_mw": 6212.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3241.3,
+          "generation_mw": 3010.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2457.5,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 6776.2,
+          "generation_mw": 6218.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 3825.8,
+          "generation_mw": 5802.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3195.1,
+          "generation_mw": 1113.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "LOND": {
+          "demand_mw": 4840.6,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 5490.9,
+          "generation_mw": 1656.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3755.6,
+          "loading_frac": 1.174,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5353.6,
+          "loading_frac": 0.892,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4874.2,
+          "loading_frac": 0.975,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1453.0,
+          "loading_frac": 0.581,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3222.5,
+          "loading_frac": 0.537,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1420.5,
+          "loading_frac": 0.473,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2519.1,
+          "loading_frac": 0.84,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2176.4,
+          "loading_frac": 1.088,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 236.6,
+          "loading_frac": 0.059,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3571.9,
+          "loading_frac": 0.714,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1375.2,
+          "loading_frac": 0.458,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3633.4,
+          "loading_frac": 0.807,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2364.7,
+          "loading_frac": 0.473,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1469.7,
+          "loading_frac": 0.588,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T07:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1841.2,
+          "generation_mw": 5562.2,
+          "unserved_mw": 1.4,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3159.8,
+          "generation_mw": 6429.5,
+          "unserved_mw": 2.3,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5528.4,
+          "generation_mw": 1648.0,
+          "unserved_mw": 4.1,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3464.9,
+          "generation_mw": 5914.1,
+          "unserved_mw": 2.5,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2565.9,
+          "generation_mw": 1611.8,
+          "unserved_mw": 1.9,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7293.5,
+          "generation_mw": 6140.2,
+          "unserved_mw": 5.4,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4041.8,
+          "generation_mw": 6915.0,
+          "unserved_mw": 3.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3293.2,
+          "generation_mw": 3091.3,
+          "unserved_mw": 2.4,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5147.9,
+          "generation_mw": 1500.0,
+          "unserved_mw": 3.8,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 5784.9,
+          "generation_mw": 3002.3,
+          "unserved_mw": 4.3,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3722.3,
+          "loading_frac": 1.163,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7078.3,
+          "loading_frac": 1.18,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 1618.3,
+          "loading_frac": 0.324,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1583.8,
+          "loading_frac": 0.634,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3230.9,
+          "loading_frac": 0.538,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 935.0,
+          "loading_frac": 0.312,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 113.9,
+          "loading_frac": 0.038,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 517.7,
+          "loading_frac": 0.259,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -643.3,
+          "loading_frac": 0.161,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2149.0,
+          "loading_frac": 0.43,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 691.2,
+          "loading_frac": 0.23,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3168.0,
+          "loading_frac": 0.704,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1672.9,
+          "loading_frac": 0.335,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1105.4,
+          "loading_frac": 0.442,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T07:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1882.2,
+          "generation_mw": 5578.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3283.0,
+          "generation_mw": 4878.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5662.5,
+          "generation_mw": 7076.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3539.3,
+          "generation_mw": 3045.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2586.3,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7484.9,
+          "generation_mw": 6053.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4238.3,
+          "generation_mw": 7552.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3492.7,
+          "generation_mw": 1580.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5237.3,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SOUT": {
+          "demand_mw": 5981.4,
+          "generation_mw": 1681.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3696.7,
+          "loading_frac": 1.155,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5376.6,
+          "loading_frac": 0.896,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5281.7,
+          "loading_frac": 1.056,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1664.6,
+          "loading_frac": 0.666,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3527.3,
+          "loading_frac": 0.588,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1260.2,
+          "loading_frac": 0.42,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2585.7,
+          "loading_frac": 0.862,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2192.6,
+          "loading_frac": 1.096,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -271.3,
+          "loading_frac": 0.068,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3603.7,
+          "loading_frac": 0.721,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1349.6,
+          "loading_frac": 0.45,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 4303.2,
+          "loading_frac": 0.956,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2669.6,
+          "loading_frac": 0.534,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1630.0,
+          "loading_frac": 0.652,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T08:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1901.9,
+          "generation_mw": 5591.7,
+          "unserved_mw": 1.9,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3283.0,
+          "generation_mw": 5609.7,
+          "unserved_mw": 3.3,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5767.3,
+          "generation_mw": 1411.4,
+          "unserved_mw": 5.9,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3612.6,
+          "generation_mw": 5916.5,
+          "unserved_mw": 3.6,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2712.5,
+          "generation_mw": 1603.7,
+          "unserved_mw": 2.8,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7824.6,
+          "generation_mw": 6090.3,
+          "unserved_mw": 8.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4254.1,
+          "generation_mw": 4995.1,
+          "unserved_mw": 4.3,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3518.2,
+          "generation_mw": 2864.7,
+          "unserved_mw": 3.5,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5341.2,
+          "generation_mw": 4300.0,
+          "unserved_mw": 5.2,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6027.9,
+          "generation_mw": 5311.6,
+          "unserved_mw": 6.1,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3691.7,
+          "loading_frac": 1.154,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 6105.7,
+          "loading_frac": 1.018,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 646.7,
+          "loading_frac": 0.129,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1108.9,
+          "loading_frac": 0.444,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 2350.3,
+          "loading_frac": 0.392,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 699.9,
+          "loading_frac": 0.233,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": -191.7,
+          "loading_frac": 0.064,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 194.6,
+          "loading_frac": 0.097,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -432.5,
+          "loading_frac": 0.108,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 429.2,
+          "loading_frac": 0.086,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 435.6,
+          "loading_frac": 0.145,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1012.8,
+          "loading_frac": 0.225,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 634.0,
+          "loading_frac": 0.127,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 76.2,
+          "loading_frac": 0.03,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T08:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1870.1,
+          "generation_mw": 5594.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3244.1,
+          "generation_mw": 4664.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5745.5,
+          "generation_mw": 6355.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3564.8,
+          "generation_mw": 3038.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2713.0,
+          "generation_mw": 5723.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7659.2,
+          "generation_mw": 6088.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4291.4,
+          "generation_mw": 9050.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3471.4,
+          "generation_mw": 1232.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5468.5,
+          "generation_mw": 10.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6166.0,
+          "generation_mw": 2196.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3724.0,
+          "loading_frac": 1.164,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5228.4,
+          "loading_frac": 0.871,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4551.9,
+          "loading_frac": 0.91,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1442.6,
+          "loading_frac": 0.577,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3211.0,
+          "loading_frac": 0.535,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 814.1,
+          "loading_frac": 0.271,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2316.3,
+          "loading_frac": 0.772,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2136.9,
+          "loading_frac": 1.068,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -846.5,
+          "loading_frac": 0.212,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3334.8,
+          "loading_frac": 0.667,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1468.2,
+          "loading_frac": 0.489,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 4726.5,
+          "loading_frac": 1.05,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2602.8,
+          "loading_frac": 0.521,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1366.4,
+          "loading_frac": 0.547,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T09:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1963.4,
+          "generation_mw": 5578.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3269.5,
+          "generation_mw": 5020.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5691.5,
+          "generation_mw": 1504.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3552.8,
+          "generation_mw": 5973.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2607.7,
+          "generation_mw": 1703.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7667.4,
+          "generation_mw": 6270.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4272.9,
+          "generation_mw": 3515.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3442.8,
+          "generation_mw": 3025.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5394.3,
+          "generation_mw": 3923.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6249.8,
+          "generation_mw": 7093.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3615.1,
+          "loading_frac": 1.13,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5449.6,
+          "loading_frac": 0.908,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 405.2,
+          "loading_frac": 0.081,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 857.8,
+          "loading_frac": 0.343,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 2041.3,
+          "loading_frac": 0.34,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 880.5,
+          "loading_frac": 0.293,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": -77.6,
+          "loading_frac": 0.026,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 30.9,
+          "loading_frac": 0.015,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 115.1,
+          "loading_frac": 0.029,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 347.3,
+          "loading_frac": 0.069,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 104.5,
+          "loading_frac": 0.035,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 238.2,
+          "loading_frac": 0.053,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -657.8,
+          "loading_frac": 0.132,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -186.2,
+          "loading_frac": 0.074,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T09:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1855.0,
+          "generation_mw": 5634.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3245.5,
+          "generation_mw": 5090.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5873.0,
+          "generation_mw": 6169.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3497.1,
+          "generation_mw": 3152.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2667.2,
+          "generation_mw": 5803.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7458.6,
+          "generation_mw": 6528.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4200.3,
+          "generation_mw": 6818.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3381.7,
+          "generation_mw": 1450.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5341.7,
+          "generation_mw": 38.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5945.1,
+          "generation_mw": 2541.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3779.5,
+          "loading_frac": 1.181,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5708.0,
+          "loading_frac": 0.951,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4750.1,
+          "loading_frac": 0.95,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1410.1,
+          "loading_frac": 0.564,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3155.3,
+          "loading_frac": 0.526,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1249.9,
+          "loading_frac": 0.417,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2474.8,
+          "loading_frac": 0.825,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2071.2,
+          "loading_frac": 1.036,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -22.1,
+          "loading_frac": 0.006,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3471.0,
+          "loading_frac": 0.694,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1250.7,
+          "loading_frac": 0.417,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3845.7,
+          "loading_frac": 0.855,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2012.9,
+          "loading_frac": 0.403,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1390.3,
+          "loading_frac": 0.556,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T10:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1898.6,
+          "generation_mw": 5554.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3264.6,
+          "generation_mw": 4963.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5425.1,
+          "generation_mw": 6200.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3472.7,
+          "generation_mw": 6246.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2646.4,
+          "generation_mw": 1801.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "MIDL": {
+          "demand_mw": 7336.9,
+          "generation_mw": 6516.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4158.4,
+          "generation_mw": 5027.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3446.6,
+          "generation_mw": 3260.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5359.5,
+          "generation_mw": 43.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5951.6,
+          "generation_mw": 2915.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3655.6,
+          "loading_frac": 1.142,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5438.6,
+          "loading_frac": 0.906,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 3860.0,
+          "loading_frac": 0.772,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2509.6,
+          "loading_frac": 1.004,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4656.4,
+          "loading_frac": 0.776,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2073.2,
+          "loading_frac": 0.691,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 766.1,
+          "loading_frac": 0.255,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 898.4,
+          "loading_frac": 0.449,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 379.1,
+          "loading_frac": 0.095,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3449.8,
+          "loading_frac": 0.69,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 773.0,
+          "loading_frac": 0.258,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3320.9,
+          "loading_frac": 0.738,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1454.6,
+          "loading_frac": 0.291,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1581.3,
+          "loading_frac": 0.633,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T10:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1811.6,
+          "generation_mw": 5617.9,
+          "unserved_mw": 0.9,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3217.2,
+          "generation_mw": 5101.3,
+          "unserved_mw": 1.6,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5597.0,
+          "generation_mw": 6027.8,
+          "unserved_mw": 2.9,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3450.8,
+          "generation_mw": 3250.1,
+          "unserved_mw": 1.8,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2589.1,
+          "generation_mw": 6254.1,
+          "unserved_mw": 1.3,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7226.9,
+          "generation_mw": 6462.2,
+          "unserved_mw": 3.8,
+          "storage_soc": 0.222
+        },
+        "EAST": {
+          "demand_mw": 4117.7,
+          "generation_mw": 5327.6,
+          "unserved_mw": 2.2,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3401.3,
+          "generation_mw": 1603.6,
+          "unserved_mw": 1.8,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5324.3,
+          "generation_mw": 50.3,
+          "unserved_mw": 2.8,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6002.5,
+          "generation_mw": 2709.3,
+          "unserved_mw": 3.1,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3807.2,
+          "loading_frac": 1.19,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 5776.9,
+          "loading_frac": 0.963,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5041.7,
+          "loading_frac": 1.008,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1324.9,
+          "loading_frac": 0.53,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3240.8,
+          "loading_frac": 0.54,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1601.9,
+          "loading_frac": 0.534,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2876.5,
+          "loading_frac": 0.959,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2186.7,
+          "loading_frac": 1.093,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 550.1,
+          "loading_frac": 0.138,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3683.5,
+          "loading_frac": 0.737,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1122.7,
+          "loading_frac": 0.374,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3364.2,
+          "loading_frac": 0.748,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1776.5,
+          "loading_frac": 0.355,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1513.5,
+          "loading_frac": 0.605,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T11:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1811.3,
+          "generation_mw": 5542.8,
+          "unserved_mw": 3.1,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3127.3,
+          "generation_mw": 6789.4,
+          "unserved_mw": 5.2,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5644.9,
+          "generation_mw": 5642.3,
+          "unserved_mw": 9.4,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3361.5,
+          "generation_mw": 5817.2,
+          "unserved_mw": 5.6,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2561.8,
+          "generation_mw": 1764.9,
+          "unserved_mw": 4.4,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7231.3,
+          "generation_mw": 7554.3,
+          "unserved_mw": 12.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4107.0,
+          "generation_mw": 2591.9,
+          "unserved_mw": 7.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3380.7,
+          "generation_mw": 3040.3,
+          "unserved_mw": 5.6,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5273.2,
+          "generation_mw": 62.0,
+          "unserved_mw": 9.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5859.0,
+          "generation_mw": 2845.9,
+          "unserved_mw": 10.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3734.6,
+          "loading_frac": 1.167,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7485.9,
+          "loading_frac": 1.248,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4852.7,
+          "loading_frac": 0.971,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2795.9,
+          "loading_frac": 1.118,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4733.7,
+          "loading_frac": 0.789,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2676.3,
+          "loading_frac": 0.892,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 949.5,
+          "loading_frac": 0.316,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1053.9,
+          "loading_frac": 0.527,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1409.1,
+          "loading_frac": 0.352,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3944.3,
+          "loading_frac": 0.789,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 868.7,
+          "loading_frac": 0.29,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2577.3,
+          "loading_frac": 0.573,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1319.3,
+          "loading_frac": 0.264,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1683.8,
+          "loading_frac": 0.674,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T11:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1806.8,
+          "generation_mw": 5579.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3172.7,
+          "generation_mw": 6369.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5524.1,
+          "generation_mw": 6167.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3365.0,
+          "generation_mw": 6211.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2577.6,
+          "generation_mw": 6061.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7086.3,
+          "generation_mw": 4287.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4179.8,
+          "generation_mw": 2788.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.222
+        },
+        "SWES": {
+          "demand_mw": 3495.5,
+          "generation_mw": 1666.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5238.7,
+          "generation_mw": 63.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5904.9,
+          "generation_mw": 2748.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3772.9,
+          "loading_frac": 1.179,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7053.4,
+          "loading_frac": 1.176,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5719.1,
+          "loading_frac": 1.144,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2133.8,
+          "loading_frac": 0.854,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 5700.3,
+          "loading_frac": 0.95,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2961.3,
+          "loading_frac": 0.987,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 3320.9,
+          "loading_frac": 1.107,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2368.4,
+          "loading_frac": 1.184,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1226.0,
+          "loading_frac": 0.307,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3934.6,
+          "loading_frac": 0.787,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1061.9,
+          "loading_frac": 0.354,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2795.5,
+          "loading_frac": 0.621,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1555.0,
+          "loading_frac": 0.311,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1601.6,
+          "loading_frac": 0.641,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T12:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1810.8,
+          "generation_mw": 5560.5,
+          "unserved_mw": 2.7,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3131.7,
+          "generation_mw": 6290.4,
+          "unserved_mw": 4.6,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5478.5,
+          "generation_mw": 5400.0,
+          "unserved_mw": 8.1,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3313.5,
+          "generation_mw": 3098.9,
+          "unserved_mw": 4.9,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2577.1,
+          "generation_mw": 1027.2,
+          "unserved_mw": 3.9,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7078.7,
+          "generation_mw": 6468.2,
+          "unserved_mw": 10.4,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4062.4,
+          "generation_mw": 7128.1,
+          "unserved_mw": 6.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3410.4,
+          "generation_mw": 2721.3,
+          "unserved_mw": 5.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5173.1,
+          "generation_mw": 58.2,
+          "unserved_mw": 7.8,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5842.8,
+          "generation_mw": 3307.9,
+          "unserved_mw": 8.8,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3752.5,
+          "loading_frac": 1.173,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 6999.8,
+          "loading_frac": 1.167,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4504.2,
+          "loading_frac": 0.901,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2581.2,
+          "loading_frac": 1.032,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3340.6,
+          "loading_frac": 0.557,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1049.7,
+          "loading_frac": 0.35,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 274.9,
+          "loading_frac": 0.092,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 760.3,
+          "loading_frac": 0.38,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -515.7,
+          "loading_frac": 0.129,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2800.9,
+          "loading_frac": 0.56,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 934.3,
+          "loading_frac": 0.311,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3725.6,
+          "loading_frac": 0.828,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1419.5,
+          "loading_frac": 0.284,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1106.6,
+          "loading_frac": 0.443,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T12:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1826.4,
+          "generation_mw": 5570.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3118.8,
+          "generation_mw": 6613.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5573.9,
+          "generation_mw": 5902.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3447.9,
+          "generation_mw": 6150.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2628.7,
+          "generation_mw": 5657.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7186.5,
+          "generation_mw": 5090.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4140.8,
+          "generation_mw": 2471.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3407.7,
+          "generation_mw": 1662.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5232.8,
+          "generation_mw": 58.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5831.8,
+          "generation_mw": 2813.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3743.7,
+          "loading_frac": 1.17,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7321.8,
+          "loading_frac": 1.22,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5627.4,
+          "loading_frac": 1.125,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2178.7,
+          "loading_frac": 0.871,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 5473.8,
+          "loading_frac": 0.912,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2951.8,
+          "loading_frac": 0.984,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 3041.6,
+          "loading_frac": 1.014,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2237.5,
+          "loading_frac": 1.119,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1372.1,
+          "loading_frac": 0.343,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3972.1,
+          "loading_frac": 0.794,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1075.1,
+          "loading_frac": 0.358,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2654.1,
+          "loading_frac": 0.59,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1451.8,
+          "loading_frac": 0.29,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1567.0,
+          "loading_frac": 0.627,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T13:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1807.6,
+          "generation_mw": 5573.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3039.9,
+          "generation_mw": 6451.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5475.8,
+          "generation_mw": 5400.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3315.3,
+          "generation_mw": 3100.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2640.4,
+          "generation_mw": 1552.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7043.6,
+          "generation_mw": 6543.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3987.8,
+          "generation_mw": 6405.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3430.7,
+          "generation_mw": 3148.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5147.9,
+          "generation_mw": 55.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5722.5,
+          "generation_mw": 2623.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3766.3,
+          "loading_frac": 1.177,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7261.6,
+          "loading_frac": 1.21,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4806.6,
+          "loading_frac": 0.961,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2535.2,
+          "loading_frac": 1.014,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3418.5,
+          "loading_frac": 0.57,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1269.7,
+          "loading_frac": 0.423,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 607.6,
+          "loading_frac": 0.203,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 840.1,
+          "loading_frac": 0.42,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -175.9,
+          "loading_frac": 0.044,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3101.8,
+          "loading_frac": 0.62,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 804.5,
+          "loading_frac": 0.268,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3631.9,
+          "loading_frac": 0.807,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1641.4,
+          "loading_frac": 0.328,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1457.9,
+          "loading_frac": 0.583,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T13:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1805.6,
+          "generation_mw": 5561.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3023.4,
+          "generation_mw": 6481.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5483.9,
+          "generation_mw": 5900.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3299.0,
+          "generation_mw": 6046.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2529.8,
+          "generation_mw": 6040.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6897.4,
+          "generation_mw": 5032.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4055.7,
+          "generation_mw": 1833.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3343.9,
+          "generation_mw": 1446.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5122.5,
+          "generation_mw": 46.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5692.7,
+          "generation_mw": 2457.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3756.3,
+          "loading_frac": 1.174,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7298.6,
+          "loading_frac": 1.216,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5765.4,
+          "loading_frac": 1.153,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2105.2,
+          "loading_frac": 0.842,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 5500.9,
+          "loading_frac": 0.917,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 3107.6,
+          "loading_frac": 1.036,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 3284.5,
+          "loading_frac": 1.095,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2403.4,
+          "loading_frac": 1.202,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1633.1,
+          "loading_frac": 0.408,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 4145.7,
+          "loading_frac": 0.829,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1141.7,
+          "loading_frac": 0.381,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2518.9,
+          "loading_frac": 0.56,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1588.1,
+          "loading_frac": 0.318,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1647.2,
+          "loading_frac": 0.659,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T14:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1818.0,
+          "generation_mw": 5566.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2950.8,
+          "generation_mw": 6462.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5501.5,
+          "generation_mw": 5400.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3358.8,
+          "generation_mw": 3000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2558.6,
+          "generation_mw": 1631.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6977.6,
+          "generation_mw": 6346.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4080.7,
+          "generation_mw": 6879.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3342.1,
+          "generation_mw": 2929.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5021.7,
+          "generation_mw": 40.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5683.1,
+          "generation_mw": 2364.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3748.0,
+          "loading_frac": 1.171,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7260.1,
+          "loading_frac": 1.21,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4816.8,
+          "loading_frac": 0.963,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2497.8,
+          "loading_frac": 0.999,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3380.4,
+          "loading_frac": 0.563,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1173.7,
+          "loading_frac": 0.391,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 660.1,
+          "loading_frac": 0.22,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 910.8,
+          "loading_frac": 0.455,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -321.2,
+          "loading_frac": 0.08,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3063.7,
+          "loading_frac": 0.613,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 871.1,
+          "loading_frac": 0.29,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3771.6,
+          "loading_frac": 0.838,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1853.6,
+          "loading_frac": 0.371,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1465.0,
+          "loading_frac": 0.586,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T14:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1858.4,
+          "generation_mw": 5568.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3006.9,
+          "generation_mw": 6478.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5437.1,
+          "generation_mw": 6178.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3314.1,
+          "generation_mw": 6052.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2516.9,
+          "generation_mw": 5834.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6786.2,
+          "generation_mw": 5306.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3908.6,
+          "generation_mw": 1755.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3392.7,
+          "generation_mw": 1351.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5075.7,
+          "generation_mw": 29.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5760.3,
+          "generation_mw": 2503.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3709.8,
+          "loading_frac": 1.159,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7181.1,
+          "loading_frac": 1.197,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5751.6,
+          "loading_frac": 1.15,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2171.3,
+          "loading_frac": 0.869,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 5417.8,
+          "loading_frac": 0.903,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 3071.7,
+          "loading_frac": 1.024,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 3104.4,
+          "loading_frac": 1.035,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 2384.6,
+          "loading_frac": 1.192,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1628.2,
+          "loading_frac": 0.407,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 4165.2,
+          "loading_frac": 0.833,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1248.7,
+          "loading_frac": 0.416,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2546.4,
+          "loading_frac": 0.566,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1664.9,
+          "loading_frac": 0.333,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1592.3,
+          "loading_frac": 0.637,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T15:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1897.5,
+          "generation_mw": 5585.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3077.4,
+          "generation_mw": 6513.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5482.9,
+          "generation_mw": 5400.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3373.5,
+          "generation_mw": 4920.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2553.8,
+          "generation_mw": 545.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7001.2,
+          "generation_mw": 6256.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4071.1,
+          "generation_mw": 7842.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3451.2,
+          "generation_mw": 2753.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5195.2,
+          "generation_mw": 23.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5912.1,
+          "generation_mw": 2175.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3688.1,
+          "loading_frac": 1.153,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7123.9,
+          "loading_frac": 1.187,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4138.3,
+          "loading_frac": 0.828,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2902.7,
+          "loading_frac": 1.161,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4350.5,
+          "loading_frac": 0.725,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1334.6,
+          "loading_frac": 0.445,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 47.5,
+          "loading_frac": 0.016,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 846.6,
+          "loading_frac": 0.423,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -730.0,
+          "loading_frac": 0.182,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3148.8,
+          "loading_frac": 0.63,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1234.3,
+          "loading_frac": 0.411,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 4376.2,
+          "loading_frac": 0.972,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2353.0,
+          "loading_frac": 0.471,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1383.5,
+          "loading_frac": 0.553,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T15:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1895.7,
+          "generation_mw": 5596.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3118.4,
+          "generation_mw": 6538.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5699.7,
+          "generation_mw": 5900.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3469.6,
+          "generation_mw": 3112.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2622.9,
+          "generation_mw": 4708.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7216.3,
+          "generation_mw": 6099.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4199.2,
+          "generation_mw": 1574.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3496.2,
+          "generation_mw": 2677.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5310.0,
+          "generation_mw": 3910.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5994.4,
+          "generation_mw": 2905.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3700.3,
+          "loading_frac": 1.156,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 7119.9,
+          "loading_frac": 1.187,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 5539.5,
+          "loading_frac": 1.108,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1780.7,
+          "loading_frac": 0.712,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3143.5,
+          "loading_frac": 0.524,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2038.5,
+          "loading_frac": 0.68,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2314.5,
+          "loading_frac": 0.772,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1551.9,
+          "loading_frac": 0.776,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 1406.0,
+          "loading_frac": 0.352,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 2343.3,
+          "loading_frac": 0.469,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 592.0,
+          "loading_frac": 0.197,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 820.1,
+          "loading_frac": 0.182,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1763.9,
+          "loading_frac": 0.353,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1325.0,
+          "loading_frac": 0.53,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T16:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2007.7,
+          "generation_mw": 5589.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3349.1,
+          "generation_mw": 6540.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5866.2,
+          "generation_mw": 5900.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3579.5,
+          "generation_mw": 5996.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2757.6,
+          "generation_mw": 4642.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7555.4,
+          "generation_mw": 6008.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4398.6,
+          "generation_mw": 5367.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3562.1,
+          "generation_mw": 2620.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5496.5,
+          "generation_mw": 409.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6157.3,
+          "generation_mw": 1656.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 3582.1,
+          "loading_frac": 1.119,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": 4693.0,
+          "loading_frac": 0.939,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 2113.9,
+          "loading_frac": 0.846,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 4880.5,
+          "loading_frac": 0.813,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 2229.1,
+          "loading_frac": 0.743,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 2181.5,
+          "loading_frac": 0.727,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1817.3,
+          "loading_frac": 0.909,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 498.4,
+          "loading_frac": 0.125,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3926.5,
+          "loading_frac": 0.785,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1089.8,
+          "loading_frac": 0.363,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3696.1,
+          "loading_frac": 0.821,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2535.7,
+          "loading_frac": 0.507,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1965.2,
+          "loading_frac": 0.786,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    },
+    {
+      "timestamp_utc": "2025-12-16T16:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2137.1,
+          "generation_mw": 5648.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3472.3,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6187.9,
+          "generation_mw": 4840.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3673.0,
+          "generation_mw": 6224.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2883.8,
+          "generation_mw": 873.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7829.8,
+          "generation_mw": 7103.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4530.6,
+          "generation_mw": 7894.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3901.6,
+          "generation_mw": 2801.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5824.5,
+          "generation_mw": 3900.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6589.4,
+          "generation_mw": 7592.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 613.2,
+          "loading_frac": 0.192,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -1790.1,
+          "loading_frac": 0.358,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 442.3,
+          "loading_frac": 0.177,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1163.7,
+          "loading_frac": 0.194,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -306.8,
+          "loading_frac": 0.102,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": -1306.0,
+          "loading_frac": 0.435,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": -262.5,
+          "loading_frac": 0.131,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -1390.0,
+          "loading_frac": 0.348,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": -64.4,
+          "loading_frac": 0.013,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 585.8,
+          "loading_frac": 0.195,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1666.7,
+          "loading_frac": 0.37,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -322.1,
+          "loading_frac": 0.064,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -681.0,
+          "loading_frac": 0.272,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T17:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2242.2,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3687.8,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6422.7,
+          "generation_mw": 5672.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3979.3,
+          "generation_mw": 5924.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 3021.9,
+          "generation_mw": 4676.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 8288.7,
+          "generation_mw": 6271.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4719.1,
+          "generation_mw": 7745.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 4065.8,
+          "generation_mw": 2600.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 6044.7,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6980.0,
+          "generation_mw": 7132.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 798.8,
+          "loading_frac": 0.25,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -583.0,
+          "loading_frac": 0.117,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -167.0,
+          "loading_frac": 0.067,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1384.7,
+          "loading_frac": 0.231,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -22.9,
+          "loading_frac": 0.008,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 748.4,
+          "loading_frac": 0.249,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 739.1,
+          "loading_frac": 0.37,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -1038.2,
+          "loading_frac": 0.26,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 606.7,
+          "loading_frac": 0.121,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 547.4,
+          "loading_frac": 0.182,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1965.1,
+          "loading_frac": 0.437,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 27.1,
+          "loading_frac": 0.005,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -179.1,
+          "loading_frac": 0.072,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T17:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2216.0,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3705.8,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6595.2,
+          "generation_mw": 5667.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 4063.5,
+          "generation_mw": 6218.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 3126.1,
+          "generation_mw": 4860.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 8489.3,
+          "generation_mw": 6500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4883.1,
+          "generation_mw": 7494.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 4216.7,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 6151.5,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 7127.1,
+          "generation_mw": 7811.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 820.8,
+          "loading_frac": 0.257,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -707.0,
+          "loading_frac": 0.141,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -221.0,
+          "loading_frac": 0.088,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1396.3,
+          "loading_frac": 0.233,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 52.0,
+          "loading_frac": 0.017,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 771.6,
+          "loading_frac": 0.257,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 741.9,
+          "loading_frac": 0.371,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -911.7,
+          "loading_frac": 0.228,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 556.1,
+          "loading_frac": 0.111,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 534.2,
+          "loading_frac": 0.178,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1751.3,
+          "loading_frac": 0.389,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -344.1,
+          "loading_frac": 0.069,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -340.6,
+          "loading_frac": 0.136,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T18:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2310.0,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3840.0,
+          "generation_mw": 4990.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6593.7,
+          "generation_mw": 6023.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3988.3,
+          "generation_mw": 6344.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 3075.4,
+          "generation_mw": 4503.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 8506.2,
+          "generation_mw": 6500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4874.7,
+          "generation_mw": 7469.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 4074.5,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 6046.7,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 7103.6,
+          "generation_mw": 7322.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1047.3,
+          "loading_frac": 0.327,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -542.4,
+          "loading_frac": 0.108,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -28.1,
+          "loading_frac": 0.011,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1652.9,
+          "loading_frac": 0.275,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 160.8,
+          "loading_frac": 0.054,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 681.7,
+          "loading_frac": 0.227,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 718.1,
+          "loading_frac": 0.359,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -900.6,
+          "loading_frac": 0.225,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 663.0,
+          "loading_frac": 0.133,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 566.0,
+          "loading_frac": 0.189,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1855.1,
+          "loading_frac": 0.412,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -28.7,
+          "loading_frac": 0.006,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -190.4,
+          "loading_frac": 0.076,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T18:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2229.4,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3666.8,
+          "generation_mw": 5700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6416.8,
+          "generation_mw": 5799.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3964.1,
+          "generation_mw": 5813.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 3065.4,
+          "generation_mw": 4333.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 8156.0,
+          "generation_mw": 6500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4733.0,
+          "generation_mw": 7547.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 4018.9,
+          "generation_mw": 2600.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5980.9,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6940.8,
+          "generation_mw": 7181.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 794.3,
+          "loading_frac": 0.248,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -546.8,
+          "loading_frac": 0.109,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -70.6,
+          "loading_frac": 0.028,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1309.3,
+          "loading_frac": 0.218,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -6.6,
+          "loading_frac": 0.002,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 550.4,
+          "loading_frac": 0.183,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 647.2,
+          "loading_frac": 0.324,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -954.5,
+          "loading_frac": 0.239,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 600.2,
+          "loading_frac": 0.12,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 558.0,
+          "loading_frac": 0.186,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1853.3,
+          "loading_frac": 0.412,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -27.4,
+          "loading_frac": 0.005,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -213.6,
+          "loading_frac": 0.085,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T19:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2156.7,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3577.0,
+          "generation_mw": 4480.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6247.2,
+          "generation_mw": 5416.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3864.4,
+          "generation_mw": 5500.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2961.5,
+          "generation_mw": 4310.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 8008.9,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4538.1,
+          "generation_mw": 7606.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3926.7,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5751.1,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6659.8,
+          "generation_mw": 7022.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1125.8,
+          "loading_frac": 0.352,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -653.0,
+          "loading_frac": 0.131,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -177.3,
+          "loading_frac": 0.071,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 1144.3,
+          "loading_frac": 0.191,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -161.2,
+          "loading_frac": 0.054,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 576.2,
+          "loading_frac": 0.192,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 595.8,
+          "loading_frac": 0.298,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -1114.1,
+          "loading_frac": 0.279,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 364.3,
+          "loading_frac": 0.073,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 461.5,
+          "loading_frac": 0.154,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1793.4,
+          "loading_frac": 0.399,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -93.5,
+          "loading_frac": 0.019,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -269.5,
+          "loading_frac": 0.108,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T19:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2054.8,
+          "generation_mw": 5802.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3445.3,
+          "generation_mw": 2974.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 6069.3,
+          "generation_mw": 5404.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3750.5,
+          "generation_mw": 3891.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2863.1,
+          "generation_mw": 4642.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7613.9,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4413.3,
+          "generation_mw": 7424.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3845.8,
+          "generation_mw": 2602.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5632.2,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6409.1,
+          "generation_mw": 7132.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1581.2,
+          "loading_frac": 0.494,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -256.6,
+          "loading_frac": 0.051,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -408.1,
+          "loading_frac": 0.163,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 328.8,
+          "loading_frac": 0.055,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -444.7,
+          "loading_frac": 0.148,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 774.5,
+          "loading_frac": 0.258,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 596.9,
+          "loading_frac": 0.298,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -1037.2,
+          "loading_frac": 0.259,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 212.0,
+          "loading_frac": 0.042,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 314.5,
+          "loading_frac": 0.105,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1529.6,
+          "loading_frac": 0.34,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -390.7,
+          "loading_frac": 0.078,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -332.2,
+          "loading_frac": 0.133,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T20:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 2027.3,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3368.7,
+          "generation_mw": 2818.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5987.5,
+          "generation_mw": 5431.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3622.8,
+          "generation_mw": 3565.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2727.8,
+          "generation_mw": 4547.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7438.8,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4312.5,
+          "generation_mw": 7247.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3719.6,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5462.4,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 6268.3,
+          "generation_mw": 6648.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1644.2,
+          "loading_frac": 0.514,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": -144.5,
+          "loading_frac": 0.029,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -411.3,
+          "loading_frac": 0.165,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 241.8,
+          "loading_frac": 0.04,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -444.1,
+          "loading_frac": 0.148,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 802.7,
+          "loading_frac": 0.268,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 605.5,
+          "loading_frac": 0.303,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -973.5,
+          "loading_frac": 0.243,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 272.9,
+          "loading_frac": 0.055,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 306.3,
+          "loading_frac": 0.102,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1517.0,
+          "loading_frac": 0.337,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": -172.5,
+          "loading_frac": 0.035,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": -207.8,
+          "loading_frac": 0.083,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T20:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1962.1,
+          "generation_mw": 5419.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3215.6,
+          "generation_mw": 3504.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5804.1,
+          "generation_mw": 5502.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3538.9,
+          "generation_mw": 3422.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2678.0,
+          "generation_mw": 5416.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 7226.8,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4218.5,
+          "generation_mw": 7320.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3584.8,
+          "generation_mw": 2600.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5356.3,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5998.3,
+          "generation_mw": 4643.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1182.5,
+          "loading_frac": 0.37,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": 201.9,
+          "loading_frac": 0.04,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -503.9,
+          "loading_frac": 0.202,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 390.7,
+          "loading_frac": 0.065,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -305.1,
+          "loading_frac": 0.102,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 1292.7,
+          "loading_frac": 0.431,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 941.8,
+          "loading_frac": 0.471,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -830.5,
+          "loading_frac": 0.208,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 844.0,
+          "loading_frac": 0.169,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 443.1,
+          "loading_frac": 0.148,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1966.5,
+          "loading_frac": 0.437,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 954.1,
+          "loading_frac": 0.191,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 400.4,
+          "loading_frac": 0.16,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T21:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1960.5,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3140.4,
+          "generation_mw": 3504.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5595.9,
+          "generation_mw": 5431.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3534.8,
+          "generation_mw": 3381.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2653.7,
+          "generation_mw": 4609.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6955.4,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 4117.2,
+          "generation_mw": 7247.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3408.9,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5176.9,
+          "generation_mw": 3500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5946.4,
+          "generation_mw": 4619.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1259.8,
+          "loading_frac": 0.394,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": 155.4,
+          "loading_frac": 0.031,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -319.5,
+          "loading_frac": 0.128,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 349.1,
+          "loading_frac": 0.058,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -347.4,
+          "loading_frac": 0.116,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 898.8,
+          "loading_frac": 0.3,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 737.8,
+          "loading_frac": 0.369,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -876.6,
+          "loading_frac": 0.219,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 736.4,
+          "loading_frac": 0.147,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 432.7,
+          "loading_frac": 0.144,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 1905.8,
+          "loading_frac": 0.424,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 965.4,
+          "loading_frac": 0.193,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 361.6,
+          "loading_frac": 0.145,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T21:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1826.9,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3095.4,
+          "generation_mw": 2119.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5408.4,
+          "generation_mw": 5404.6,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3385.9,
+          "generation_mw": 3381.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2601.9,
+          "generation_mw": 4407.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6826.4,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3994.8,
+          "generation_mw": 7240.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3406.7,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 5073.4,
+          "generation_mw": 3348.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5617.3,
+          "generation_mw": 3933.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1810.7,
+          "loading_frac": 0.566,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": 210.9,
+          "loading_frac": 0.042,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -214.7,
+          "loading_frac": 0.086,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 497.9,
+          "loading_frac": 0.083,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -291.9,
+          "loading_frac": 0.097,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 833.0,
+          "loading_frac": 0.278,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 757.5,
+          "loading_frac": 0.379,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -883.9,
+          "loading_frac": 0.221,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 876.8,
+          "loading_frac": 0.175,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 511.6,
+          "loading_frac": 0.171,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2069.4,
+          "loading_frac": 0.46,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1221.2,
+          "loading_frac": 0.244,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 462.4,
+          "loading_frac": 0.185,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T22:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1788.5,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 3006.1,
+          "generation_mw": 1690.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5356.4,
+          "generation_mw": 5416.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3305.8,
+          "generation_mw": 3539.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2489.6,
+          "generation_mw": 4310.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6657.3,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3928.1,
+          "generation_mw": 7218.8,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3260.6,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 4926.9,
+          "generation_mw": 2711.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5626.5,
+          "generation_mw": 3754.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 1952.0,
+          "loading_frac": 0.61,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": 235.6,
+          "loading_frac": 0.047,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -175.2,
+          "loading_frac": 0.07,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 655.6,
+          "loading_frac": 0.109,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -186.4,
+          "loading_frac": 0.062,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 871.7,
+          "loading_frac": 0.291,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 774.3,
+          "loading_frac": 0.387,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -807.6,
+          "loading_frac": 0.202,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 1170.1,
+          "loading_frac": 0.234,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 507.6,
+          "loading_frac": 0.169,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2296.7,
+          "loading_frac": 0.51,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 1251.2,
+          "loading_frac": 0.25,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 621.3,
+          "loading_frac": 0.249,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T22:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1789.5,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2936.0,
+          "generation_mw": 1335.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5176.3,
+          "generation_mw": 5441.7,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3195.4,
+          "generation_mw": 3868.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2452.8,
+          "generation_mw": 4035.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6459.7,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3686.7,
+          "generation_mw": 6958.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3200.3,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 4779.2,
+          "generation_mw": 1500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5243.2,
+          "generation_mw": 3789.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 2075.7,
+          "loading_frac": 0.649,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": true
+        },
+        "NORT-YORK": {
+          "flow_mw": 290.0,
+          "loading_frac": 0.058,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -24.5,
+          "loading_frac": 0.01,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 966.6,
+          "loading_frac": 0.161,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -4.0,
+          "loading_frac": 0.001,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 818.3,
+          "loading_frac": 0.273,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 739.8,
+          "loading_frac": 0.37,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -703.2,
+          "loading_frac": 0.176,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 1532.5,
+          "loading_frac": 0.306,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 496.0,
+          "loading_frac": 0.165,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2564.7,
+          "loading_frac": 0.57,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 817.9,
+          "loading_frac": 0.164,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 635.5,
+          "loading_frac": 0.254,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T23:00:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1698.8,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2851.8,
+          "generation_mw": 1206.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5107.4,
+          "generation_mw": 5427.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3161.2,
+          "generation_mw": 3675.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2354.2,
+          "generation_mw": 3910.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6391.1,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3651.1,
+          "generation_mw": 6904.1,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3094.0,
+          "generation_mw": 2600.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 4695.1,
+          "generation_mw": 1500.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5301.5,
+          "generation_mw": 3737.9,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 2090.1,
+          "loading_frac": 0.653,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 0.0,
+          "loading_frac": 0.0,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 346.9,
+          "loading_frac": 0.069,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": -26.8,
+          "loading_frac": 0.011,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 887.6,
+          "loading_frac": 0.148,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": -26.0,
+          "loading_frac": 0.009,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 813.0,
+          "loading_frac": 0.271,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 716.1,
+          "loading_frac": 0.358,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": -685.8,
+          "loading_frac": 0.171,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 1530.9,
+          "loading_frac": 0.306,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 464.4,
+          "loading_frac": 0.155,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 2541.3,
+          "loading_frac": 0.565,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 877.1,
+          "loading_frac": 0.175,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 686.5,
+          "loading_frac": 0.275,
+          "tripped": false
+        }
+      },
+      "incidents": [
+        {
+          "type": "line_trip",
+          "target": "SSCO-NORT",
+          "start_step": 33,
+          "duration_steps": 14,
+          "magnitude": 1.0
+        }
+      ]
+    },
+    {
+      "timestamp_utc": "2025-12-16T23:30:00+00:00",
+      "zones": {
+        "NSCO": {
+          "demand_mw": 1715.4,
+          "generation_mw": 7700.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        },
+        "SSCO": {
+          "demand_mw": 2771.1,
+          "generation_mw": 3008.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "NORT": {
+          "demand_mw": 5048.4,
+          "generation_mw": 5460.3,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "YORK": {
+          "demand_mw": 3120.7,
+          "generation_mw": 3444.4,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "WALE": {
+          "demand_mw": 2256.7,
+          "generation_mw": 3900.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "MIDL": {
+          "demand_mw": 6255.1,
+          "generation_mw": 6000.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "EAST": {
+          "demand_mw": 3510.6,
+          "generation_mw": 5240.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SWES": {
+          "demand_mw": 3036.2,
+          "generation_mw": 1465.5,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "LOND": {
+          "demand_mw": 4594.3,
+          "generation_mw": 0.0,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.0
+        },
+        "SOUT": {
+          "demand_mw": 5170.9,
+          "generation_mw": 1260.2,
+          "unserved_mw": 0.0,
+          "storage_soc": 0.5
+        }
+      },
+      "edges": {
+        "NSCO-SSCO": {
+          "flow_mw": 5984.6,
+          "loading_frac": 1.87,
+          "tripped": false
+        },
+        "SSCO-NORT": {
+          "flow_mw": 6222.0,
+          "loading_frac": 1.037,
+          "tripped": false
+        },
+        "NORT-YORK": {
+          "flow_mw": 4733.7,
+          "loading_frac": 0.947,
+          "tripped": false
+        },
+        "NORT-WALE": {
+          "flow_mw": 1900.1,
+          "loading_frac": 0.76,
+          "tripped": false
+        },
+        "YORK-MIDL": {
+          "flow_mw": 3514.1,
+          "loading_frac": 0.586,
+          "tripped": false
+        },
+        "YORK-EAST": {
+          "flow_mw": 1543.3,
+          "loading_frac": 0.514,
+          "tripped": false
+        },
+        "WALE-MIDL": {
+          "flow_mw": 1780.7,
+          "loading_frac": 0.594,
+          "tripped": false
+        },
+        "WALE-SWES": {
+          "flow_mw": 1763.3,
+          "loading_frac": 0.882,
+          "tripped": false
+        },
+        "MIDL-EAST": {
+          "flow_mw": 247.9,
+          "loading_frac": 0.062,
+          "tripped": false
+        },
+        "MIDL-LOND": {
+          "flow_mw": 3482.3,
+          "loading_frac": 0.696,
+          "tripped": false
+        },
+        "MIDL-SWES": {
+          "flow_mw": 1309.4,
+          "loading_frac": 0.436,
+          "tripped": false
+        },
+        "EAST-LOND": {
+          "flow_mw": 3520.7,
+          "loading_frac": 0.782,
+          "tripped": false
+        },
+        "LOND-SOUT": {
+          "flow_mw": 2408.7,
+          "loading_frac": 0.482,
+          "tripped": false
+        },
+        "SWES-SOUT": {
+          "flow_mw": 1502.0,
+          "loading_frac": 0.601,
+          "tripped": false
+        }
+      },
+      "incidents": []
+    }
+  ]
+}

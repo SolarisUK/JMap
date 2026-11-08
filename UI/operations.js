@@ -5,7 +5,7 @@
   const A = window.JMapOperations;
   const T = window.JMapTransfers;
   const params = new URL(location.href).searchParams;
-  const state = { scenario: params.get('scenario') || '', strategy: 'optimiser', zone: params.get('zone') || '', edge: params.get('edge') || null, focus: params.get('focus') === 'zone' ? 'zone' : params.get('edge') ? 'edge' : null, step: Number(params.get('step') ?? 38), split: params.get('view') !== 'single', tab: ['transfers','inspect','forecast','results'].includes(params.get('tab')) ? params.get('tab') : 'transfers', showValues: params.get('values') !== '0', animate: params.get('motion') !== '0', reference: null, zones: null, edges: [], scenarios: [], series: null, comparison: null, baseline: null, response: null, forecast: null, playing: false, busy: false };
+  const state = { scenario: params.get('scenario') || '', zone: params.get('zone') || '', edge: params.get('edge') || null, focus: params.get('focus') === 'zone' ? 'zone' : params.get('edge') ? 'edge' : null, step: Number(params.get('step') ?? 38), split: params.get('view') !== 'single', tab: ['transfers','inspect','forecast','results'].includes(params.get('tab')) ? params.get('tab') : 'transfers', showValues: params.get('values') !== '0', animate: params.get('motion') !== '0', reference: null, zones: null, edges: [], scenarios: [], series: null, comparison: null, baseline: null, response: null, forecast: null, playing: false, busy: false };
   let api, baselineMap, responseMap, timer, episodeVersion = 0, frameVersion = 0, forecastVersion = 0;
   const finite = value => typeof value === 'number' && Number.isFinite(value);
   const number = (value, digits = 1) => finite(value) ? value.toLocaleString('en-GB', { maximumFractionDigits: digits, signDisplay: 'negative' }) : '—';
@@ -16,12 +16,11 @@
   const node = (tag, className, text) => { const element = document.createElement(tag); if (className) element.className = className; if (text !== undefined) element.textContent = text; return element; };
   const announce = text => { $('#announcement').textContent = text; };
   function readOnlyData() { return state.reference?.backend_mode === 'stubs'; }
-  function responseName() { return 'Optimiser'; }
   function zoneName(key) { return state.zones?.features.find(feature => feature.properties.zone_id === key)?.properties.name || key; }
   function syncUrl() {
     const url = new URL(location.href);
     url.searchParams.set('mode','api');
-    [['scenario',state.scenario],['strategy',state.strategy],['zone',state.zone],['step',state.step],['tab',state.tab]].forEach(([key,value]) => url.searchParams.set(key,value));
+    [['scenario',state.scenario],['strategy','optimiser'],['zone',state.zone],['step',state.step],['tab',state.tab]].forEach(([key,value]) => url.searchParams.set(key,value));
     if (state.split) url.searchParams.delete('view'); else url.searchParams.set('view','single');
     if (state.showValues) url.searchParams.delete('values'); else url.searchParams.set('values','0');
     url.searchParams.set('motion', state.animate ? '1' : '0');
@@ -36,7 +35,7 @@
     $('#loading-state').textContent = '';
     announce(`Data error. ${error.message || error}`);
   }
-  function loading(value, text = 'Loading…') { state.busy = value; $('#loading-state').textContent = value ? text : ''; $('#scenario').disabled = value || !state.reference; $('#strategy').disabled = value || !state.reference; $('#play').disabled = value || !state.series; $('#time-step').disabled = value || !state.series; $('#open-incidents').disabled = value || !state.series; }
+  function loading(value, text = 'Loading…') { state.busy = value; $('#loading-state').textContent = value ? text : ''; $('#scenario').disabled = value || !state.reference; $('#play').disabled = value || !state.series; $('#time-step').disabled = value || !state.series; $('#open-incidents').disabled = value || !state.series; }
   function fillOptions(select, values) {
     select.replaceChildren(); values.forEach(([value,label]) => { const option = node('option','',label); option.value = value; select.append(option); });
   }
@@ -77,8 +76,7 @@
     $('#data-status').textContent = ref.backend_mode === 'stubs' ? 'Real-data replay' : 'Real-data simulation';
     $('#model-status').textContent = 'Response layer: optimisation engine';
     $('#response-heading').textContent = 'Optimiser';
-    $('#response-chip').textContent = responseName();
-    $('#snapshot-scope').textContent = `${responseName()} · cumulative totals at selected half-hour`;
+    $('#snapshot-scope').textContent = 'Optimiser · cumulative totals at selected half-hour';
     $('#geometry-status').textContent = ref.geometry_is_placeholder !== false ? 'Schematic zones · simulated flows' : 'Zone geometry from /zones';
     const paragraphs = [
       `This dashboard consumes ${readOnlyData() ? 'read-only generated stubs' : 'the simulation API'} at ${api.baseUrl}. These are simulated episodes, not live grid telemetry.`,
@@ -90,10 +88,8 @@
     paragraphs.push('Zone colours use a display tolerance of 0.05 MW so floating-point residuals do not appear as red zero-demand shortages. Positive residuals below that threshold are labelled below 0.1 MW; tooltips and API values retain full precision.');
     paragraphs.push('Routes are drawn as schematic curves between their declared endpoints. A fixed width scale represents absolute MW consistently across both maps and every half-hour; colour represents loading against current capacity. Only the hovered, keyboard-focused or selected corridor shows an inline MW value. All signed measurements and limits remain available in the panel and CSV.');
     $('#data-notes').replaceChildren(...paragraphs.map(text => node('p','',text)));
-    $('#incident-mode-note').textContent = readOnlyData() ? 'Read-only preview loads the corresponding pre-generated scenario. Start the API in simulation mode to inject incidents with the start and duration below.' : 'Incidents are posted to the API and applied to every strategy in this scenario. Existing scripted incidents remain active.';
-    $('#open-incidents').textContent = readOnlyData() ? 'Incident scenarios' : 'Inject incident +';
-    $('#incident-title').textContent = readOnlyData() ? 'Load an incident scenario' : 'Inject an incident';
-    $('.incident-settings').hidden = readOnlyData();
+    $('#open-incidents').hidden = readOnlyData();
+    $('#incident-mode-note').textContent = 'Incidents are posted to the API and applied to every strategy in this scenario. Existing scripted incidents remain active.';
   }
   async function init() {
     pause(); loading(true,'Loading topology…'); $('#error-banner').hidden = true;
@@ -113,9 +109,8 @@
       if (!reference.edge_order.includes(state.edge)) { state.edge = null; if (state.focus === 'edge') state.focus = null; }
       fillOptions($('#scenario'),state.scenarios.map(scenario => [scenario.name,scenario.name.replaceAll('_',' ').replace(/^./,character=>character.toUpperCase())]));
       [...$('#scenario').options].forEach(option=>option.title=option.textContent);
-      fillOptions($('#strategy'),[['optimiser','Optimiser']]);
       fillOptions($('#zone'),[['','All zones'],...reference.zone_order.map(key => [key,`${key} · ${zoneName(key)}`])]);
-      $('#scenario').value = state.scenario; $('#strategy').value = state.strategy; $('#zone').value = state.zone; $('#zone').disabled = false;
+      $('#scenario').value = state.scenario; $('#zone').value = state.zone; $('#zone').disabled = false;
       makeMaps(); applyView(); await loadEpisode();
     } catch (error) { loading(false); showError(error); }
   }
@@ -176,7 +171,7 @@
   function renderSnapshot() {
     const totals = A.totalKpis(state.response); const baselineTotals = A.totalKpis(state.baseline);
     const cards = [['unserved',totals.unserved_mwh,energy,baselineTotals.unserved_mwh],['cost',totals.cost_gbp,money,baselineTotals.cost_gbp],['penalty',totals.penalty_gbp,money,baselineTotals.penalty_gbp],['carbon',totals.carbon_t,value => finite(value) ? `${number(value)} tCO₂` : '—',baselineTotals.carbon_t],['curtailed',totals.curtailed_mwh,energy,baselineTotals.curtailed_mwh]];
-    cards.forEach(([key,value,format,baseline]) => { $(`#kpi-${key}`).textContent = format(value); $(`#kpi-${key}`).closest('article').title = `${responseName()}: ${format(value)}. No response (network-blind dispatch): ${format(baseline)}. Cumulative to selected half-hour.${key === 'penalty' ? ' Model penalty for overloads and spilled surplus; excluded from real episode cost.' : ''}`; });
+    cards.forEach(([key,value,format,baseline]) => { $(`#kpi-${key}`).textContent = format(value); $(`#kpi-${key}`).closest('article').title = `Optimiser: ${format(value)}. No response (network-blind dispatch): ${format(baseline)}. Cumulative to selected half-hour.${key === 'penalty' ? ' Model penalty for overloads and spilled surplus; excluded from real episode cost.' : ''}`; });
     const unmet = snapshot => { const values = state.reference.zone_order.map(key => snapshot.zones[key]?.unserved_mw); return values.every(finite) ? values.reduce((total,value) => total + value,0) : null; };
     $('#baseline-summary').textContent = `${power(unmet(state.baseline))} unmet now`; $('#response-summary').textContent = `${power(unmet(state.response))} unmet now`;
     renderZone(); renderCorridors(); renderTransfers(); renderIncidents(); syncMapFocus();
@@ -325,14 +320,9 @@
   function pause() { clearInterval(timer); timer = undefined; state.playing = false; $('#play').textContent = 'Play'; $('#play').setAttribute('aria-pressed','false'); }
   function play() { if (state.playing) { pause(); return; } if (!state.series) return; if (state.step === 47) seek(0); state.playing = true; $('#play').textContent = 'Pause'; $('#play').setAttribute('aria-pressed','true'); timer = setInterval(() => { if (state.step >= 47) { pause(); return; } seek(state.step+1); },1000); }
   async function injectPreset(kind) {
+    if (readOnlyData()) return;
     pause(); const status = $('#incident-status'); const buttons = [...document.querySelectorAll('[data-preset]')]; buttons.forEach(button => button.disabled = true);
     try {
-      if (readOnlyData()) {
-        const presetScenarios = { boundary:'b6_trip_windy_peak',cold:'cold_snap',nuclear:'nuclear_outage_low_wind' };
-        const name = presetScenarios[kind]; if (!state.scenarios.some(scenario => scenario.name === name)) throw new Error('This pre-generated scenario is unavailable.');
-        state.scenario = name; $('#scenario').value = name; state.step = kind === 'boundary' ? 38 : 34;
-        if (!await loadEpisode()) throw new Error('The scenario could not be loaded. See the data error above.'); status.textContent = 'Loaded the corresponding generated scenario. No custom incident was posted.'; $('#incident-dialog').close(); announce(status.textContent); return;
-      }
       const start = Number($('#incident-start').value); const duration = Number($('#incident-duration').value);
       if (!Number.isInteger(start) || start < 0 || start > 47 || !Number.isInteger(duration) || duration < 1 || duration > 48) throw new Error('Start must be 0–47 and duration 1–48 whole half-hours.');
       const target = kind === 'boundary' ? 'SSCO-NORT' : 'EAST';
@@ -349,7 +339,6 @@
     const content = rows.map(row => row.map(value => `"${String(value ?? '').replaceAll('"','""')}"`).join(',')).join('\r\n'); const url = URL.createObjectURL(new Blob(['\uFEFF'+content],{type:'text/csv;charset=utf-8;'})); const link = node('a'); link.href = url; link.download = name; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url),1000);
   }
   $('#scenario').addEventListener('change',event => { state.scenario = event.target.value; state.edge = null; state.focus = null; loadEpisode(); });
-  $('#strategy').addEventListener('change',() => { state.strategy = 'optimiser'; loadEpisode(); });
   $('#zone').addEventListener('change',event => event.target.value ? selectZone(event.target.value) : clearSelection());
   $('#clear-map-selection').addEventListener('click',clearSelection);
   $('#time-step').addEventListener('input',event => { pause(); seek(Number(event.target.value)); });
@@ -359,7 +348,7 @@
   $('#animate-transfers').addEventListener('change',event => { state.animate = event.target.checked; applyTransferOptions(); syncUrl(); });
   $('#zoom-in').addEventListener('click',() => responseMap?.zoomBy(1.35)); $('#zoom-out').addEventListener('click',() => responseMap?.zoomBy(1/1.35)); $('#reset-map').addEventListener('click',() => responseMap?.reset());
   document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click',() => { state.tab = button.dataset.tab; applyView(); if (state.tab === 'forecast') loadForecast(); }));
-  $('#open-incidents').addEventListener('click',() => { $('#incident-status').textContent = ''; $('#incident-dialog').showModal(); }); $('#open-notes').addEventListener('click',() => $('#notes-dialog').showModal());
+  $('#open-incidents').addEventListener('click',() => { if (readOnlyData()) return; $('#incident-status').textContent = ''; $('#incident-dialog').showModal(); }); $('#open-notes').addEventListener('click',() => $('#notes-dialog').showModal());
   document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click',() => document.getElementById(button.dataset.close).close()));
   document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click',() => injectPreset(button.dataset.preset)));
   $('#retry').addEventListener('click',() => init());
